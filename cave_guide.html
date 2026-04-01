@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Cave Generation — Godot 4 Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ─── THEME VARIABLES ─── */
+  :root {
+    --transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-theme="night"] {
+    --bg:           #0d0f14;
+    --bg2:          #13161e;
+    --bg3:          #1a1e2a;
+    --surface:      #1e2330;
+    --surface2:     #252c3d;
+    --border:       #2e3650;
+    --border2:      #3d4870;
+    --text:         #c8d0e8;
+    --text2:        #8a94b0;
+    --text3:        #5a6280;
+    --accent:       #7eb8d4;
+    --accent2:      #4a9fc4;
+    --accent3:      #2d7fa8;
+    --gold:         #c8a96e;
+    --gold2:        #a8823e;
+    --glow:         rgba(126, 184, 212, 0.12);
+    --glow2:        rgba(126, 184, 212, 0.04);
+    --sidebar-bg:   rgba(13, 15, 20, 0.95);
+    --code-bg:      #0a0c12;
+    --nav-bg:       rgba(13, 15, 20, 0.9);
+    --shadow:       0 4px 32px rgba(0,0,0,0.6);
+    --shadow2:      0 2px 12px rgba(0,0,0,0.4);
+    --moon-opacity: 1;
+    --sun-opacity:  0;
+  }
+
+  [data-theme="day"] {
+    --bg:           #f5f2eb;
+    --bg2:          #ede9e0;
+    --bg3:          #e4dfd3;
+    --surface:      #ffffff;
+    --surface2:     #f9f7f3;
+    --border:       #d8d0c0;
+    --border2:      #c4b89a;
+    --text:         #2c2820;
+    --text2:        #5a5040;
+    --text3:        #8a7a60;
+    --accent:       #2a6fa8;
+    --accent2:      #1a5a8a;
+    --accent3:      #0f4570;
+    --gold:         #8a6320;
+    --gold2:        #6a4a10;
+    --glow:         rgba(42, 111, 168, 0.08);
+    --glow2:        rgba(42, 111, 168, 0.03);
+    --sidebar-bg:   rgba(245, 242, 235, 0.97);
+    --code-bg:      #f0ece3;
+    --nav-bg:       rgba(245, 242, 235, 0.93);
+    --shadow:       0 4px 32px rgba(0,0,0,0.12);
+    --shadow2:      0 2px 12px rgba(0,0,0,0.08);
+    --moon-opacity: 0;
+    --sun-opacity:  1;
+  }
+
+  /* ─── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    transition: background var(--transition), color var(--transition);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── BACKGROUND TEXTURE ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 10%, var(--glow) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, var(--glow2) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity var(--transition);
+  }
+
+  /* ─── TOP NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: var(--nav-bg);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    z-index: 100;
+    transition: background var(--transition), border-color var(--transition);
+    box-shadow: var(--shadow2);
+  }
+
+  .nav-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    transition: color var(--transition);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-part-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    transition: color var(--transition);
+  }
+
+  /* ─── THEME TOGGLE ─── */
+  .theme-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    cursor: pointer;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    transition: background var(--transition), border-color var(--transition);
+    flex-shrink: 0;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent); }
+
+  .toggle-track {
+    position: absolute;
+    inset: 3px;
+    border-radius: 11px;
+    overflow: hidden;
+  }
+
+  .toggle-knob {
+    position: absolute;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: left var(--transition), background var(--transition);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  [data-theme="night"] .toggle-knob { left: 3px; }
+  [data-theme="day"] .toggle-knob { left: 27px; }
+
+  .icon-moon, .icon-sun {
+    position: absolute;
+    transition: opacity var(--transition);
+    font-size: 11px;
+    line-height: 1;
+  }
+  .icon-moon { opacity: var(--moon-opacity); }
+  .icon-sun  { opacity: var(--sun-opacity); }
+
+  /* ─── LAYOUT ─── */
+  .layout {
+    display: flex;
+    padding-top: 56px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── SIDEBAR ─── */
+  aside {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 280px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    padding: 2rem 0;
+    transition: background var(--transition), border-color var(--transition);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  aside::-webkit-scrollbar { width: 4px; }
+  aside::-webkit-scrollbar-track { background: transparent; }
+  aside::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-section {
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-part {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 1.25rem 1.5rem 0.5rem;
+    transition: color var(--transition);
+  }
+
+  .sidebar-link {
+    display: block;
+    padding: 0.45rem 1.5rem 0.45rem 2rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--text2);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+  }
+
+  .sidebar-link:hover {
+    color: var(--accent);
+    border-left-color: var(--accent3);
+    background: var(--glow2);
+    padding-left: 2.25rem;
+  }
+
+  .sidebar-link.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--glow);
+    font-weight: 600;
+  }
+
+  .sidebar-link.sub {
+    font-size: 0.875rem;
+    padding-left: 2.75rem;
+    color: var(--text3);
+  }
+
+  .sidebar-link.sub:hover, .sidebar-link.sub.active {
+    padding-left: 3rem;
+    color: var(--accent2);
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  main {
+    margin-left: 280px;
+    flex: 1;
+    max-width: 860px;
+    padding: 3.5rem 4rem 6rem;
+    transition: color var(--transition);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 3rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: color var(--transition);
+  }
+
+  .hero-eyebrow::after {
+    content: '';
+    height: 1px;
+    width: 60px;
+    background: var(--accent3);
+    transition: background var(--transition);
+  }
+
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.02em;
+    transition: color var(--transition);
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+    transition: color var(--transition);
+  }
+
+  .hero-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--text2);
+    max-width: 520px;
+    line-height: 1.7;
+    transition: color var(--transition);
+  }
+
+  .hero-tags {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.75rem;
+    border-radius: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text3);
+    transition: all var(--transition);
+  }
+
+  /* ─── PART HEADERS ─── */
+  .part-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin: 4rem 0 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .part-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    flex-shrink: 0;
+    transition: color var(--transition);
+  }
+
+  .part-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    transition: color var(--transition);
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 80px;
+  }
+
+  .section h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 1.1rem;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: color var(--transition);
+  }
+
+  .section h3::before {
+    content: '';
+    width: 3px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+    transition: background var(--transition);
+  }
+
+  /* ─── TYPOGRAPHY ─── */
+  p {
+    font-size: 1.08rem;
+    margin-bottom: 1.1rem;
+    color: var(--text);
+    font-weight: 300;
+    transition: color var(--transition);
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  em { font-style: italic; color: var(--text2); }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    transition: all var(--transition);
+  }
+
+  .callout.gold {
+    border-left-color: var(--gold);
+  }
+
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    transition: color var(--transition);
+  }
+
+  .callout.gold .callout-label { color: var(--gold); }
+
+  .callout p { margin-bottom: 0; font-size: 1rem; }
+
+  /* ─── LISTS ─── */
+  ul {
+    list-style: none;
+    margin: 1rem 0 1.5rem 0;
+  }
+
+  ul li {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text);
+    padding: 0.3rem 0 0.3rem 1.75rem;
+    position: relative;
+    line-height: 1.7;
+    transition: color var(--transition);
+  }
+
+  ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    transition: color var(--transition);
+  }
+
+  ul li strong { color: var(--accent); }
+
+  /* ─── PIPELINE STEPS ─── */
+  .pipeline {
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .pipeline-step {
+    display: flex;
+    gap: 1.25rem;
+    align-items: stretch;
+    position: relative;
+  }
+
+  .pipeline-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 36px;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--accent3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: all var(--transition);
+  }
+
+  .step-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin: 3px 0;
+    min-height: 16px;
+    transition: background var(--transition);
+  }
+
+  .pipeline-step:last-child .step-line { display: none; }
+
+  .step-content {
+    padding: 0 0 1.25rem 0;
+    flex: 1;
+  }
+
+  .step-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    transition: color var(--transition);
+  }
+
+  .step-desc {
+    font-size: 0.95rem;
+    color: var(--text2);
+    line-height: 1.6;
+    transition: color var(--transition);
+  }
+
+  /* ─── ARCHITECTURE GRID ─── */
+  .arch-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .arch-layer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all var(--transition);
+    cursor: default;
+  }
+
+  .arch-layer:hover {
+    border-color: var(--accent3);
+    background: var(--surface2);
+    transform: translateX(4px);
+  }
+
+  .layer-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    width: 20px;
+    flex-shrink: 0;
+    transition: color var(--transition);
+  }
+
+  .layer-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--accent);
+    width: 170px;
+    flex-shrink: 0;
+    transition: color var(--transition);
+  }
+
+  .layer-desc {
+    font-size: 0.93rem;
+    color: var(--text2);
+    transition: color var(--transition);
+  }
+
+  /* ─── GLOSSARY ─── */
+  .glossary {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .glossary-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: border-color var(--transition);
+  }
+
+  .glossary-item:last-child { border-bottom: none; }
+
+  .glossary-term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 500;
+    padding-top: 0.1rem;
+    transition: color var(--transition);
+  }
+
+  .glossary-def {
+    font-size: 0.98rem;
+    color: var(--text2);
+    line-height: 1.6;
+    font-weight: 300;
+    transition: color var(--transition);
+  }
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.25rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text2);
+    line-height: 1.7;
+    overflow-x: auto;
+    transition: all var(--transition);
+    position: relative;
+  }
+
+  .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 0.75rem;
+    transition: color var(--transition);
+  }
+
+  .code-block .kw  { color: var(--accent); }
+  .code-block .cm  { color: var(--text3); font-style: italic; }
+  .code-block .str { color: var(--gold); }
+  .code-block .num { color: #a0d0a0; }
+
+  /* ─── RESOURCES ─── */
+  .resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+  }
+
+  .resource-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all var(--transition);
+    cursor: pointer;
+  }
+
+  .resource-item:hover {
+    border-color: var(--accent3);
+    background: var(--surface2);
+  }
+
+  .resource-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  .resource-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.2rem;
+    transition: color var(--transition);
+  }
+
+  .resource-desc {
+    font-size: 0.9rem;
+    color: var(--text2);
+    transition: color var(--transition);
+  }
+
+  /* ─── MILESTONE TRACKER ─── */
+  .milestones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .milestone {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all var(--transition);
+  }
+
+  .milestone:hover { border-color: var(--border2); background: var(--surface2); }
+
+  .milestone-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold2);
+    width: 28px;
+    flex-shrink: 0;
+    transition: color var(--transition);
+  }
+
+  .milestone-content { flex: 1; }
+
+  .milestone-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+    transition: color var(--transition);
+  }
+
+  .milestone-desc {
+    font-size: 0.88rem;
+    color: var(--text2);
+    transition: color var(--transition);
+  }
+
+  .milestone-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    background: var(--surface2);
+    color: var(--text3);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    transition: all var(--transition);
+  }
+
+  /* ─── DIVIDERS ─── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+    transition: border-color var(--transition);
+  }
+
+  /* ─── SCROLL PROGRESS ─── */
+  .progress-bar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: 2px;
+    background: var(--accent);
+    z-index: 101;
+    transition: width 0.1s linear, background var(--transition);
+    width: 0%;
+  }
+
+  /* ─── BACK TO TOP ─── */
+  .back-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 40px;
+    height: 40px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 99;
+  }
+
+  .back-top.visible { opacity: 1; transform: translateY(0); }
+  .back-top:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    aside { display: none; }
+    main { margin-left: 0; padding: 2rem 1.5rem 4rem; max-width: 100%; }
+    .hero h1 { font-size: 2.2rem; }
+    .glossary-item { grid-template-columns: 1fr; gap: 0.25rem; }
+    .arch-layer { flex-wrap: wrap; }
+    .layer-name { width: auto; }
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero { animation: fadeUp 0.7s ease both; }
+  .section { animation: fadeUp 0.5s ease both; }
+
+  /* stagger sections */
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.10s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-title">Cave Generation Guide</div>
+  <div class="nav-right">
+    <span class="nav-part-indicator" id="partIndicator">Part 1</span>
+    <div class="theme-toggle" id="themeToggle" title="Toggle day/night theme">
+      <div class="toggle-knob">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀️</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-part">Introduction</div>
+      <a class="sidebar-link" href="#hero">Overview</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-part">Part 1 — Foundations</div>
+      <a class="sidebar-link sub" href="#voxel">What is a Voxel?</a>
+      <a class="sidebar-link sub" href="#density">Density Values</a>
+      <a class="sidebar-link sub" href="#marching">Marching Cubes</a>
+      <a class="sidebar-link sub" href="#mesh">Mesh & Collision</a>
+      <a class="sidebar-link sub" href="#chunks">Chunks</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-part">Part 2 — Generation</div>
+      <a class="sidebar-link sub" href="#strategy">Overall Strategy</a>
+      <a class="sidebar-link sub" href="#bsp">BSP Partitioning</a>
+      <a class="sidebar-link sub" href="#walk">Drunkard's Walk</a>
+      <a class="sidebar-link sub" href="#ca">Cellular Automata</a>
+      <a class="sidebar-link sub" href="#elevation">Elevation</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-part">Part 3 — Godot 4</div>
+      <a class="sidebar-link sub" href="#gridclass">VoxelGrid Class</a>
+      <a class="sidebar-link sub" href="#generator">Cave Generator</a>
+      <a class="sidebar-link sub" href="#voxeltools">Voxel Tools</a>
+      <a class="sidebar-link sub" href="#fps">FPS Controller</a>
+      <a class="sidebar-link sub" href="#dig">Dig System</a>
+      <a class="sidebar-link sub" href="#objects">Object Placement</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-part">Part 4 — Visuals</div>
+      <a class="sidebar-link sub" href="#uvproblem">The UV Problem</a>
+      <a class="sidebar-link sub" href="#texapproach">Texture Approach</a>
+      <a class="sidebar-link sub" href="#sources">Texture Sources</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-part">Part 5 — Summary</div>
+      <a class="sidebar-link sub" href="#architecture">Architecture</a>
+      <a class="sidebar-link sub" href="#buildorder">Build Order</a>
+      <a class="sidebar-link sub" href="#glossary">Glossary</a>
+      <a class="sidebar-link sub" href="#resources">Resources</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero" id="hero">
+      <div class="hero-eyebrow">Godot 4 · FPS · Procedural</div>
+      <h1>3D Procedural<br><span>Cave Generation</span></h1>
+      <p class="hero-subtitle">A complete guide to building a diggable, organic cave world — from the mathematics of voxels to shipping in Godot 4.</p>
+      <div class="hero-tags">
+        <span class="tag">Marching Cubes</span>
+        <span class="tag">BSP Trees</span>
+        <span class="tag">Voxel Tools</span>
+        <span class="tag">GDScript</span>
+        <span class="tag">Triplanar Mapping</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PART 1 — FOUNDATIONS
+    ══════════════════════════════════════ -->
+    <div class="part-header" id="part1">
+      <span class="part-number">PART 01</span>
+      <h2>The Foundations</h2>
+    </div>
+
+    <div class="section" id="voxel">
+      <h3>1.1 — What is a Voxel?</h3>
+      <p>The word <strong>voxel</strong> blends "volume" and "pixel." A pixel is a tiny square in a 2D image. A voxel is its 3D equivalent — a tiny cube of space.</p>
+      <p>Imagine filling a large glass box with tiny Lego bricks. Each brick is one voxel. When a brick is present, that spot is solid rock. When it is absent, that spot is empty air. Your entire cave world is described by which bricks are there and which are not.</p>
+      <div class="callout">
+        <div class="callout-label">Key Idea</div>
+        <p>A voxel grid is a <strong>3D array</strong> — a list of lists of lists, one entry per point in space. For a cave game, each entry stores a floating-point number describing how solid that point is.</p>
+      </div>
+    </div>
+
+    <div class="section" id="density">
+      <h3>1.2 — Density Values</h3>
+      <p>Rather than storing a simple yes/no per voxel, we store a <strong>floating-point number</strong> called a density value. It represents how deeply inside solid rock that point sits.</p>
+      <ul>
+        <li><strong>Large positive (+2.0)</strong> — deep inside solid rock</li>
+        <li><strong>Near zero (±0.1)</strong> — right at the surface boundary</li>
+        <li><strong>Negative (−1.0)</strong> — inside open air</li>
+      </ul>
+      <p>The surface of the cave wall is found wherever the density crosses zero. Because we store continuous float values, the meshing algorithm can place the wall <em>smoothly between grid points</em> — this is what creates curved, organic walls instead of rigid stair-steps.</p>
+    </div>
+
+    <div class="section" id="marching">
+      <h3>1.3 — Marching Cubes</h3>
+      <p>Marching Cubes is the algorithm that transforms your invisible grid of numbers into visible triangles forming the cave walls. It is the translator between your data and what appears on screen.</p>
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">1</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <div class="step-title">Examine every small cube</div>
+            <div class="step-desc">The algorithm looks at every cell formed by 8 neighbouring grid corner points — like scanning each cell of a 3D checkerboard.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">2</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <div class="step-title">Classify each corner</div>
+            <div class="step-desc">For each cube, it checks whether each of its 8 corners has a positive (solid) or negative (empty) density value.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">3</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <div class="step-title">Look up triangle pattern</div>
+            <div class="step-desc">With 8 corners that can each be solid or empty, there are 256 possible combinations. A precomputed lookup table gives the correct triangle arrangement for each one.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">4</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <div class="step-title">Interpolate surface position</div>
+            <div class="step-desc">Triangles are placed along cube edges where density crosses zero, with the exact position smoothly interpolated based on the density values on either side.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">5</div><div class="step-line"></div></div>
+          <div class="step-content">
+            <div class="step-title">Output the mesh</div>
+            <div class="step-desc">All triangles stitched together form the final visible surface — organic, curved walls that feel carved by nature.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="mesh">
+      <h3>1.4 — Mesh and Collision</h3>
+      <p>A <strong>mesh</strong> is the collection of triangles that forms a visible 3D object. Every object in a game is ultimately a mesh. Marching Cubes generates vertices (corner points in 3D space) and faces (triangles connecting those points) from your density grid.</p>
+      <p>A visible mesh tells the GPU <em>where to draw</em>. But to stop your player from walking through walls, the physics engine needs a separate <strong>collision shape</strong>. In Godot, after generating a mesh you also generate a <code>StaticBody3D</code> with a trimesh collision shape from the same data.</p>
+      <div class="callout gold">
+        <div class="callout-label">Important</div>
+        <p>Whenever you dig and modify the voxel grid, both the mesh and the collision shape must be rebuilt for the affected region. Voxel Tools handles this for you automatically.</p>
+      </div>
+    </div>
+
+    <div class="section" id="chunks">
+      <h3>1.5 — Chunks</h3>
+      <p>A whole cave world is too large to rebuild all at once. Digging one small hole should not force the entire cave mesh to regenerate.</p>
+      <p>The solution is to divide the world into <strong>chunks</strong> — smaller sub-grids, for example 32×32×32 voxels each. When you dig, only the chunk or chunks around the dig site are updated. The rest remain unchanged.</p>
+      <div class="callout">
+        <div class="callout-label">Note</div>
+        <p>Voxel Tools handles chunk management automatically. You define chunk size and world bounds — it handles loading, unloading, and rebuilding as needed.</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PART 2 — GENERATION THEORY
+    ══════════════════════════════════════ -->
+    <div class="part-header" id="part2">
+      <span class="part-number">PART 02</span>
+      <h2>Cave Generation Theory</h2>
+    </div>
+
+    <div class="section" id="strategy">
+      <h3>2.1 — The Overall Strategy</h3>
+      <p>Your cave has requirements that guide algorithm selection: one large central room, smaller satellite rooms hidden behind diggable walls, a bounded total area, elevation variation, and placeable furniture.</p>
+      <p>A single algorithm cannot satisfy all of these elegantly. Instead, a <strong>pipeline</strong> is used — each step handles one concern and feeds its results into the next.</p>
+    </div>
+
+    <div class="section" id="bsp">
+      <h3>2.2 — Binary Space Partitioning (BSP)</h3>
+      <p><strong>What it is:</strong> A method of dividing a rectangular space into smaller rectangles by making recursive cuts.</p>
+      <p>Imagine taking a sheet of paper and cutting it in half — then cutting one of those halves — and so on. Each final rectangle is a candidate location for a room.</p>
+      <p>BSP solves two problems at once: rooms never overlap, and total space used stays within your bounding box. Minimum and maximum room sizes are controlled by setting limits on when splitting stops.</p>
+      <div class="callout">
+        <div class="callout-label">In Your Cave</div>
+        <p>BSP defines the large central room and positions of smaller satellite rooms, all within the overall bounding area, before any carving begins.</p>
+      </div>
+    </div>
+
+    <div class="section" id="walk">
+      <h3>2.3 — Drunkard's Walk</h3>
+      <p><strong>What it is:</strong> A pathfinding method where an agent moves step by step in a random direction, carving empty space wherever it goes.</p>
+      <p>Picture a mole that starts at the central room and wanders randomly until it reaches a satellite room. Every step it takes, it carves out a small sphere of rock. The result is a winding, organic tunnel — guaranteed to connect the rooms but never in a straight line.</p>
+      <ul>
+        <li>Guarantees <strong>connectivity</strong> — there will always be a path between rooms</li>
+        <li>Randomness gives tunnels a <strong>natural, non-straight</strong> character</li>
+        <li>Run multiple walkers simultaneously for <strong>branching passages</strong></li>
+      </ul>
+      <p>Voxels immediately surrounding each tunnel are marked as <strong>diggable walls</strong>, letting the player expand tunnels or discover adjacent spaces.</p>
+    </div>
+
+    <div class="section" id="ca">
+      <h3>2.4 — Cellular Automata Smoothing</h3>
+      <p><strong>What it is:</strong> A cleanup pass that makes rough, jagged spaces look more natural.</p>
+      <p>After carving with BSP and Drunkard's Walk, the edges of rooms and tunnels can look angular. Cellular Automata applies a simple rule across the grid: if a voxel is surrounded mostly by empty space, it becomes empty too. If surrounded mostly by rock, it stays solid.</p>
+      <p>Running this rule three to five times smooths walls and ceilings, removes isolated floating bits of rock, and softens sharp corners. The result feels carved by nature rather than by a computer.</p>
+    </div>
+
+    <div class="section" id="elevation">
+      <h3>2.5 — Elevation and Layering</h3>
+      <p>Elevation is handled by treating the 3D grid honestly — rooms and tunnels can be placed at different Y positions. Several techniques add believable height variation:</p>
+      <ul>
+        <li>The central room spans multiple vertical layers with a high ceiling</li>
+        <li>Tunnels slope upward or downward between rooms at different heights</li>
+        <li>Floor density values are nudged slightly to create subtle inclines</li>
+        <li>Larger carved spheres at tunnel endpoints create natural chamber transitions</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PART 3 — GODOT IMPLEMENTATION
+    ══════════════════════════════════════ -->
+    <div class="part-header" id="part3">
+      <span class="part-number">PART 03</span>
+      <h2>Practical Implementation in Godot 4</h2>
+    </div>
+
+    <div class="section" id="gridclass">
+      <h3>3.1 — The VoxelGrid Class</h3>
+      <p>This is the core data structure. Everything else reads from or writes to it. It stores a one-dimensional array of floats, treated as a 3D grid using index arithmetic.</p>
+      <div class="code-block">
+        <div class="code-label">GDScript — VoxelGrid skeleton</div>
+<span class="kw">class_name</span> VoxelGrid
+<span class="kw">extends</span> RefCounted
+
+<span class="kw">var</span> size_x: <span class="kw">int</span>
+<span class="kw">var</span> size_y: <span class="kw">int</span>
+<span class="kw">var</span> size_z: <span class="kw">int</span>
+<span class="kw">var</span> data: PackedFloat32Array
+
+<span class="kw">func</span> get_index(x, y, z) -> <span class="kw">int</span>:
+    <span class="kw">return</span> x + size_x * (y + size_y * z)
+
+<span class="kw">func</span> carve_sphere(cx, cy, cz, radius):
+    <span class="cm"># Write negative density with smooth falloff</span>
+    <span class="cm"># density = distance_from_centre - radius</span>
+      </div>
+      <div class="callout gold">
+        <div class="callout-label">Off-by-one warning</div>
+        <p>With Marching Cubes, grid points are <strong>corners, not cells</strong>. A 32×32×32 chunk requires <strong>33×33×33</strong> grid points. Always allocate one extra point per axis.</p>
+      </div>
+    </div>
+
+    <div class="section" id="generator">
+      <h3>3.2 — The Cave Generator</h3>
+      <p>This class is pure logic — it reads nothing from Godot and produces nothing visual. It writes density values into the VoxelGrid. The pipeline runs in this order:</p>
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">1</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Define bounding box</div><div class="step-desc">Set overall grid size based on your desired surface area range.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">2</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">BSP room placement</div><div class="step-desc">Recursively split the bounding box until you have one large region and several smaller ones.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">3</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Carve rooms</div><div class="step-desc">Call <code>carve_sphere()</code> for each room position and size to write negative density.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">4</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Drunkard's Walk tunnels</div><div class="step-desc">For each satellite room, run a walker from the central room toward it, carving as it moves.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">5</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Mark diggable walls</div><div class="step-desc">Every voxel within 1–2 units of a tunnel gets flagged as DIGGABLE.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">6</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Cellular Automata pass</div><div class="step-desc">Smooth the grid by running the neighbour rule 3–5 times.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">7</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Elevation adjustments</div><div class="step-desc">Shift room Y positions and slope tunnel paths for height variation.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="voxeltools">
+      <h3>3.3 — Voxel Tools by Zylann</h3>
+      <p>Rather than implementing Marching Cubes yourself — a complex algorithm with many edge cases — use the open-source <strong>Voxel Tools</strong> plugin for Godot 4 by developer Zylann.</p>
+      <ul>
+        <li>A <code>VoxelTerrain</code> node that manages the world automatically</li>
+        <li>Automatic Marching Cubes meshing of your density grid</li>
+        <li>Chunk management — only rebuilds what changes</li>
+        <li>Collision generation from the mesh</li>
+        <li>A <code>VoxelTool</code> API for reading and writing at runtime (for digging)</li>
+      </ul>
+      <div class="callout">
+        <div class="callout-label">Where to find it</div>
+        <p>Install from the Godot Asset Library or search <strong>godot_voxel by Zylann</strong> on GitHub. You write the cave generator; Voxel Tools handles everything between your data and the visible, collidable cave.</p>
+      </div>
+    </div>
+
+    <div class="section" id="fps">
+      <h3>3.4 — The FPS Controller</h3>
+      <p>Godot 4's <code>CharacterBody3D</code> node is the foundation for your player. The three components you need:</p>
+      <ul>
+        <li><strong>CharacterBody3D</strong> — the physics body that interacts with collision</li>
+        <li><strong>Camera3D</strong> — the first-person view, placed at head height inside the body</li>
+        <li><strong>CollisionShape3D</strong> — a capsule shape representing the player's physical volume</li>
+      </ul>
+      <p>Godot's documentation includes a ready-made FPS demo project. Start with that so you can focus on cave generation rather than movement code.</p>
+    </div>
+
+    <div class="section" id="dig">
+      <h3>3.5 — The Dig System</h3>
+      <p>Digging is what makes the cave feel alive and responsive. The loop each frame:</p>
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">1</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Cast a ray</div><div class="step-desc">Godot's RayCast3D node casts forward from the centre of the camera every frame.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">2</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Check voxel type</div><div class="step-desc">When the ray hits a surface, look up whether that voxel is marked DIGGABLE.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">3</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Write negative density</div><div class="step-desc">On dig input, call <code>VoxelTool.set_voxel_f()</code> with a negative value at the hit position and surrounding points.</div></div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-left"><div class="step-num">4</div><div class="step-line"></div></div>
+          <div class="step-content"><div class="step-title">Voxel Tools rebuilds</div><div class="step-desc">The plugin detects the change and automatically rebuilds the mesh and collision for the affected chunk.</div></div>
+        </div>
+      </div>
+      <p>A dig radius of <strong>1.5 to 2.0 voxel units</strong> is a good starting point.</p>
+    </div>
+
+    <div class="section" id="objects">
+      <h3>3.6 — Object and Furniture Placement</h3>
+      <p>After generation, a placement pass scans the grid for valid spawn positions. A position is valid when all four conditions are met:</p>
+      <ul>
+        <li>The voxel at that position is <strong>empty</strong> (air)</li>
+        <li>The voxel directly below is <strong>solid</strong> (floor)</li>
+        <li>There is <strong>enough vertical clearance</strong> above (at least 2 units for most objects)</li>
+        <li>The position is <strong>not already occupied</strong></li>
+      </ul>
+      <p>Each room type has its own weighted list of furniture. Godot's <code>RandomNumberGenerator</code> handles weighted selection. Objects are placed as standard Godot Node3D scenes instantiated at valid positions — no voxel system interaction required.</p>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PART 4 — VISUALS
+    ══════════════════════════════════════ -->
+    <div class="part-header" id="part4">
+      <span class="part-number">PART 04</span>
+      <h2>Textures and Visuals</h2>
+    </div>
+
+    <div class="section" id="uvproblem">
+      <h3>4.1 — The UV Problem</h3>
+      <p><strong>UV coordinates</strong> are the 2D texture coordinates assigned to each vertex. They tell the GPU which part of a texture image to draw at each surface point. With Marching Cubes, triangles are generated dynamically in arbitrary orientations — there is no natural way to assign UV coordinates.</p>
+      <p>The solution is <strong>triplanar mapping</strong>. Instead of UVs, the shader reads the texture three times — once along each axis (X, Y, Z) — and blends the results based on the direction the surface faces.</p>
+      <div class="callout">
+        <div class="callout-label">Good News</div>
+        <p>Godot's <code>StandardMaterial3D</code> has a built-in triplanar option. Enable <code>uv1_triplanar = true</code> and your textures tile correctly across any Marching Cubes surface — no shader code needed.</p>
+      </div>
+    </div>
+
+    <div class="section" id="texapproach">
+      <h3>4.2 — Recommended Visual Progression</h3>
+      <p>Visuals can be added incrementally at any point. Build the cave logic first, then layer in polish.</p>
+      <div class="milestones">
+        <div class="milestone">
+          <div class="milestone-num">Ph.1</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Default grey material</div>
+            <div class="milestone-desc">Prove the generation logic works before spending any time on visuals.</div>
+          </div>
+          <div class="milestone-badge">Now</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">Ph.2</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Single triplanar rock texture</div>
+            <div class="milestone-desc">Download a free PBR rock texture from Polyhaven. Apply with triplanar enabled. Already looks dramatically better.</div>
+          </div>
+          <div class="milestone-badge">Soon</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">Ph.3</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Normal-based blending</div>
+            <div class="milestone-desc">A shader that checks surface normals — floors use dirt, walls use rock, ceilings use dark stone.</div>
+          </div>
+          <div class="milestone-badge">Later</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">Ph.4</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Lighting and atmosphere</div>
+            <div class="milestone-desc">Point lights, WorldEnvironment fog, ambient occlusion. Often more impactful than better textures.</div>
+          </div>
+          <div class="milestone-badge">Polish</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="sources">
+      <h3>4.3 — Free Texture Sources</h3>
+      <div class="resource-list">
+        <div class="resource-item">
+          <div class="resource-icon">🏔️</div>
+          <div>
+            <div class="resource-name">Polyhaven — polyhaven.com</div>
+            <div class="resource-desc">High-quality PBR textures, completely free. Includes albedo, normal, roughness, and ambient occlusion maps. Best source for cave materials.</div>
+          </div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-icon">🎨</div>
+          <div>
+            <div class="resource-name">Kenney — kenney.nl</div>
+            <div class="resource-desc">Stylised free asset packs. Good if you prefer a less realistic, more game-like aesthetic.</div>
+          </div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-icon">⚙️</div>
+          <div>
+            <div class="resource-name">Godot Asset Library</div>
+            <div class="resource-desc">Search for cave or rock material packs ready to use directly in Godot 4 without conversion.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PART 5 — SUMMARY
+    ══════════════════════════════════════ -->
+    <div class="part-header" id="part5">
+      <span class="part-number">PART 05</span>
+      <h2>Complete Pipeline and Build Order</h2>
+    </div>
+
+    <div class="section" id="architecture">
+      <h3>5.1 — System Architecture</h3>
+      <p>The cave system is six independent layers, each building on the one below:</p>
+      <div class="arch-grid">
+        <div class="arch-layer">
+          <div class="layer-num">L6</div>
+          <div class="layer-name">Visual Layer</div>
+          <div class="layer-desc">Shaders and textures applied to Voxel Tools mesh output</div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-num">L5</div>
+          <div class="layer-name">ObjectPlacer</div>
+          <div class="layer-desc">Scans grid after generation, spawns furniture and items</div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-num">L4</div>
+          <div class="layer-name">DigSystem</div>
+          <div class="layer-desc">Modifies VoxelGrid at runtime, triggers Voxel Tools rebuild</div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-num">L3</div>
+          <div class="layer-name">Voxel Tools</div>
+          <div class="layer-desc">Reads VoxelGrid, produces visible mesh and collision</div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-num">L2</div>
+          <div class="layer-name">CaveGenerator</div>
+          <div class="layer-desc">BSP, walking, smoothing — writes values into VoxelGrid</div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-num">L1</div>
+          <div class="layer-name">VoxelGrid</div>
+          <div class="layer-desc">The raw 3D array of density values — source of truth for everything</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="buildorder">
+      <h3>5.2 — Recommended Build Order</h3>
+      <p>Each milestone produces something playable so you can test and iterate throughout development.</p>
+      <div class="milestones">
+        <div class="milestone">
+          <div class="milestone-num">M1</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Voxel Tools renders a flat surface</div>
+            <div class="milestone-desc">Install the plugin and walk on a simple flat surface with a basic FPS controller. Proves the rendering pipeline works.</div>
+          </div>
+          <div class="milestone-badge">Foundation</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M2</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Manually carved box room</div>
+            <div class="milestone-desc">Implement VoxelGrid, carve a hardcoded room, walk around inside it. Proves carving and collision work.</div>
+          </div>
+          <div class="milestone-badge">Core</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M3</div>
+          <div class="milestone-content">
+            <div class="milestone-title">BSP room placement</div>
+            <div class="milestone-desc">Procedurally place the central room and satellite rooms. Verify sizes and positions stay within bounds.</div>
+          </div>
+          <div class="milestone-badge">Core</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M4</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Connected tunnels</div>
+            <div class="milestone-desc">Add Drunkard's Walk between rooms. Verify all rooms are reachable from the centre.</div>
+          </div>
+          <div class="milestone-badge">Core</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M5</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Working dig mechanic</div>
+            <div class="milestone-desc">Mark tunnel walls as diggable. Player can expand passages and uncover new areas.</div>
+          </div>
+          <div class="milestone-badge">Gameplay</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M6</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Elevation added</div>
+            <div class="milestone-desc">Adjust room Y positions, slope tunnels, vary floor heights.</div>
+          </div>
+          <div class="milestone-badge">Depth</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M7</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Object placement</div>
+            <div class="milestone-desc">Spawn placeholder boxes as furniture. Verify placement rules work correctly.</div>
+          </div>
+          <div class="milestone-badge">Content</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-num">M8</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Textures and lighting</div>
+            <div class="milestone-desc">Replace placeholder materials with PBR assets. Add point lights and atmosphere fog.</div>
+          </div>
+          <div class="milestone-badge">Polish</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="glossary">
+      <h3>5.3 — Glossary</h3>
+      <div class="glossary">
+        <div class="glossary-item"><div class="glossary-term">Voxel</div><div class="glossary-def">A unit of 3D space, like a 3D pixel. The basic building block of the cave world.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Density value</div><div class="glossary-def">A floating-point number at each grid point. Positive means solid, negative means empty, zero is the surface.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Iso-value</div><div class="glossary-def">The threshold at which the surface is drawn. Usually zero. Adjusting it makes caves feel tighter or more open.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Marching Cubes</div><div class="glossary-def">The algorithm that converts density values into visible triangles by examining every cube of 8 neighbouring grid points.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Mesh</div><div class="glossary-def">A collection of triangles (faces) and their corner points (vertices) that forms a visible 3D surface.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Collision shape</div><div class="glossary-def">The invisible geometry used by the physics engine to detect contact between objects.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Chunk</div><div class="glossary-def">A sub-region of the world grid that is meshed and managed independently for performance.</div></div>
+        <div class="glossary-item"><div class="glossary-term">BSP</div><div class="glossary-def">Binary Space Partitioning — a method of dividing space into non-overlapping rectangles recursively.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Drunkard's Walk</div><div class="glossary-def">A tunnel-carving method where an agent moves randomly toward a target, carving as it goes.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Cellular Automata</div><div class="glossary-def">A smoothing pass where each voxel's state is updated based on its neighbours, making cave surfaces look natural.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Triplanar mapping</div><div class="glossary-def">A texturing technique that projects textures from all three axes simultaneously, solving the UV problem for Marching Cubes.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Normal map</div><div class="glossary-def">A texture that adds the appearance of surface bumps and detail without adding extra triangles to the mesh.</div></div>
+        <div class="glossary-item"><div class="glossary-term">PBR</div><div class="glossary-def">Physically Based Rendering — a modern approach to materials that simulates how light interacts with real-world surfaces.</div></div>
+      </div>
+    </div>
+
+    <div class="section" id="resources">
+      <h3>5.4 — Essential Resources</h3>
+      <div class="resource-list">
+        <div class="resource-item">
+          <div class="resource-icon">🔧</div>
+          <div>
+            <div class="resource-name">Voxel Tools by Zylann</div>
+            <div class="resource-desc">github.com/Zylann/godot_voxel — The core plugin for Marching Cubes meshing, chunk management, and collision in Godot 4.</div>
+          </div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-icon">📖</div>
+          <div>
+            <div class="resource-name">Godot 4 Documentation</div>
+            <div class="resource-desc">docs.godotengine.org — Reference for CharacterBody3D, RayCast3D, ShaderMaterial, and all Godot nodes used in this project.</div>
+          </div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-icon">🎮</div>
+          <div>
+            <div class="resource-name">Godot FPS Demo</div>
+            <div class="resource-desc">Available in the Godot Asset Library — a ready-made first-person controller to use as your starting point.</div>
+          </div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-icon">🎬</div>
+          <div>
+            <div class="resource-name">Sebastian Lague — Marching Cubes Series</div>
+            <div class="resource-desc">YouTube — Exceptional visual explanation of how Marching Cubes works, with animated diagrams. Highly recommended viewing.</div>
+          </div>
+        </div>
+        <div class="resource-item">
+          <div class="resource-icon">🏔️</div>
+          <div>
+            <div class="resource-name">Polyhaven</div>
+            <div class="resource-desc">polyhaven.com — Free PBR textures for cave walls, floors, and ceilings. Albedo, normal, roughness, and AO maps included.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BACK TO TOP -->
+<div class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+  // ─── THEME TOGGLE ───
+  const html = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+
+  // Load saved preference
+  const saved = localStorage.getItem('caveGuideTheme');
+  if (saved) html.setAttribute('data-theme', saved);
+
+  toggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'night' ? 'day' : 'night';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('caveGuideTheme', next);
+  });
+
+  // ─── SCROLL PROGRESS ───
+  const bar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+    bar.style.width = pct + '%';
+  }, { passive: true });
+
+  // ─── BACK TO TOP ───
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    backTop.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+
+  // ─── ACTIVE SIDEBAR LINKS ───
+  const sections = document.querySelectorAll('.section, .hero, .part-header');
+  const links = document.querySelectorAll('.sidebar-link');
+  const partIndicator = document.getElementById('partIndicator');
+
+  const partMap = {
+    'part1': 'Part 1', 'part2': 'Part 2', 'part3': 'Part 3',
+    'part4': 'Part 4', 'part5': 'Part 5'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-link[href="#${id}"]`);
+        if (active) active.classList.add('active');
+
+        // Update part indicator
+        if (partMap[id]) partIndicator.textContent = partMap[id];
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
