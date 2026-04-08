@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Monitor — VGK · VOO · ZGLD · SMH</title>
+  <style>
+    :root {
+      --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;
+      --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+      --text:#f0f0f0;--text2:#999;--text3:#555;
+      --accent:#e8d5a3;--accent-dim:rgba(232,213,163,0.1);
+      --up:#5dba7d;--down:#e05c5c;--warn:#e09a3a;
+      --warn-bg:rgba(224,154,58,0.13);--danger-bg:rgba(224,92,92,0.13);
+      --radius:12px;--radius-sm:8px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;line-height:1.6;}
+    header{border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);z-index:100;}
+    .logo{font-size:15px;font-weight:600;color:var(--accent);}
+    .logo span{color:var(--text3);font-weight:400;margin-left:8px;font-size:12px;}
+    .status-wrap{display:flex;align-items:center;gap:8px;}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--text3);transition:all 0.3s;}
+    .dot.live{background:var(--up);box-shadow:0 0 8px var(--up);}
+    .status-label{font-size:12px;color:var(--text2);}
+    main{max-width:900px;margin:0 auto;padding:1.5rem;}
+    .card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;}
+    .card-label{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+    .input-row{display:flex;gap:8px;align-items:center;}
+    input[type=password]{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:13px;padding:10px 14px;outline:none;font-family:monospace;transition:border-color 0.2s;}
+    input[type=password]:focus{border-color:var(--accent);}
+    input[type=password]::placeholder{color:var(--text3);}
+    .btn{background:var(--accent);color:#1a1400;border:none;border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s;}
+    .btn:hover{opacity:0.85;}.btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .btn-sm{background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 14px;font-size:12px;cursor:pointer;}
+    .btn-sm:hover{background:var(--surface2);color:var(--text);}
+    .hint{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.6;}
+    .hint a{color:var(--accent);text-decoration:none;}
+    .step{font-size:12px;color:var(--text3);margin-top:8px;min-height:18px;}
+    .step.active{color:var(--accent);}
+    .ticker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem;}
+    @media(max-width:560px){.ticker-grid{grid-template-columns:repeat(2,1fr);}}
+    .tcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;}
+    .tcard:hover{border-color:var(--border2);}
+    .t-sym{font-size:14px;font-weight:700;letter-spacing:0.04em;}
+    .t-name{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.3;}
+    .t-price{font-size:20px;font-weight:500;margin-top:10px;font-variant-numeric:tabular-nums;}
+    .t-chg{font-size:12px;margin-top:2px;font-variant-numeric:tabular-nums;}
+    .up{color:var(--up);}.down{color:var(--down);}.flat{color:var(--text3);}
+    .t-dim{color:var(--text3);font-size:13px;margin-top:10px;}
+    .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+    .sec-title{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);}
+    .sec-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px;}
+    .summary{background:var(--accent-dim);border:1px solid rgba(232,213,163,0.18);border-radius:var(--radius-sm);padding:0.9rem 1.1rem;font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:1rem;}
+    .summary strong{color:var(--accent);}
+    .news-list{display:flex;flex-direction:column;gap:8px;}
+    .nitem{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;}
+    .nitem:hover{border-color:var(--border2);}
+    .ntop{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px;}
+    .nhead{flex:1;font-size:14px;font-weight:500;color:var(--text);line-height:1.45;}
+    .nhead a{color:inherit;text-decoration:none;}.nhead a:hover{color:var(--accent);}
+    .badge{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+    .badge.high{background:var(--danger-bg);color:var(--down);}
+    .badge.medium{background:var(--warn-bg);color:var(--warn);}
+    .badge.low{background:var(--surface2);color:var(--text3);}
+    .nmeta{font-size:11px;color:var(--text3);margin-bottom:5px;}
+    .tag{display:inline-block;font-size:10px;font-weight:600;background:var(--surface2);color:var(--accent);padding:1px 6px;border-radius:4px;margin-left:5px;}
+    .nanalysis{font-size:13px;color:var(--text2);border-top:1px solid var(--border);padding-top:7px;margin-top:6px;line-height:1.55;}
+    .loader{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);padding:2rem 0;}
+    .spinner{width:14px;height:14px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .err{font-size:13px;color:var(--down);padding:1rem 0;line-height:1.6;}
+    footer{border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-size:11px;color:var(--text3);margin-top:2rem;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">Portfolio Monitor <span>VGK · VOO · ZGLD · SMH</span></div>
+  <div class="status-wrap">
+    <div class="dot" id="dot"></div>
+    <span class="status-label" id="statusLabel">Ready</span>
+  </div>
+</header>
+<main>
+  <div class="card">
+    <div class="card-label">Anthropic API key</div>
+    <div class="input-row">
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off" />
+      <button class="btn" id="loadBtn" onclick="run()">Load</button>
+    </div>
+    <div class="hint">
+      Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.
+      Claude uses web search to fetch live prices and news — no other APIs or keys needed.
+      Your key is stored only in your browser.
+    </div>
+    <div class="step" id="step"></div>
+  </div>
+
+  <div class="ticker-grid" id="tickerGrid">
+    <div class="tcard"><div class="t-sym">VOO</div><div class="t-name">Vanguard S&P 500 ETF</div><div class="t-dim">—</div></div>
+    <div class="tcard"><div class="t-sym">VGK</div><div class="t-name">Vanguard FTSE Europe ETF</div><div class="t-dim">—</div></div>
+    <div class="tcard"><div class="t-sym">ZGLD</div><div class="t-name">Gold ETF (GLD)</div><div class="t-dim">—</div></div>
+    <div class="tcard"><div class="t-sym">SMH</div><div class="t-name">VanEck Semiconductors ETF</div><div class="t-dim">—</div></div>
+  </div>
+
+  <div id="newsSection"></div>
+</main>
+<footer>Powered by Claude AI with web search · Auto-refreshes at 07:00, 15:00 and 21:00 CET</footer>
+
+<script>
+const TICKERS=[
+  {sym:'VOO',name:'Vanguard S&P 500 ETF'},
+  {sym:'VGK',name:'Vanguard FTSE Europe ETF'},
+  {sym:'ZGLD',name:'Gold ETF (GLD)'},
+  {sym:'SMH',name:'VanEck Semiconductors ETF'},
+];
+let refreshTimer=null;
+let seenHigh=new Set();
+
+window.addEventListener('DOMContentLoaded',()=>{
+  const k=localStorage.getItem('pm_akey');
+  if(k) document.getElementById('apiKey').value=k;
+});
+document.getElementById('apiKey').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+
+function getKey(){
+  const k=document.getElementById('apiKey').value.trim();
+  if(k) localStorage.setItem('pm_akey',k);
+  return k;
+}
+function setStatus(live,label){
+  document.getElementById('dot').className='dot'+(live?' live':'');
+  document.getElementById('statusLabel').textContent=label;
+}
+function setStep(msg,active=false){
+  const el=document.getElementById('step');
+  el.textContent=msg;
+  el.className='step'+(active?' active':'');
+}
+function skeletonTickers(){
+  document.getElementById('tickerGrid').innerHTML=TICKERS.map(t=>
+    `<div class="tcard"><div class="t-sym">${t.sym}</div><div class="t-name">${t.name}</div><div class="t-dim">Loading…</div></div>`
+  ).join('');
+}
+function renderTickers(prices){
+  document.getElementById('tickerGrid').innerHTML=TICKERS.map(t=>{
+    const p=prices[t.sym]||{};
+    const has=p.price!=null;
+    const cls=p.change>0?'up':p.change<0?'down':'flat';
+    const sign=p.change>=0?'+':'';
+    return `<div class="tcard">
+      <div class="t-sym">${t.sym}</div>
+      <div class="t-name">${t.name}</div>
+      <div class="t-price ${has?'':'t-dim'}">${has?'$'+p.price.toFixed(2):'—'}</div>
+      <div class="t-chg ${cls}">${has&&p.change!=null?`${sign}${p.change.toFixed(2)} (${sign}${p.changePct.toFixed(2)}%)`:''}
+      </div></div>`;
+  }).join('');
+}
+
+async function callClaude(key,prompt){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:2000,
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  if(!r.ok){const e=await r.text();throw new Error(`API ${r.status}: ${e.slice(0,150)}`);}
+  const data=await r.json();
+  const tb=data.content?.find(b=>b.type==='text');
+  return tb?.text||'';
+}
+
+async function fetchPrices(key){
+  const prompt=`Search the web right now for the current stock prices of these 4 ETFs: VOO, VGK, GLD, SMH.
+
+Return ONLY a JSON object like this (no markdown, no explanation, just JSON):
+{"VOO":{"price":621.50,"change":-3.20,"changePct":-0.51},"VGK":{"price":72.10,"change":0.45,"changePct":0.63},"GLD":{"price":185.30,"change":1.10,"changePct":0.60},"SMH":{"price":198.40,"change":-2.10,"changePct":-1.05}}
+
+Use null for any value you cannot find.`;
+  const text=await callClaude(key,prompt);
+  try{
+    const clean=text.replace(/```json|```/g,'').trim();
+    const start=clean.indexOf('{');
+    const end=clean.lastIndexOf('}');
+    return JSON.parse(clean.slice(start,end+1));
+  }catch(e){console.error('price parse',e,text);return{};}
+}
+
+async function fetchNews(key){
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const prompt=`Today is ${today}. Search the web for the latest financial news from the past 24-48 hours relevant to this portfolio:
+- VOO: S&P 500 ETF (US large-cap stocks)
+- VGK: Vanguard FTSE Europe ETF (European stocks)
+- ZGLD/GLD: Gold ETF
+- SMH: VanEck Semiconductor ETF (NVIDIA, TSMC, ASML etc)
+
+Find 8-10 relevant news items. Focus on: Fed/interest rates, US macro data, European economy/ECB, semiconductor industry news, gold/inflation, geopolitics, major earnings.
+
+Return ONLY valid JSON (no markdown):
+{"portfolio_summary":"2-3 sentences on what today's news means for this portfolio","news":[{"headline":"headline text","source":"source name","url":"url or empty string","tickers":["VOO"],"impact":"high|medium|low","analysis":"one sentence on why this matters for the portfolio"}]}`;
+  const text=await callClaude(key,prompt);
+  try{
+    const clean=text.replace(/```json|```/g,'').trim();
+    const start=clean.indexOf('{');
+    const end=clean.lastIndexOf('}');
+    return JSON.parse(clean.slice(start,end+1));
+  }catch(e){console.error('news parse',e,text);return{portfolio_summary:'',news:[]};}
+}
+
+function renderNews(data){
+  const now=new Date().toLocaleTimeString('en-CH',{hour:'2-digit',minute:'2-digit'});
+  const items=data.news||[];
+  let html=`<div class="sec-header">
+    <div class="sec-title">News & AI analysis</div>
+    <div class="sec-meta">Updated ${now} <button class="btn-sm" onclick="run()">Refresh</button></div>
+  </div>`;
+  if(data.portfolio_summary){
+    html+=`<div class="summary"><strong>Portfolio overview:</strong> ${data.portfolio_summary}</div>`;
+  }
+  if(!items.length){
+    html+=`<div class="err">No news items returned. Try refreshing.</div>`;
+  }else{
+    html+='<div class="news-list">';
+    items.forEach(n=>{
+      const imp=n.impact||'low';
+      const label=imp==='high'?'High impact':imp==='medium'?'Medium':'Low';
+      const tags=(n.tickers||[]).map(t=>`<span class="tag">${t}</span>`).join('');
+      const titleHtml=n.url?`<a href="${n.url}" target="_blank" rel="noopener">${n.headline}</a>`:n.headline;
+      const nk=(n.headline||'').slice(0,60);
+      if(imp==='high'&&nk&&!seenHigh.has(nk)){
+        seenHigh.add(nk);
+        if(Notification?.permission==='granted') new Notification('High impact',{body:n.headline});
+      }
+      html+=`<div class="nitem">
+        <div class="ntop"><div class="nhead">${titleHtml}</div><span class="badge ${imp}">${label}</span></div>
+        <div class="nmeta">${n.source||''}${tags}</div>
+        ${n.analysis?`<div class="nanalysis">${n.analysis}</div>`:''}
+      </div>`;
+    });
+    html+='</div>';
+  }
+  document.getElementById('newsSection').innerHTML=html;
+}
+
+const REFRESH_HOURS=[7,15,21];
+
+function msUntilNextRefresh(){
+  const zurich=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Zurich'}));
+  const minNow=zurich.getHours()*60+zurich.getMinutes();
+  const secNow=zurich.getSeconds();
+  const slots=REFRESH_HOURS.map(h=>h*60);
+  let next=slots.find(s=>s>minNow);
+  let extra=0;
+  if(next==null){next=slots[0];extra=24*60*60*1000;}
+  return (next-minNow)*60*1000 - secNow*1000 + extra;
+}
+
+function nextRefreshLabel(){
+  const ms=msUntilNextRefresh();
+  const t=new Date(Date.now()+ms);
+  const zurich=new Date(t.toLocaleString('en-US',{timeZone:'Europe/Zurich'}));
+  return String(zurich.getHours()).padStart(2,'0')+':'+String(zurich.getMinutes()).padStart(2,'0')+' CET';
+}
+
+function scheduleNext(){
+  clearTimeout(refreshTimer);
+  const ms=msUntilNextRefresh();
+  setStep(`Next auto-refresh at ${nextRefreshLabel()}`);
+  refreshTimer=setTimeout(run, ms);
+}
+
+async function run(){
+  const key=getKey();
+  if(!key){alert('Please enter your Anthropic API key.');return;}
+  document.getElementById('loadBtn').disabled=true;
+  setStatus(false,'Loading…');
+  skeletonTickers();
+  document.getElementById('newsSection').innerHTML=`<div class="loader"><div class="spinner"></div>Asking Claude to search for prices and news…</div>`;
+  try{
+    setStep('Searching for live prices…',true);
+    const prices=await fetchPrices(key);
+    if(prices.GLD) prices.ZGLD=prices.GLD;
+    renderTickers(prices);
+    setStep('Searching for latest news…',true);
+    const newsData=await fetchNews(key);
+    renderNews(newsData);
+    setStatus(true,'Live');
+  }catch(e){
+    setStep('Error: '+e.message);
+    setStatus(false,'Error');
+    document.getElementById('newsSection').innerHTML=`<div class="err">${e.message}<br><br>Check your API key has credits at console.anthropic.com</div>`;
+  }
+  document.getElementById('loadBtn').disabled=false;
+  scheduleNext();
+}
+</script>
+</body>
+</html>
