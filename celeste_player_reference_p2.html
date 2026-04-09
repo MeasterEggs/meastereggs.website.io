@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celeste Player Code — Advanced Systems (Page 2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d10;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --surface3: #20202e;
+    --border: #2a2a3d;
+    --accent: #e8365d;
+    --accent2: #4af0c4;
+    --accent3: #f5a623;
+    --accent4: #7c6ff7;
+    --text: #e8e6f0;
+    --text2: #9490b0;
+    --text3: #5c5878;
+    --code-bg: #0a0a12;
+    --climb: #4af0c4;
+    --dream: #7c6ff7;
+    --starfly: #f5e642;
+    --swim: #4ab8f0;
+    --wind: #a0d8a0;
+    --camera: #f07af0;
+    --chaser: #e8365d;
+    --squish: #f5a623;
+  }
+
+  :root.day {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --surface3: #e8e4de;
+    --border: #d4cfc7;
+    --accent: #c8234a;
+    --accent2: #0a8a6a;
+    --accent3: #b86b00;
+    --accent4: #5046c8;
+    --text: #1a1816;
+    --text2: #5a544e;
+    --text3: #a09890;
+    --code-bg: #ebe8e2;
+    --climb: #0a8a6a;
+    --dream: #5046c8;
+    --starfly: #8a7a00;
+    --swim: #1878c0;
+    --wind: #2a7a2a;
+    --camera: #a030a0;
+    --chaser: #c8234a;
+    --squish: #b86b00;
+  }
+
+  /* ── DAY/NIGHT TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 14px 6px 10px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: border-color 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--accent2); }
+  .toggle-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; background: var(--surface2); flex-shrink: 0;
+    transition: transform 0.4s ease, background-color 0.35s;
+  }
+  .theme-toggle:hover .toggle-icon { transform: rotate(20deg); }
+  .toggle-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2);
+    transition: color 0.2s;
+  }
+  .toggle-track {
+    width: 36px; height: 20px; background: var(--surface3);
+    border-radius: 10px; border: 1px solid var(--border);
+    position: relative; flex-shrink: 0;
+    transition: background-color 0.35s, border-color 0.35s;
+  }
+  .toggle-thumb {
+    position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--text3);
+    transition: transform 0.25s ease, background-color 0.25s ease;
+  }
+  :root.day .toggle-thumb { transform: translateX(16px); background: var(--accent3); }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+    transition: background-color 0.35s, color 0.2s;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    transition: border-color 0.35s;
+  }
+
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 50%, rgba(124,111,247,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 40%, rgba(74,184,240,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 100%, rgba(245,230,66,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent4); margin-bottom: 20px; display: inline-block;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 64px); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 16px;
+  }
+
+  header h1 span { color: var(--accent4); }
+
+  .header-sub {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 300;
+    font-size: 18px; color: var(--text2); max-width: 560px; margin: 0 auto 32px;
+  }
+
+  .header-nav {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px;
+  }
+
+  .header-nav a {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border);
+    color: var(--text2); text-decoration: none; letter-spacing: 0.05em;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .header-nav a:hover { border-color: var(--accent2); color: var(--accent2); }
+  .header-nav a.active { border-color: var(--accent4); color: var(--accent4); }
+
+  .header-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 5px 14px; border-radius: 20px; border: 1px solid; letter-spacing: 0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; min-height: 100vh; }
+
+  nav {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    padding: 40px 24px; border-right: 1px solid var(--border);
+    background: var(--surface); scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    transition: background-color 0.35s, border-color 0.35s;
+  }
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .nav-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text3);
+    margin: 24px 0 8px; transition: color 0.2s;
+  }
+  .nav-label:first-child { margin-top: 0; }
+
+  nav a {
+    display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 13px;
+    font-weight: 600; color: var(--text2); text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  nav a:hover { color: var(--text); background: var(--surface2); }
+  nav a .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  main { padding: 60px 64px; max-width: 880px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 80px; }
+  .section-header {
+    display: flex; align-items: baseline; gap: 16px; margin-bottom: 32px;
+    padding-bottom: 20px; border-bottom: 1px solid var(--border);
+    transition: border-color 0.35s;
+  }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); min-width: 28px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+  .section-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 10px;
+    border-radius: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-left: auto;
+  }
+
+  /* ── TECHNIQUE CARDS ── */
+  .technique {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 24px; overflow: hidden;
+    transition: border-color 0.2s, background-color 0.35s;
+  }
+  .technique:hover { border-color: var(--surface3); }
+  .technique-header {
+    display: flex; align-items: center; gap: 14px; padding: 18px 24px;
+    cursor: pointer; background: var(--surface); user-select: none;
+    transition: background-color 0.15s;
+  }
+  .technique-header:hover { background: var(--surface2); }
+  .t-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .technique-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; flex: 1; }
+  .technique-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 3px 9px; border-radius: 10px; letter-spacing: 0.06em; opacity: 0.8;
+  }
+  .chevron { color: var(--text3); transition: transform 0.2s; font-size: 12px; }
+  .technique.open .chevron { transform: rotate(90deg); }
+  .technique-body { display: none; padding: 0 24px 24px; border-top: 1px solid var(--border); transition: border-color 0.35s; }
+  .technique.open .technique-body { display: block; }
+
+  /* ── CONTENT ── */
+  .lead { font-family: 'Fraunces', serif; font-size: 17px; color: var(--text2); margin: 16px 0 20px; font-style: italic; }
+  p { margin-bottom: 14px; color: var(--text); transition: color 0.2s; }
+
+  .highlight-box {
+    background: var(--surface2); border-left: 3px solid; border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin: 16px 0; font-size: 15px;
+    transition: background-color 0.35s;
+  }
+  .highlight-box strong {
+    font-family: 'Syne', sans-serif; font-weight: 700; display: block;
+    margin-bottom: 4px; font-size: 13px; letter-spacing: 0.03em;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; overflow-x: auto; margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    transition: background-color 0.35s, border-color 0.35s;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .code-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px;
+  }
+
+  .kw  { color: #c792ea; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .st  { color: #c3e88d; }
+  .nm  { color: #f78c6c; }
+  .fn  { color: #82aaff; }
+  .cn  { color: var(--accent2); }
+  .op  { color: #89ddff; }
+  :root.day .kw  { color: #7c3aed; }
+  :root.day .cm  { color: #6b7280; }
+  :root.day .st  { color: #166534; }
+  :root.day .nm  { color: #c2410c; }
+  :root.day .fn  { color: #1d4ed8; }
+  :root.day .cn  { color: var(--accent2); }
+  :root.day .op  { color: #0369a1; }
+
+  .values-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .values-table th {
+    text-align: left; padding: 8px 14px; background: var(--surface3); color: var(--text2);
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); transition: background-color 0.35s;
+  }
+  .values-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; transition: border-color 0.35s; }
+  .values-table tr:last-child td { border-bottom: none; }
+  .values-table tr:hover td { background: var(--surface2); }
+  .val { color: var(--accent3); }
+  .var-name { color: var(--accent2); }
+  .td-desc { color: var(--text2); font-family: 'Fraunces', serif; font-size: 14px; font-style: italic; }
+
+  .flow { display: flex; flex-direction: column; gap: 2px; margin: 16px 0; }
+  .flow-step { display: flex; align-items: stretch; }
+  .flow-line { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
+  .flow-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; background: var(--bg); flex-shrink: 0; margin-top: 16px; transition: background-color 0.35s; }
+  .flow-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; transition: background-color 0.35s; }
+  .flow-step:last-child .flow-connector { display: none; }
+  .flow-content {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; margin: 8px 0; flex: 1; font-size: 14px;
+    transition: background-color 0.35s, border-color 0.35s;
+  }
+  .flow-content strong { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; display: block; margin-bottom: 3px; }
+  .flow-content span { color: var(--text2); font-size: 13px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .split-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px;
+    transition: background-color 0.35s, border-color 0.35s;
+  }
+  .split-card h4 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .split-card ul { list-style: none; font-size: 13px; color: var(--text2); }
+  .split-card ul li { padding: 4px 0; padding-left: 14px; position: relative; }
+  .split-card ul li::before { content: '–'; position: absolute; left: 0; color: var(--text3); }
+
+  .godot-box {
+    background: rgba(76,240,196,0.04); border: 1px solid rgba(76,240,196,0.18);
+    border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+    transition: background-color 0.35s;
+  }
+  :root.day .godot-box { background: rgba(10,138,106,0.04); border-color: rgba(10,138,106,0.2); }
+  .godot-box-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 10px; }
+  .godot-box p { font-size: 14px; margin-bottom: 8px; }
+  .godot-box p:last-child { margin-bottom: 0; }
+
+  .formula { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px; margin: 16px 0; text-align: center; transition: background-color 0.35s, border-color 0.35s; }
+  .formula .math { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent2); margin-bottom: 6px; }
+  .formula .math-desc { font-family: 'Fraunces', serif; font-style: italic; font-size: 13px; color: var(--text2); }
+
+  .timeline { margin: 16px 0; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 1px; background: var(--border); transition: background-color 0.35s; }
+  .tl-item { display: flex; gap: 20px; margin-bottom: 16px; position: relative; }
+  .tl-marker { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; flex-shrink: 0; position: relative; z-index: 1; }
+  .tl-body { padding-top: 6px; flex: 1; }
+  .tl-body strong { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; display: block; margin-bottom: 4px; }
+  .tl-body p { font-size: 13px; color: var(--text2); margin: 0; }
+
+  .warn-box {
+    background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 14px;
+    transition: background-color 0.35s;
+  }
+  :root.day .warn-box { background: rgba(184,107,0,0.05); border-color: rgba(184,107,0,0.2); }
+  .warn-box-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent3); margin-bottom: 8px; }
+
+  .subsection-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin: 22px 0 10px; color: var(--text); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 40px 24px; }
+    .split { grid-template-columns: 1fr; }
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle day/night mode">
+  <div class="toggle-icon" id="toggle-icon">🌙</div>
+  <span class="toggle-label" id="toggle-label">Night</span>
+  <div class="toggle-track"><div class="toggle-thumb"></div></div>
+</button>
+
+<header>
+  <div class="container" style="max-width:1100px;margin:0 auto;padding:0 32px">
+    <div class="header-tag">// player.cs — advanced systems</div>
+    <h1>Celeste Player Code<br><span>Page 2 — Advanced Systems</span></h1>
+    <p class="header-sub">Dream Dash, Star Fly, Climb, Swim, Wind, Squish, Chaser State, Camera details, Transitions, and all Intro states.</p>
+    <div class="header-nav">
+      <a href="celeste_player_reference.html">← Page 1: Core Systems</a>
+      <a href="#" class="active">Page 2: Advanced</a>
+    </div>
+    <div class="header-pills">
+      <span class="pill" style="border-color:var(--climb);color:var(--climb)">Climb</span>
+      <span class="pill" style="border-color:var(--dream);color:var(--dream)">Dream Dash</span>
+      <span class="pill" style="border-color:var(--starfly);color:var(--starfly)">Star Fly</span>
+      <span class="pill" style="border-color:var(--swim);color:var(--swim)">Swim</span>
+      <span class="pill" style="border-color:var(--wind);color:var(--wind)">Wind</span>
+      <span class="pill" style="border-color:var(--camera);color:var(--camera)">Camera+</span>
+      <span class="pill" style="border-color:var(--chaser);color:var(--chaser)">Chaser</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav>
+  <div class="nav-label">Navigation</div>
+  <a href="celeste_player_reference.html"><span class="dot" style="background:var(--text3)"></span>← Page 1</a>
+
+  <div class="nav-label">Climb State</div>
+  <a href="#climb-full"><span class="dot" style="background:var(--climb)"></span>Full Climb Logic</a>
+  <a href="#slipcheck"><span class="dot" style="background:var(--climb)"></span>SlipCheck</a>
+  <a href="#climbhop"><span class="dot" style="background:var(--climb)"></span>ClimbHop</a>
+  <a href="#wallbooster"><span class="dot" style="background:var(--climb)"></span>Wall Booster</a>
+
+  <div class="nav-label">Dream Dash</div>
+  <a href="#dreamdash-full"><span class="dot" style="background:var(--dream)"></span>Dream Dash Physics</a>
+  <a href="#dreamsolid"><span class="dot" style="background:var(--dream)"></span>Solid Wiggle-Out</a>
+  <a href="#dreamcorner"><span class="dot" style="background:var(--dream)"></span>Corner Correction</a>
+
+  <div class="nav-label">Star Fly</div>
+  <a href="#starfly-full"><span class="dot" style="background:var(--starfly)"></span>Feather Flight Model</a>
+  <a href="#starfly-speed"><span class="dot" style="background:var(--starfly)"></span>Speed Lerp System</a>
+  <a href="#starfly-end"><span class="dot" style="background:var(--starfly)"></span>Exit Behaviour</a>
+
+  <div class="nav-label">Swim State</div>
+  <a href="#swim-full"><span class="dot" style="background:var(--swim)"></span>Water Physics</a>
+  <a href="#swim-surface"><span class="dot" style="background:var(--swim)"></span>Surface Pop</a>
+
+  <div class="nav-label">Wind</div>
+  <a href="#wind-full"><span class="dot" style="background:var(--wind)"></span>Wind Movement</a>
+  <a href="#jumpthru-assist"><span class="dot" style="background:var(--wind)"></span>JumpThru Assist</a>
+
+  <div class="nav-label">Physics Edge Cases</div>
+  <a href="#squish"><span class="dot" style="background:var(--squish)"></span>OnSquish (Getting Crushed)</a>
+  <a href="#dreamcheck-corner"><span class="dot" style="background:var(--squish)"></span>DreamDashCheck</a>
+
+  <div class="nav-label">Camera (Advanced)</div>
+  <a href="#camera-full"><span class="dot" style="background:var(--camera)"></span>Full CameraTarget Getter</a>
+  <a href="#camera-lock"><span class="dot" style="background:var(--camera)"></span>Camera Lock Modes</a>
+  <a href="#killbox-snap"><span class="dot" style="background:var(--camera)"></span>Killbox Snap</a>
+
+  <div class="nav-label">Chaser / Badeline</div>
+  <a href="#chaser-full"><span class="dot" style="background:var(--chaser)"></span>ChaserState Recording</a>
+  <a href="#chaser-sounds"><span class="dot" style="background:var(--chaser)"></span>Sound Replay System</a>
+
+  <div class="nav-label">Triggers & Transitions</div>
+  <a href="#triggers"><span class="dot" style="background:var(--text3)"></span>Trigger System</a>
+  <a href="#transitions"><span class="dot" style="background:var(--text3)"></span>Room Transitions</a>
+
+  <div class="nav-label">Intro States</div>
+  <a href="#intro-states"><span class="dot" style="background:var(--text3)"></span>All 6 Intro Coroutines</a>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════
+     CLIMB FULL
+═══════════════════════════════════════════ -->
+<section class="section" id="climb-full">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title" style="color:var(--climb)">Climb State — Full Detail</h2>
+    <span class="section-badge" style="background:rgba(74,240,196,0.08);border:1px solid rgba(74,240,196,0.2);color:var(--climb)">StClimb</span>
+  </div>
+
+  <div class="technique" id="climb-full-card">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(74,240,196,0.1)">🧗</div>
+      <span class="technique-name">ClimbBegin — grabbing a wall</span>
+      <span class="technique-tag" style="background:rgba(74,240,196,0.08);color:var(--climb)">ClimbGrabYMult = 0.2f</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">When entering the climb state, vertical speed is heavily dampened, the player is nudged toward the wall, and a surface sound plays based on the wall material.</p>
+      <div class="code-label">ClimbBegin()</div>
+      <pre><span class="kw">private void</span> <span class="fn">ClimbBegin</span>() {
+    AutoJump        = <span class="kw">false</span>;
+    Speed.X         = <span class="nm">0</span>;
+    Speed.Y        *= <span class="cn">ClimbGrabYMult</span>;   <span class="cm">// 0.2 — kills most vertical momentum</span>
+    wallSlideTimer  = <span class="cn">WallSlideTime</span>;
+    climbNoMoveTimer = <span class="cn">ClimbNoMoveTime</span>; <span class="cm">// 0.1s — brief input lockout on grab</span>
+    wallBoostTimer  = <span class="nm">0</span>;
+    lastClimbMove   = <span class="nm">0</span>;
+
+    <span class="cm">// Nudge player into wall (up to ClimbCheckDist = 2px)</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="cn">ClimbCheckDist</span>; i++)
+        <span class="kw">if</span> (!<span class="fn">CollideCheck</span>&lt;Solid&gt;(Position + Vector2.UnitX * (int)Facing))
+            Position += Vector2.UnitX * (int)Facing;
+        <span class="kw">else</span> <span class="kw">break</span>;
+
+    <span class="cm">// Surface-dependent grab sound</span>
+    <span class="kw">var</span> platform = SurfaceIndex.<span class="fn">GetPlatformByPriority</span>(
+        <span class="fn">CollideAll</span>&lt;Solid&gt;(Position + Vector2.UnitX * (int)Facing, temp));
+    <span class="kw">if</span> (platform != <span class="kw">null</span>)
+        <span class="fn">Play</span>(<span class="cn">Sfxs.char_mad_grab</span>, SurfaceIndex.Param, platform.<span class="fn">GetWallSoundIndex</span>(<span class="kw">this</span>, (int)Facing));
+}</pre>
+      <div class="highlight-box" style="border-color:var(--climb)">
+        <strong>ClimbGrabYMult = 0.2 is critical</strong>
+        If you grab a wall while falling fast (say, 160px/s), you immediately get 0.2 × 160 = 32px/s of downward momentum. Without this, grabbing would feel like hitting a rubber wall — immediate full stop.
+      </div>
+    </div>
+  </div>
+
+  <div class="technique" id="slipcheck">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(74,240,196,0.1)">👆</div>
+      <span class="technique-name">SlipCheck — ledge detection</span>
+      <span class="technique-tag" style="background:rgba(74,240,196,0.08);color:var(--climb)">SlipCheck(float addY)</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">SlipCheck detects whether the player's hands are above the top of the wall. If so, they slip — which triggers a ClimbHop instead of continued climbing. This is how climbing over ledges works.</p>
+      <div class="code-label">SlipCheck() — checks 4px above top of player hands</div>
+      <pre><span class="kw">private bool</span> <span class="fn">SlipCheck</span>(<span class="kw">float</span> addY = <span class="nm">0</span>) {
+    Vector2 at;
+    <span class="kw">if</span> (Facing == Facings.Right)
+        at = TopRight + Vector2.UnitY * (<span class="nm">4</span> + addY);
+    <span class="kw">else</span>
+        at = TopLeft - Vector2.UnitX + Vector2.UnitY * (<span class="nm">4</span> + addY);
+
+    <span class="cm">// True if BOTH checks are open — hands are past the ledge top</span>
+    <span class="kw">return</span> !Scene.<span class="fn">CollideCheck</span>&lt;Solid&gt;(at)
+        &amp;&amp; !Scene.<span class="fn">CollideCheck</span>&lt;Solid&gt;(at + Vector2.UnitY * (-<span class="nm">4</span> + addY));
+}</pre>
+      <p>The <code>addY</code> parameter is used with <code>-1</code> to check one pixel higher when going up, to detect the ledge slightly earlier and trigger a hop at the right moment.</p>
+      <p>When SlipCheck returns true during upward climbing, instead of stopping the player hits <code>ClimbHop()</code> — launching them over the ledge. This is what makes Celeste's climbing feel like natural scrambling rather than a rigid animation.</p>
+    </div>
+  </div>
+
+  <div class="technique" id="climbhop">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(74,240,196,0.1)">🐸</div>
+      <span class="technique-name">ClimbHop — scrambling over ledges</span>
+      <span class="technique-tag" style="background:rgba(74,240,196,0.08);color:var(--climb)">ClimbHopY = -120f</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">ClimbHop fires when the player reaches the top of a wall while climbing. It launches them upward and sideways, and if the wall they were holding is moving, it tracks that solid to avoid snapping away.</p>
+      <div class="code-label">ClimbHop()</div>
+      <pre><span class="kw">private void</span> <span class="fn">ClimbHop</span>() {
+    <span class="cm">// Track the solid for smooth movement (handles moving platforms)</span>
+    climbHopSolid = <span class="fn">CollideFirst</span>&lt;Solid&gt;(Position + Vector2.UnitX * (int)Facing);
+    playFootstepOnLand = <span class="nm">0.5f</span>;
+
+    <span class="kw">if</span> (climbHopSolid != <span class="kw">null</span>) {
+        climbHopSolidPosition = climbHopSolid.Position;
+        hopWaitX      = (int)Facing;
+        hopWaitXSpeed = (int)Facing * <span class="cn">ClimbHopX</span>;  <span class="cm">// 100 px/s</span>
+    } <span class="kw">else</span> {
+        hopWaitX  = <span class="nm">0</span>;
+        Speed.X   = (int)Facing * <span class="cn">ClimbHopX</span>;      <span class="cm">// immediate if no solid</span>
+    }
+
+    Speed.Y         = Math.<span class="fn">Min</span>(Speed.Y, <span class="cn">ClimbHopY</span>); <span class="cm">// -120 px/s cap, not force</span>
+    forceMoveX      = <span class="nm">0</span>;
+    forceMoveXTimer = <span class="cn">ClimbHopForceTime</span>;            <span class="cm">// 0.2s</span>
+    noWindTimer     = <span class="cn">ClimbHopNoWindTime</span>;            <span class="cm">// 0.3s — wind ignored briefly</span>
+}</pre>
+      <div class="highlight-box" style="border-color:var(--climb)">
+        <strong>hopWaitX — the moving platform trick</strong>
+        When hopping off a moving solid, <code>hopWaitX</code> defers the horizontal speed assignment. Each frame the main update checks if the solid has moved, then tracks it, preventing the player from rubber-banding away from a platform mid-hop.
+      </div>
+    </div>
+  </div>
+
+  <div class="technique" id="wallbooster">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(74,240,196,0.1)">🎽</div>
+      <span class="technique-name">Wall Booster (Conveyor) — climb acceleration</span>
+      <span class="technique-tag" style="background:rgba(74,240,196,0.08);color:var(--climb)">WallBoosterSpeed = -160f</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Some walls have a WallBooster entity attached. While climbing these, the player accelerates upward automatically — like a conveyor belt on a wall. Stamina is still drained.</p>
+      <div class="code-label">WallBoosterCheck() + speed application</div>
+      <pre><span class="kw">var</span> booster = <span class="fn">WallBoosterCheck</span>();
+<span class="kw">if</span> (climbNoMoveTimer &lt;= <span class="nm">0</span> &amp;&amp; booster != <span class="kw">null</span>) {
+    wallBoosting = <span class="kw">true</span>;
+    Speed.Y = Calc.<span class="fn">Approach</span>(Speed.Y, <span class="cn">WallBoosterSpeed</span>,    <span class="cm">// -160 px/s</span>
+                             <span class="cn">WallBoosterAccel</span> * delta);    <span class="cm">// 600 px/s²</span>
+    LiftSpeed = Vector2.UnitY * Math.<span class="fn">Max</span>(Speed.Y, <span class="cn">WallBoosterLiftSpeed</span>); <span class="cm">// -80</span>
+    <span class="cm">// Plays conveyor SFX loop with "end" parameter for smooth stop</span>
+}</pre>
+      <p>The conveyor SFX uses an FMOD parameter called <code>"end"</code> which crossfades the looping audio to a stop sound when the player leaves the booster — rather than cutting abruptly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     DREAM DASH
+═══════════════════════════════════════════ -->
+<section class="section" id="dreamdash-full">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title" style="color:var(--dream)">Dream Dash — Full Detail</h2>
+    <span class="section-badge" style="background:rgba(124,111,247,0.08);border:1px solid rgba(124,111,247,0.2);color:var(--dream)">StDreamDash</span>
+  </div>
+
+  <div class="technique" id="dreamdash-physics">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(124,111,247,0.1)">💫</div>
+      <span class="technique-name">Dream Dash physics — naive movement</span>
+      <span class="technique-tag" style="background:rgba(124,111,247,0.08);color:var(--dream)">TreatNaive = true</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Inside a dream block, the player moves with NaiveMove — bypassing all collision. Solids become passable. The trick is detecting when the player exits the dream block, then cleanly returning to normal collision.</p>
+      <div class="code-label">DreamDashBegin()</div>
+      <pre><span class="kw">private void</span> <span class="fn">DreamDashBegin</span>() {
+    Speed          = DashDir * <span class="cn">DreamDashSpeed</span>;   <span class="cm">// 240 px/s</span>
+    TreatNaive     = <span class="kw">true</span>;                        <span class="cm">// bypass solid collision</span>
+    Depth          = Depths.PlayerDreamDashing;    <span class="cm">// render on top of dream blocks</span>
+    dreamDashCanEndTimer = <span class="cn">DreamDashMinTime</span>;    <span class="cm">// 0.1s minimum time inside</span>
+    Stamina        = <span class="cn">ClimbMaxStamina</span>;            <span class="cm">// refill on enter</span>
+    dreamJump      = <span class="kw">false</span>;
+}</pre>
+      <div class="code-label">DreamDashUpdate() — each frame</div>
+      <pre><span class="kw">private int</span> <span class="fn">DreamDashUpdate</span>() {
+    <span class="kw">var</span> oldPos = Position;
+    <span class="fn">NaiveMove</span>(Speed * Engine.DeltaTime);   <span class="cm">// ignores all solids</span>
+
+    <span class="kw">if</span> (dreamDashCanEndTimer > <span class="nm">0</span>)
+        dreamDashCanEndTimer -= delta;
+
+    <span class="kw">var</span> block = <span class="fn">CollideFirst</span>&lt;DreamBlock&gt;();
+
+    <span class="kw">if</span> (block == <span class="kw">null</span>) {          <span class="cm">// exited the dream block</span>
+        <span class="kw">if</span> (<span class="fn">DreamDashedIntoSolid</span>()) {
+            <span class="kw">if</span> (invincible) { Position = oldPos; Speed *= -<span class="nm">1</span>; }
+            <span class="kw">else</span> <span class="fn">Die</span>(Vector2.Zero);
+        } <span class="kw">else if</span> (dreamDashCanEndTimer &lt;= <span class="nm">0</span>) {
+            <span class="cm">// Freeze frame on exit</span>
+            Celeste.<span class="fn">Freeze</span>(.<span class="nm">05f</span>);
+            <span class="cm">// Jump if pressed + horizontal dash</span>
+            <span class="kw">if</span> (Input.Jump.Pressed &amp;&amp; DashDir.X != <span class="nm">0</span>) {
+                dreamJump = <span class="kw">true</span>;
+                <span class="fn">Jump</span>();
+            }
+            <span class="kw">return</span> <span class="cn">StNormal</span>;
+        }
+    } <span class="kw">else</span> {
+        dreamBlock = block;
+        <span class="cm">// Displacement ripple inside block every 0.04s</span>
+        <span class="kw">if</span> (level.OnInterval(.<span class="nm">04f</span>)) {
+            <span class="kw">var</span> d = level.Displacement.<span class="fn">AddBurst</span>(Center, .<span class="nm">3f</span>, <span class="nm">0f</span>, <span class="nm">40f</span>);
+            d.WorldClipCollider = dreamBlock.Collider;
+        }
+    }
+    <span class="kw">return</span> <span class="cn">StDreamDash</span>;
+}</pre>
+    </div>
+  </div>
+
+  <div class="technique" id="dreamsolid">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(124,111,247,0.1)">🧱</div>
+      <span class="technique-name">DreamDashedIntoSolid — wiggle-out logic</span>
+      <span class="technique-tag" style="background:rgba(124,111,247,0.08);color:var(--dream)">DreamDashEndWiggle = 5</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">On exiting a dream block, the player might be partially inside a normal solid. The wiggle-out code tries all combinations of ±1..5 pixel offsets in X and Y, teleporting to the first clear position. If none work, the player dies.</p>
+      <div class="code-label">DreamDashedIntoSolid()</div>
+      <pre><span class="kw">private bool</span> <span class="fn">DreamDashedIntoSolid</span>() {
+    <span class="kw">if</span> (<span class="fn">CollideCheck</span>&lt;Solid&gt;()) {
+        <span class="kw">for</span> (<span class="kw">int</span> x = <span class="nm">1</span>; x &lt;= <span class="cn">DreamDashEndWiggle</span>; x++)      <span class="cm">// 1..5</span>
+          <span class="kw">for</span> (<span class="kw">int</span> xm = -<span class="nm">1</span>; xm &lt;= <span class="nm">1</span>; xm += <span class="nm">2</span>)
+            <span class="kw">for</span> (<span class="kw">int</span> y = <span class="nm">1</span>; y &lt;= <span class="cn">DreamDashEndWiggle</span>; y++)
+              <span class="kw">for</span> (<span class="kw">int</span> ym = -<span class="nm">1</span>; ym &lt;= <span class="nm">1</span>; ym += <span class="nm">2</span>) {
+                Vector2 add = <span class="kw">new</span> <span class="fn">Vector2</span>(x * xm, y * ym);
+                <span class="kw">if</span> (!<span class="fn">CollideCheck</span>&lt;Solid&gt;(Position + add)) {
+                    Position += add;
+                    <span class="kw">return false</span>;     <span class="cm">// found a safe spot</span>
+                }
+              }
+        <span class="kw">return true</span>;   <span class="cm">// truly stuck — die</span>
+    }
+    <span class="kw">return false</span>;
+}</pre>
+      <div class="highlight-box" style="border-color:var(--dream)">
+        <strong>This is what prevents soft-locks</strong>
+        Without wiggle-out, clipping through thin geometry (a 2px wall for example) would leave the player stuck inside it. The 5-pixel wiggle covers nearly all cases. Invincibility mode bounces back instead of killing.
+      </div>
+    </div>
+  </div>
+
+  <div class="technique" id="dreamcorner">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(124,111,247,0.1)">↗</div>
+      <span class="technique-name">DreamDashCheck — corner correction on entry</span>
+      <span class="technique-tag" style="background:rgba(124,111,247,0.08);color:var(--dream)">DashCornerCorrection</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Before entering a dream block, if the player is partially blocked by a regular solid on the side, they can be nudged up to 4px perpendicular to the dash direction to slip into the dream block cleanly.</p>
+      <div class="code-label">DreamDashCheck() — called from OnCollideH and OnCollideV</div>
+      <pre><span class="kw">private bool</span> <span class="fn">DreamDashCheck</span>(Vector2 dir) {
+    <span class="kw">if</span> (Inventory.DreamDash &amp;&amp; DashAttacking
+        &amp;&amp; (dir.X == Math.<span class="fn">Sign</span>(DashDir.X) || dir.Y == Math.<span class="fn">Sign</span>(DashDir.Y))) {
+
+        <span class="kw">var</span> block = <span class="fn">CollideFirst</span>&lt;DreamBlock&gt;(Position + dir);
+        <span class="kw">if</span> (block != <span class="kw">null</span>) {
+            <span class="kw">if</span> (<span class="fn">CollideCheck</span>&lt;Solid, DreamBlock&gt;(Position + dir)) {
+                <span class="cm">// Blocked — try perpendicular nudge</span>
+                Vector2 side = <span class="kw">new</span> <span class="fn">Vector2</span>(Math.<span class="fn">Abs</span>(dir.Y), Math.<span class="fn">Abs</span>(dir.X));
+                <span class="kw">for</span> (<span class="kw">int</span> i = -<span class="nm">1</span>; i >= -<span class="cn">DashCornerCorrection</span>; i--) {
+                    <span class="kw">var</span> at = Position + dir + side * i;
+                    <span class="kw">if</span> (!<span class="fn">CollideCheck</span>&lt;Solid, DreamBlock&gt;(at)) {
+                        Position += side * i;
+                        dreamBlock = block;
+                        <span class="kw">return true</span>;
+                    }
+                }
+                <span class="cm">// Also try positive direction...</span>
+            } <span class="kw">else</span> { dreamBlock = block; <span class="kw">return true</span>; }
+        }
+    }
+    <span class="kw">return false</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     STAR FLY
+═══════════════════════════════════════════ -->
+<section class="section" id="starfly-full">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title" style="color:var(--starfly)">Star Fly — Feather Flight</h2>
+    <span class="section-badge" style="background:rgba(245,230,66,0.08);border:1px solid rgba(245,230,66,0.2);color:var(--starfly)">StStarFly</span>
+  </div>
+
+  <div class="technique" id="starfly-speed">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(245,230,66,0.08)">🪶</div>
+      <span class="technique-name">Speed lerp model — direction and magnitude separately</span>
+      <span class="technique-tag" style="background:rgba(245,230,66,0.08);color:var(--starfly)">StarFlyMaxLerpTime = 1f</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Star Fly separates speed into direction (rotated toward input) and magnitude (lerped toward a target). The target speed depends on whether you're pressing a direction, pressing the same direction as movement, or not pressing anything.</p>
+      <table class="values-table">
+        <tr><th>Constant</th><th>Value</th><th>Role</th></tr>
+        <tr><td class="var-name">StarFlyStartSpeed</td><td class="val">250 px/s</td><td class="td-desc">Initial burst speed on feather entry</td></tr>
+        <tr><td class="var-name">StarFlyTargetSpeed</td><td class="val">140 px/s</td><td class="td-desc">Sustained speed when pressing a direction</td></tr>
+        <tr><td class="var-name">StarFlyMaxSpeed</td><td class="val">190 px/s</td><td class="td-desc">Max speed when fully aligned with direction (after 1s)</td></tr>
+        <tr><td class="var-name">StarFlySlowSpeed</td><td class="val">91 px/s</td><td class="td-desc">Speed when no input (drifts slowly)</td></tr>
+        <tr><td class="var-name">StarFlyRotateSpeed</td><td class="val">320°/s</td><td class="td-desc">How fast direction rotates toward input</td></tr>
+        <tr><td class="var-name">StarFlyMaxLerpTime</td><td class="val">1.0s</td><td class="td-desc">Time to ramp from TargetSpeed to MaxSpeed</td></tr>
+        <tr><td class="var-name">StarFlyAccel</td><td class="val">1000 px/s²</td><td class="td-desc">Magnitude acceleration toward target speed</td></tr>
+        <tr><td class="var-name">StarFlyTime</td><td class="val">2.0s</td><td class="td-desc">Total feather duration before expiring</td></tr>
+      </table>
+      <div class="code-label">StarFlyUpdate() — direction + speed logic</div>
+      <pre><span class="cm">// Rotate current direction toward aim</span>
+Vector2 currentDir = Speed.<span class="fn">SafeNormalize</span>(Vector2.Zero);
+<span class="kw">if</span> (currentDir == Vector2.Zero) currentDir = aim;
+<span class="kw">else</span> currentDir = currentDir.<span class="fn">RotateTowards</span>(aim.Angle(),
+                  <span class="cn">StarFlyRotateSpeed</span> * Engine.DeltaTime);
+
+<span class="cm">// Determine target speed based on alignment</span>
+<span class="kw">float</span> maxSpeed;
+<span class="kw">if</span> (slow) {
+    starFlySpeedLerp = <span class="nm">0</span>;
+    maxSpeed = <span class="cn">StarFlySlowSpeed</span>;              <span class="cm">// no input</span>
+} <span class="kw">else if</span> (Vector2.<span class="fn">Dot</span>(currentDir, aim) >= .<span class="nm">45f</span>) {
+    starFlySpeedLerp = Calc.<span class="fn">Approach</span>(starFlySpeedLerp, <span class="nm">1</span>,
+                       Engine.DeltaTime / <span class="cn">StarFlyMaxLerpTime</span>);
+    maxSpeed = MathHelper.<span class="fn">Lerp</span>(<span class="cn">StarFlyTargetSpeed</span>,
+                               <span class="cn">StarFlyMaxSpeed</span>, starFlySpeedLerp);
+} <span class="kw">else</span> {
+    starFlySpeedLerp = <span class="nm">0</span>;
+    maxSpeed = <span class="cn">StarFlyTargetSpeed</span>;             <span class="cm">// pressing but not aligned</span>
+}
+
+<span class="cm">// Apply: approach magnitude, then multiply by direction</span>
+<span class="kw">float</span> currentSpeed = Speed.<span class="fn">Length</span>();
+currentSpeed = Calc.<span class="fn">Approach</span>(currentSpeed, maxSpeed, <span class="cn">StarFlyAccel</span> * delta);
+Speed = currentDir * currentSpeed;</pre>
+      <div class="highlight-box" style="border-color:var(--starfly)">
+        <strong>Why separate direction and magnitude</strong>
+        If you just lerped the whole velocity vector, sharp turns would first slow to zero (the shortest path through velocity space), creating a dead-stop mid-maneuver. Rotating direction separately while maintaining speed gives the feathery, continuous feel that Celeste's Star Fly is known for.
+      </div>
+    </div>
+  </div>
+
+  <div class="technique" id="starfly-end">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(245,230,66,0.08)">⏰</div>
+      <span class="technique-name">Star Fly exit — hitbox swap and speed clamp</span>
+      <span class="technique-tag" style="background:rgba(245,230,66,0.08);color:var(--starfly)">StarFlyReturnToNormalHitbox</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">When the feather expires, the smaller star fly hitbox must be swapped back to the normal hitbox. If that hitbox is inside a solid, the code attempts two escape routes before throwing an exception.</p>
+      <table class="values-table">
+        <tr><th>Hitbox</th><th>Size</th><th>Offset</th></tr>
+        <tr><td class="var-name">normalHitbox</td><td class="val">8 × 11</td><td class="val">-4, -11</td></tr>
+        <tr><td class="var-name">starFlyHitbox</td><td class="val">8 × 8</td><td class="val">-4, -10</td></tr>
+      </table>
+      <div class="code-label">StarFlyReturnToNormalHitbox()</div>
+      <pre>Collider = normalHitbox;
+hurtbox  = normalHurtbox;
+
+<span class="kw">if</span> (<span class="fn">CollideCheck</span>&lt;Solid&gt;()) {
+    Vector2 start = Position;
+    <span class="cm">// Try moving up to clear the bottom edge difference</span>
+    Y -= (normalHitbox.Bottom - starFlyHitbox.Bottom);
+    <span class="kw">if</span> (<span class="fn">CollideCheck</span>&lt;Solid&gt;()) {
+        Position = start;
+        <span class="cm">// Try ducking + moving up</span>
+        Ducking = <span class="kw">true</span>;
+        Y -= (duckHitbox.Bottom - starFlyHitbox.Bottom);
+        <span class="kw">if</span> (<span class="fn">CollideCheck</span>&lt;Solid&gt;())
+            <span class="kw">throw new</span> Exception(<span class="st">"Could not get out of solids when exiting Star Fly!"</span>);
+    }
+}
+
+<span class="cm">// Speed clamped on exit</span>
+<span class="kw">if</span> (Speed.Y > <span class="cn">StarFlyMaxExitY</span>) Speed.Y = <span class="cn">StarFlyMaxExitY</span>;  <span class="cm">// 0 — no downward exit speed</span>
+<span class="kw">if</span> (Math.<span class="fn">Abs</span>(Speed.X) > <span class="cn">StarFlyMaxExitX</span>)                   <span class="cm">// 140</span>
+    Speed.X = <span class="cn">StarFlyMaxExitX</span> * Math.<span class="fn">Sign</span>(Speed.X);</pre>
+      <p>The final speed clamp is important: exiting the feather while traveling at full StarFlyMaxSpeed (190) would give too much free momentum. The exit caps ensure the power-up doesn't trivialise sections that come after.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SWIM
+═══════════════════════════════════════════ -->
+<section class="section" id="swim-full">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title" style="color:var(--swim)">Swim State</h2>
+    <span class="section-badge" style="background:rgba(74,184,240,0.08);border:1px solid rgba(74,184,240,0.2);color:var(--swim)">StSwim</span>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(74,184,240,0.1)">🌊</div>
+      <span class="technique-name">Water physics — three distinct zones</span>
+      <span class="technique-tag" style="background:rgba(74,184,240,0.08);color:var(--swim)">SwimCheck / UnderwaterCheck</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Celeste's water has three detectable zones based on the player's position, each with different physics: surface, shallow, and fully underwater. Four raycast-equivalent checks handle the transitions.</p>
+      <div class="code-label">The four water checks</div>
+      <pre><span class="kw">private bool</span> <span class="fn">SwimCheck</span>()          <span class="cm">// both feet (-0) AND chest (-8) are submerged</span>
+    => <span class="fn">CollideCheck</span>&lt;Water&gt;(Position + Vector2.UnitY * -<span class="nm">8</span>)
+    &amp;&amp; <span class="fn">CollideCheck</span>&lt;Water&gt;(Position);
+
+<span class="kw">private bool</span> <span class="fn">SwimUnderwaterCheck</span>() <span class="cm">// head (-9) is submerged → fully under</span>
+    => <span class="fn">CollideCheck</span>&lt;Water&gt;(Position + Vector2.UnitY * -<span class="nm">9</span>);
+
+<span class="kw">private bool</span> <span class="fn">SwimJumpCheck</span>()       <span class="cm">// space 14px above → can jump out of water</span>
+    => !<span class="fn">CollideCheck</span>&lt;Water&gt;(Position + Vector2.UnitY * -<span class="nm">14</span>);
+
+<span class="kw">private bool</span> <span class="fn">SwimRiseCheck</span>()       <span class="cm">// 18px above is clear → auto-rise to surface</span>
+    => !<span class="fn">CollideCheck</span>&lt;Water&gt;(Position + Vector2.UnitY * -<span class="nm">18</span>);</pre>
+
+      <table class="values-table">
+        <tr><th>Constant</th><th>Value</th><th>Role</th></tr>
+        <tr><td class="var-name">SwimMax</td><td class="val">80 px/s</td><td class="td-desc">Max swim speed in any direction (surface)</td></tr>
+        <tr><td class="var-name">SwimUnderwaterMax</td><td class="val">60 px/s</td><td class="td-desc">Max horizontal speed when fully submerged</td></tr>
+        <tr><td class="var-name">SwimMaxRise</td><td class="val">-60 px/s</td><td class="td-desc">Max speed the player can rise naturally at surface</td></tr>
+        <tr><td class="var-name">SwimAccel</td><td class="val">600 px/s²</td><td class="td-desc">Acceleration in water</td></tr>
+        <tr><td class="var-name">SwimReduce</td><td class="val">400 px/s²</td><td class="td-desc">Deceleration when over max speed</td></tr>
+        <tr><td class="var-name">SwimYSpeedMult</td><td class="val">0.5</td><td class="td-desc">Vertical speed dampened on swim entry (SwimBegin)</td></tr>
+        <tr><td class="var-name">SwimDashSpeedMult</td><td class="val">0.75</td><td class="td-desc">Dash speed reduced by this when entering water mid-dash</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="technique" id="swim-surface">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(74,184,240,0.1)">↑</div>
+      <span class="technique-name">Auto-rise and surface pop</span>
+      <span class="technique-tag" style="background:rgba(74,184,240,0.08);color:var(--swim)">SwimRiseCheck</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">When the player is near the surface and not pressing down, they automatically rise. At the exact surface level (SwimCheck passes but SwimUnderwaterCheck fails), staying above water prevents sinking back in without input.</p>
+      <div class="code-label">SwimUpdate() — surface rise + stay-at-surface</div>
+      <pre><span class="cm">// Auto-rise: near surface, no vertical input</span>
+<span class="kw">if</span> (move.Y == <span class="nm">0</span> &amp;&amp; <span class="fn">SwimRiseCheck</span>())
+    Speed.Y = Calc.<span class="fn">Approach</span>(Speed.Y, <span class="cn">SwimMaxRise</span>, <span class="cn">SwimAccel</span> * delta);
+
+<span class="cm">// Stay at water surface (in Update, not SwimUpdate)</span>
+<span class="kw">if</span> (Speed.Y &lt; <span class="nm">0</span> &amp;&amp; Speed.Y >= <span class="cn">SwimMaxRise</span>) {
+    <span class="kw">while</span> (!<span class="fn">SwimCheck</span>()) {
+        Speed.Y = <span class="nm">0</span>;
+        <span class="kw">if</span> (<span class="fn">MoveVExact</span>(<span class="nm">1</span>)) <span class="kw">break</span>;   <span class="cm">// nudge down 1px at a time</span>
+    }
+}
+
+<span class="cm">// Ledge pop: shallow water, pressing sideways into a wall</span>
+<span class="kw">const int</span> ledgePopDist = -<span class="nm">3</span>;
+<span class="kw">if</span> (!underwater &amp;&amp; moveX != <span class="nm">0</span>
+    &amp;&amp; <span class="fn">CollideCheck</span>&lt;Solid&gt;(Position + Vector2.UnitX * moveX)
+    &amp;&amp; !<span class="fn">CollideCheck</span>&lt;Solid&gt;(Position + <span class="kw">new</span> <span class="fn">Vector2</span>(moveX, ledgePopDist)))
+    <span class="fn">ClimbHop</span>();   <span class="cm">// pop up onto the ledge</span></pre>
+      <div class="highlight-box" style="border-color:var(--swim)">
+        <strong>The ledge pop</strong>
+        Swimming into a wall that has a ledge 3px above the surface triggers a ClimbHop — the player automatically hauls themselves out. Without this, swimming into a ledge would just block movement. This is why Celeste's water sections don't feel frustrating at the edges.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     WIND
+═══════════════════════════════════════════ -->
+<section class="section" id="wind-full">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title" style="color:var(--wind)">Wind System</h2>
+    <span class="section-badge" style="background:rgba(160,216,160,0.08);border:1px solid rgba(160,216,160,0.2);color:var(--wind)">WindMover</span>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(160,216,160,0.08)">💨</div>
+      <span class="technique-name">WindMove — per-frame push with many guards</span>
+      <span class="technique-tag" style="background:rgba(160,216,160,0.08);color:var(--wind)">WindWallDistance = 3</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Wind applies a direct position push each frame (not a speed change), but only after checking many conditions. It's physically blocked by walls, reduced when ducking, ignored in most special states, and suppressed briefly after a climb hop.</p>
+      <div class="code-label">WindMove() — called by WindMover component</div>
+      <pre><span class="kw">private void</span> <span class="fn">WindMove</span>(Vector2 move) {
+    <span class="cm">// Guard: skip if any of these are true</span>
+    <span class="kw">if</span> (JustRespawned || noWindTimer > <span class="nm">0</span> || !InControl
+        || StateMachine.State == <span class="cn">StBoost</span>
+        || StateMachine.State == <span class="cn">StDash</span>
+        || StateMachine.State == <span class="cn">StSummitLaunch</span>) <span class="kw">return</span>;
+
+    <span class="cm">// Horizontal wind</span>
+    <span class="kw">if</span> (move.X != <span class="nm">0</span> &amp;&amp; StateMachine.State != <span class="cn">StClimb</span>) {
+        windTimeout     = <span class="nm">0.2f</span>;                        <span class="cm">// for hair animation</span>
+        windDirection.X = Math.<span class="fn">Sign</span>(move.X);
+
+        <span class="cm">// Only push if 3px on the opposite side is clear</span>
+        <span class="kw">if</span> (!<span class="fn">CollideCheck</span>&lt;Solid&gt;(Position + Vector2.UnitX
+                * -Math.<span class="fn">Sign</span>(move.X) * <span class="cn">WindWallDistance</span>)) {
+            <span class="kw">if</span> (Ducking &amp;&amp; onGround) move.X *= <span class="cn">DuckWindMult</span>; <span class="cm">// 0 — no push when ducking</span>
+            <span class="cm">// Clamp to level bounds</span>
+            <span class="kw">if</span> (move.X &lt; <span class="nm">0</span>) move.X = Math.<span class="fn">Max</span>(move.X, level.Bounds.Left - ExactPosition.X - Collider.Left);
+            <span class="kw">else</span>              move.X = Math.<span class="fn">Min</span>(move.X, level.Bounds.Right - ExactPosition.X - Collider.Right);
+            <span class="fn">MoveH</span>(move.X);
+        }
+    }
+
+    <span class="cm">// Vertical wind</span>
+    <span class="kw">if</span> (move.Y != <span class="nm">0</span>) {
+        windTimeout     = <span class="nm">0.2f</span>;
+        windDirection.Y = Math.<span class="fn">Sign</span>(move.Y);
+        <span class="kw">if</span> (Speed.Y &lt; <span class="nm">0</span> || !<span class="fn">OnGround</span>()) {
+            <span class="kw">if</span> (StateMachine.State == <span class="cn">StClimb</span>) {
+                <span class="kw">if</span> (move.Y > <span class="nm">0</span> &amp;&amp; climbNoMoveTimer &lt;= <span class="nm">0</span>) move.Y *= .<span class="nm">4f</span>;
+                <span class="kw">else return</span>;
+            }
+            <span class="fn">MoveV</span>(move.Y);
+        }
+    }
+}</pre>
+      <div class="highlight-box" style="border-color:var(--wind)">
+        <strong>Wind is a position push, not a speed change</strong>
+        This is intentional. If wind modified <code>Speed</code>, it would accumulate with player momentum, making the effect unpredictable. Directly calling <code>MoveH/MoveV</code> makes wind a fixed, consistent environmental force that doesn't compound. It also means wind stops immediately when conditions aren't met.
+      </div>
+      <p>The <code>windTimeout</code> timer (set to 0.2s whenever wind fires) drives the hair animation — hair blows sideways while this is active, giving visual feedback that wind is currently affecting the player.</p>
+    </div>
+  </div>
+
+  <div class="technique" id="jumpthru-assist">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(160,216,160,0.08)">🔼</div>
+      <span class="technique-name">JumpThru boost — assisted upward slip</span>
+      <span class="technique-tag" style="background:rgba(160,216,160,0.08);color:var(--wind)">JumpThruAssistSpeed = -40f</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">When the player is rising and inside a one-way platform (JumpThru), they are gently pushed downward at -40px/s to slide out the bottom. Without this, rising into a JumpThru from below would cause the player to clip through and land on it — which is often undesirable during a fast upward movement.</p>
+      <div class="code-label">Applied each frame in Update()</div>
+      <pre><span class="cm">// Fires when: airborne, moving up, not climbing up, inside JumpThru, not blocked</span>
+<span class="kw">if</span> (!onGround &amp;&amp; Speed.Y &lt;= <span class="nm">0</span>
+    &amp;&amp; (StateMachine.State != <span class="cn">StClimb</span> || lastClimbMove == -<span class="nm">1</span>)
+    &amp;&amp; <span class="fn">CollideCheck</span>&lt;JumpThru&gt;()
+    &amp;&amp; !<span class="fn">JumpThruBoostBlockedCheck</span>())
+    <span class="fn">MoveV</span>(<span class="cn">JumpThruAssistSpeed</span> * Engine.DeltaTime);  <span class="cm">// nudge: -40 × dt ≈ -0.67px/frame</span></pre>
+      <p><code>JumpThruBoostBlockedCheck()</code> checks if any LedgeBlocker component (used by strawberry seeds and some story objects) is preventing the through-movement, so the assist can be selectively disabled per entity.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SQUISH
+═══════════════════════════════════════════ -->
+<section class="section" id="squish">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title" style="color:var(--squish)">OnSquish — Getting Crushed</h2>
+    <span class="section-badge" style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(--squish)">OnSquish override</span>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(245,166,35,0.1)">🫠</div>
+      <span class="technique-name">Duck-to-escape and TrySquishWiggle</span>
+      <span class="technique-tag" style="background:rgba(245,166,35,0.08);color:var(--squish)">TrySquishWiggle</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">When a moving solid tries to push the player into another solid (crush), Celeste first tries to duck the player to escape. If that fails, it tries to wiggle them to a nearby free position. Only if all escapes fail does the player die.</p>
+      <div class="code-label">OnSquish() — called by the engine when a solid crushes the player</div>
+      <pre><span class="kw">override protected void</span> <span class="fn">OnSquish</span>(CollisionData data) {
+    <span class="kw">bool</span> ducked = <span class="kw">false</span>;
+
+    <span class="cm">// Step 1: try ducking</span>
+    <span class="kw">if</span> (!Ducking) {
+        ducked = <span class="kw">true</span>;
+        Ducking = <span class="kw">true</span>;
+        data.Pusher.Collidable = <span class="kw">true</span>;
+
+        <span class="kw">if</span> (!<span class="fn">CollideCheck</span>&lt;Solid&gt;()) {
+            data.Pusher.Collidable = <span class="kw">false</span>;
+            <span class="kw">return</span>;   <span class="cm">// ducking worked, player escaped</span>
+        }
+
+        <span class="cm">// Try target position while ducked</span>
+        <span class="kw">var</span> was = Position;
+        Position = data.TargetPosition;
+        <span class="kw">if</span> (!<span class="fn">CollideCheck</span>&lt;Solid&gt;()) {
+            data.Pusher.Collidable = <span class="kw">false</span>;
+            <span class="kw">return</span>;
+        }
+        Position = was;
+        data.Pusher.Collidable = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// Step 2: try TrySquishWiggle (scans positions near the player)</span>
+    <span class="kw">if</span> (!<span class="fn">TrySquishWiggle</span>(data))
+        <span class="fn">Die</span>(Vector2.Zero);     <span class="cm">// all escapes failed — death</span>
+    <span class="kw">else if</span> (ducked &amp;&amp; <span class="fn">CanUnDuck</span>)
+        Ducking = <span class="kw">false</span>;        <span class="cm">// managed to escape — stand back up</span>
+}</pre>
+      <div class="highlight-box" style="border-color:var(--squish)">
+        <strong>TrySquishWiggle is inherited from Actor</strong>
+        The base Monocle Actor class provides TrySquishWiggle which scans a small area around the player (typically ±3px in each axis) looking for a free position. This is the same mechanism used by all Actor-derived entities in Celeste, not just the player.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CAMERA ADVANCED
+═══════════════════════════════════════════ -->
+<section class="section" id="camera-full">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title" style="color:var(--camera)">Camera — Full CameraTarget Getter</h2>
+    <span class="section-badge" style="background:rgba(240,122,240,0.08);border:1px solid rgba(240,122,240,0.2);color:var(--camera)">CameraTarget getter</span>
+  </div>
+
+  <div class="technique" id="camera-lock">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(240,122,240,0.1)">📷</div>
+      <span class="technique-name">Camera lock modes</span>
+      <span class="technique-tag" style="background:rgba(240,122,240,0.08);color:var(--camera)">CameraLockModes</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Celeste has four camera lock modes that override the normal follow behavior, used for boss fights, boost sequences, and fixed-camera rooms.</p>
+      <table class="values-table">
+        <tr><th>Mode</th><th>X behavior</th><th>Y behavior</th></tr>
+        <tr><td class="var-name">None</td><td class="td-desc">Free follow</td><td class="td-desc">Free follow</td></tr>
+        <tr><td class="var-name">FinalBoss</td><td class="td-desc">Only scrolls right (never left)</td><td class="td-desc">Only scrolls down, capped by CameraLocker entity</td></tr>
+        <tr><td class="var-name">BoostSequence</td><td class="td-desc">Free (no X lock)</td><td class="td-desc">Tracks upward max, capped by locker entity below</td></tr>
+        <tr><td class="var-name">CameraLocker entity</td><td class="td-desc">Hard X limit: player must reach locker.X – MaxXOffset to scroll further</td><td class="td-desc">Hard Y limit similarly</td></tr>
+      </table>
+      <div class="code-label">Lock logic in CameraTarget getter</div>
+      <pre><span class="kw">if</span> (level.CameraLockMode != Level.CameraLockModes.None) {
+    <span class="kw">var</span> locker = Scene.Tracker.<span class="fn">GetComponent</span>&lt;CameraLocker&gt;();
+
+    <span class="cm">// X: only advance right, never retreat (FinalBoss)</span>
+    <span class="kw">if</span> (level.CameraLockMode != Level.CameraLockModes.BoostSequence)
+        at.X = Math.<span class="fn">Max</span>(at.X, level.Camera.X);
+
+    <span class="cm">// Y: BoostSequence tracks highest point reached</span>
+    <span class="kw">if</span> (level.CameraLockMode == Level.CameraLockModes.BoostSequence) {
+        level.CameraUpwardMaxY = Math.<span class="fn">Min</span>(
+            level.Camera.Y + CameraLocker.UpwardMaxYOffset,
+            level.CameraUpwardMaxY);
+        at.Y = Math.<span class="fn">Min</span>(at.Y, level.CameraUpwardMaxY);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="technique" id="killbox-snap">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(240,122,240,0.1)">⚠️</div>
+      <span class="technique-name">Killbox camera snap</span>
+      <span class="technique-tag" style="background:rgba(240,122,240,0.08);color:var(--camera)">Killbox</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">If a killbox (instant-death zone) is near and the player overlaps it horizontally, the camera is forced to show the danger zone — capped 180px above the killbox top. This ensures the player always sees what will kill them.</p>
+      <div class="code-label">Killbox snap in CameraTarget</div>
+      <pre><span class="kw">var</span> killboxes = Scene.Tracker.<span class="fn">GetEntities</span>&lt;Killbox&gt;();
+<span class="kw">foreach</span> (<span class="kw">var</span> box in killboxes) {
+    <span class="kw">if</span> (!box.Collidable) <span class="kw">continue</span>;
+    <span class="kw">if</span> (Top &lt; box.Bottom &amp;&amp; Right > box.Left &amp;&amp; Left &lt; box.Right)
+        at.Y = Math.<span class="fn">Min</span>(at.Y, box.Top - <span class="nm">180</span>);  <span class="cm">// show 180px above the killbox</span>
+}</pre>
+      <div class="highlight-box" style="border-color:var(--camera)">
+        <strong>Design principle: never hide danger</strong>
+        Celeste's level design depends on the player being able to see threats. The killbox snap is a safety net ensuring that screen-edge lava, death zones, and similar hazards are always within the viewport before the player reaches them.
+      </div>
+    </div>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(240,122,240,0.1)">🎯</div>
+      <span class="technique-name">CameraAnchor lerp — designer-controlled camera</span>
+      <span class="technique-tag" style="background:rgba(240,122,240,0.08);color:var(--camera)">CameraAnchorLerp</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Level designers can set a CameraAnchor point and a CameraAnchorLerp strength (0..1 per axis). The camera target lerps toward the anchor by that amount each frame, letting cutscenes and scripted sequences gently pull the view toward points of interest.</p>
+      <div class="code-label">Anchor lerp in CameraTarget getter</div>
+      <pre><span class="kw">if</span> (CameraAnchorLerp.Length() > <span class="nm">0</span>) {
+    <span class="kw">if</span> (CameraAnchorIgnoreX &amp;&amp; !CameraAnchorIgnoreY)
+        target.Y = MathHelper.<span class="fn">Lerp</span>(target.Y, CameraAnchor.Y, CameraAnchorLerp.Y);
+    <span class="kw">else if</span> (!CameraAnchorIgnoreX &amp;&amp; CameraAnchorIgnoreY)
+        target.X = MathHelper.<span class="fn">Lerp</span>(target.X, CameraAnchor.X, CameraAnchorLerp.X);
+    <span class="kw">else if</span> (CameraAnchorLerp.X == CameraAnchorLerp.Y)
+        target = Vector2.<span class="fn">Lerp</span>(target, CameraAnchor, CameraAnchorLerp.X);
+    <span class="kw">else</span> {
+        target.X = MathHelper.<span class="fn">Lerp</span>(target.X, CameraAnchor.X, CameraAnchorLerp.X);
+        target.Y = MathHelper.<span class="fn">Lerp</span>(target.Y, CameraAnchor.Y, CameraAnchorLerp.Y);
+    }
+}</pre>
+      <p>Setting <code>CameraAnchorLerp = Vector2(0.8, 0.8)</code> on a target means 80% of the camera's "attention" goes to the anchor, and 20% follows the player. At 1.0, it's a hard lock on the anchor regardless of player position.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CHASER STATE
+═══════════════════════════════════════════ -->
+<section class="section" id="chaser-full">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title" style="color:var(--chaser)">Chaser State — Badeline Mirror</h2>
+    <span class="section-badge" style="background:rgba(232,54,93,0.08);border:1px solid rgba(232,54,93,0.2);color:var(--chaser)">ChaserState</span>
+  </div>
+
+  <div class="technique" id="chaser-sounds">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(232,54,93,0.1)">👥</div>
+      <span class="technique-name">ChaserState recording — full snapshot every frame</span>
+      <span class="technique-tag" style="background:rgba(232,54,93,0.08);color:var(--chaser)">ChaserStateMaxTime = 4f</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Every physics frame, a ChaserState snapshot is appended to a rolling buffer. Badeline reads from this buffer with a time offset to mirror the player's exact movement from N seconds ago — including sounds, animations, hair color, and depth.</p>
+      <div class="code-label">ChaserState struct — what is recorded</div>
+      <pre><span class="kw">public struct</span> ChaserState {
+    <span class="kw">public</span> Vector2   Position;   <span class="cm">// exact pixel position</span>
+    <span class="kw">public float</span>     TimeStamp;  <span class="cm">// Scene.TimeActive when recorded</span>
+    <span class="kw">public string</span>    Animation;  <span class="cm">// current animation ID</span>
+    <span class="kw">public</span> Facings   Facing;
+    <span class="kw">public bool</span>      OnGround;
+    <span class="kw">public</span> Color     HairColor;  <span class="cm">// exact hair color including flash</span>
+    <span class="kw">public int</span>       Depth;
+
+    <span class="cm">// Up to 5 sounds that fired this frame (fixed array, no allocation)</span>
+    <span class="kw">private</span> ChaserStateSound sound0, sound1, sound2, sound3, sound4;
+    <span class="kw">public int</span> Sounds;          <span class="cm">// how many of the above are valid</span>
+}</pre>
+      <div class="code-label">Buffer management — UpdateChaserStates()</div>
+      <pre><span class="kw">private void</span> <span class="fn">UpdateChaserStates</span>() {
+    <span class="cm">// Evict entries older than ChaserStateMaxTime (4 seconds)</span>
+    <span class="kw">while</span> (chaserStates.Count > <span class="nm">0</span>
+        &amp;&amp; Scene.TimeActive - chaserStates[<span class="nm">0</span>].TimeStamp > <span class="cn">ChaserStateMaxTime</span>)
+        chaserStates.<span class="fn">RemoveAt</span>(<span class="nm">0</span>);
+
+    <span class="cm">// Append this frame's snapshot</span>
+    chaserStates.<span class="fn">Add</span>(<span class="kw">new</span> <span class="fn">ChaserState</span>(<span class="kw">this</span>));
+    activeSounds.<span class="fn">Clear</span>();   <span class="cm">// reset for next frame's sound collection</span>
+}</pre>
+      <div class="code-label">Reading back — GetChasePosition()</div>
+      <pre><span class="kw">public bool</span> <span class="fn">GetChasePosition</span>(<span class="kw">float</span> sceneTime, <span class="kw">float</span> timeAgo, <span class="kw">out</span> ChaserState chaseState) {
+    <span class="kw">foreach</span> (<span class="kw">var</span> state in chaserStates) {
+        <span class="kw">float</span> time = sceneTime - state.TimeStamp;
+        <span class="kw">if</span> (time &lt;= timeAgo) {
+            <span class="cm">// Accept if: within 20ms tolerance, or previous entry was too far back</span>
+            <span class="kw">if</span> (tooLongAgoFound || timeAgo - time &lt; .<span class="nm">02f</span>) {
+                chaseState = state;
+                <span class="kw">return true</span>;
+            } <span class="kw">else</span> { <span class="kw">return false</span>; }   <span class="cm">// not enough history yet</span>
+        }
+        <span class="kw">else</span> tooLongAgoFound = <span class="kw">true</span>;
+    }
+    chaseState = <span class="kw">new</span> ChaserState();
+    <span class="kw">return false</span>;
+}</pre>
+      <div class="highlight-box" style="border-color:var(--chaser)">
+        <strong>Fixed-size sound array — no GC pressure</strong>
+        The struct uses 5 inline fields (sound0–sound4) rather than a List. This avoids heap allocation every frame. A struct with 5 fixed fields is stack-allocated when passed around, keeping chaser state tracking effectively GC-free.
+      </div>
+    </div>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(232,54,93,0.1)">🔊</div>
+      <span class="technique-name">Sound replay system — Madeline→Badeline mapping</span>
+      <span class="technique-tag" style="background:rgba(232,54,93,0.08);color:var(--chaser)">MadelineToBadelineSound</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Each time the player plays a sound, the chaser system checks a lookup table. If a Badeline equivalent exists, it's stored in the current frame's ChaserState. Badeline then replays those sounds from her delayed position, making her feel like a true physical echo.</p>
+      <div class="code-label">Sound recording in the Play() override</div>
+      <pre><span class="kw">public</span> FMOD.Studio.EventInstance <span class="fn">Play</span>(<span class="kw">string</span> sound, ...) {
+    <span class="fn">AddChaserStateSound</span>(sound, param, value);   <span class="cm">// record for chaser replay</span>
+    <span class="kw">return</span> Audio.<span class="fn">Play</span>(sound, Center, param, value);
+}
+
+<span class="kw">private void</span> <span class="fn">AddChaserStateSound</span>(<span class="kw">string</span> sound, ...) {
+    <span class="kw">string</span> eventName = <span class="kw">null</span>;
+    Sfxs.MadelineToBadelineSound.<span class="fn">TryGetValue</span>(sound, <span class="kw">out</span> eventName);
+    <span class="kw">if</span> (eventName != <span class="kw">null</span>)      <span class="cm">// only store if Badeline has an equivalent</span>
+        activeSounds.<span class="fn">Add</span>(<span class="kw">new</span> ChaserStateSound { Event = eventName, ... });
+}</pre>
+      <p>Loop sounds (wall slide, dream dash travel) use <code>ChaserStateSound.Actions.Loop</code> and <code>.Stop</code> actions in addition to oneshots, so Badeline's continuous sounds start and stop at exactly the right moments in her replay.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     TRIGGERS
+═══════════════════════════════════════════ -->
+<section class="section" id="triggers">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">Trigger System</h2>
+    <span class="section-badge" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text2)">Triggers</span>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(255,255,255,0.05)">🔲</div>
+      <span class="technique-name">OnEnter / OnStay / OnLeave — persistent tracking</span>
+      <span class="technique-tag" style="background:rgba(255,255,255,0.04);color:var(--text2)">triggersInside HashSet</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Every frame, every trigger in the scene is tested. A HashSet tracks which triggers the player is currently inside, enabling proper Enter/Stay/Leave semantics. The set is also cleaned up on death and room transitions.</p>
+      <div class="code-label">Trigger processing in Update()</div>
+      <pre><span class="kw">foreach</span> (Trigger trigger in Scene.Tracker.<span class="fn">GetEntities</span>&lt;Trigger&gt;()) {
+    <span class="kw">if</span> (<span class="fn">CollideCheck</span>(trigger)) {
+        <span class="kw">if</span> (!trigger.Triggered) {
+            trigger.Triggered = <span class="kw">true</span>;
+            triggersInside.<span class="fn">Add</span>(trigger);
+            trigger.<span class="fn">OnEnter</span>(<span class="kw">this</span>);            <span class="cm">// first frame inside</span>
+        }
+        trigger.<span class="fn">OnStay</span>(<span class="kw">this</span>);               <span class="cm">// every frame inside</span>
+    } <span class="kw">else if</span> (trigger.Triggered) {
+        triggersInside.<span class="fn">Remove</span>(trigger);
+        trigger.Triggered = <span class="kw">false</span>;
+        trigger.<span class="fn">OnLeave</span>(<span class="kw">this</span>);              <span class="cm">// first frame outside</span>
+    }
+}</pre>
+      <div class="code-label">CleanUpTriggers() — called on death and transitions</div>
+      <pre><span class="kw">public void</span> <span class="fn">CleanUpTriggers</span>() {
+    <span class="kw">if</span> (triggersInside.Count > <span class="nm">0</span>) {
+        <span class="kw">foreach</span> (<span class="kw">var</span> trigger in triggersInside) {
+            trigger.<span class="fn">OnLeave</span>(<span class="kw">this</span>);    <span class="cm">// fire OnLeave for all active triggers</span>
+            trigger.Triggered = <span class="kw">false</span>;
+        }
+        triggersInside.<span class="fn">Clear</span>();
+    }
+}</pre>
+      <div class="highlight-box" style="border-color:var(--text3)">
+        <strong>Why a HashSet, not a List</strong>
+        The inner loop needs to check <code>triggersInside.Contains()</code> and <code>.Remove()</code> efficiently. A HashSet makes both O(1) rather than O(n). In a room with many triggers, this matters — the tracker query is O(n) but the Contains check is O(1).
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     TRANSITIONS
+═══════════════════════════════════════════ -->
+<section class="section" id="transitions">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">Room Transitions</h2>
+    <span class="section-badge" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text2)">TransitionTo</span>
+  </div>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(255,255,255,0.05)">🚪</div>
+      <span class="technique-name">BeforeDownTransition, BeforeUpTransition, TransitionTo</span>
+      <span class="technique-tag" style="background:rgba(255,255,255,0.04);color:var(--text2)">OnTransition</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <p class="lead">Room transitions are a carefully orchestrated process. Before the new room loads, the player's speed and state are adjusted to make the entry feel natural. During the transition, the player slides toward a target position. On completion, speed is snapped to clean integers.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="border-color:var(--accent2)"></div><div class="flow-connector"></div></div>
+          <div class="flow-content"><strong>BeforeDownTransition()</strong><span>If going down: set state to Normal, clamp Speed.Y to ≥0 (clear upward momentum), disable AutoJump and varJump. Disable any platform in the exit path.</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="border-color:var(--accent2)"></div><div class="flow-connector"></div></div>
+          <div class="flow-content"><strong>BeforeUpTransition()</strong><span>Zero Speed.X. Set Speed.Y to JumpSpeed (-105). Enable AutoJump with VarJumpTime so the player continues rising into the new room. Set dashCooldownTimer = 0.2s.</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="border-color:var(--accent2)"></div><div class="flow-connector"></div></div>
+          <div class="flow-content"><strong>TransitionTo(target, direction)</strong><span>Called each frame during transition. Moves 60px/s toward target. Updates hair and carry offset. Returns true when position == target.</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="border-color:var(--accent2)"></div></div>
+          <div class="flow-content"><strong>OnTransition()</strong><span>Resets grace timer, force move, chaser states. Refills dash and stamina. Transfers followers (strawberries) to new room leader.</span></div>
+        </div>
+      </div>
+
+      <div class="code-label">TransitionTo() — the slide-in movement</div>
+      <pre><span class="kw">public bool</span> <span class="fn">TransitionTo</span>(Vector2 target, Vector2 direction) {
+    <span class="fn">MoveTowardsX</span>(target.X, <span class="nm">60f</span> * Engine.DeltaTime);
+    <span class="fn">MoveTowardsY</span>(target.Y, <span class="nm">60f</span> * Engine.DeltaTime);
+
+    <span class="cm">// Still update hair even though normal update is suspended</span>
+    <span class="fn">UpdateHair</span>(<span class="kw">false</span>);
+    <span class="fn">UpdateCarry</span>();
+
+    <span class="kw">if</span> (Position == target) {
+        <span class="fn">ZeroRemainderX</span>();  <span class="fn">ZeroRemainderY</span>();
+        Speed.X = (int)Math.<span class="fn">Round</span>(Speed.X);  <span class="cm">// snap to integer pixels</span>
+        Speed.Y = (int)Math.<span class="fn">Round</span>(Speed.Y);
+        <span class="kw">return true</span>;
+    }
+    <span class="kw">return false</span>;
+}</pre>
+      <div class="highlight-box" style="border-color:var(--text3)">
+        <strong>Speed snapping on transition complete</strong>
+        <code>Math.Round(Speed)</code> ensures the player enters the new room with clean integer speeds. Sub-pixel floating point accumulated during the slide-in is stripped, preventing tiny drift that would compound across many transitions.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     INTRO STATES
+═══════════════════════════════════════════ -->
+<section class="section" id="intro-states">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2 class="section-title">All Intro States</h2>
+    <span class="section-badge" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text2)">StIntro*</span>
+  </div>
+
+  <p>Celeste has 6 intro types that control how the player enters a room. Each is a coroutine that disables input (<code>InControl = false</code>) for its duration and then transitions to <code>StNormal</code>.</p>
+
+  <div class="technique">
+    <div class="technique-header" onclick="toggle(this)">
+      <div class="t-icon" style="background:rgba(255,255,255,0.05)">🎬</div>
+      <span class="technique-name">All 6 intro types — when and how they work</span>
+      <span class="technique-tag" style="background:rgba(255,255,255,0.04);color:var(--text2)">IntroTypes enum</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="technique-body">
+      <table class="values-table">
+        <tr><th>IntroType</th><th>When used</th><th>What happens</th></tr>
+        <tr><td class="var-name">Transition</td><td class="td-desc">Between rooms (default after first spawn)</td><td class="td-desc">No intro — player just continues from transition position</td></tr>
+        <tr><td class="var-name">Respawn</td><td class="td-desc">Dying and returning to a checkpoint</td><td class="td-desc">DeathEffect plays in reverse (swirling particles collapse into player). 0.6s tween. JustRespawned = true.</td></tr>
+        <tr><td class="var-name">WalkInRight/Left</td><td class="td-desc">First time entering a room from the side</td><td class="td-desc">Player starts off-screen, walks in at 64px/s, stops at spawn point.</td></tr>
+        <tr><td class="var-name">Jump</td><td class="td-desc">Entering from below (vertical transition upward)</td><td class="td-desc">Player rises from bottom of screen, arc up and lands at spawn. Or continues from SummitLaunch.</td></tr>
+        <tr><td class="var-name">WakeUp</td><td class="td-desc">Chapter 1 opening scene</td><td class="td-desc">Player is in "asleep" animation, plays "wakeUp" animation, then goes Normal.</td></tr>
+        <tr><td class="var-name">Fall</td><td class="td-desc">Chapter 6 mirror fall sequence</td><td class="td-desc">Enters StReflectionFall — a special state with forced falling, FallEffects, and a cutscene.</td></tr>
+        <tr><td class="var-name">TempleMirrorVoid</td><td class="td-desc">Chapter 5 mirror room</td><td class="td-desc">Locks StateMachine, plays asleep, DummyGravity = false until a trigger unlocks it.</td></tr>
+        <tr><td class="var-name">None</td><td class="td-desc">Debug / level editor</td><td class="td-desc">Immediately StNormal, no animation.</td></tr>
+      </table>
+
+      <div class="subsection-title">Respawn intro (StIntroRespawn) — detail</div>
+      <pre><span class="kw">private void</span> <span class="fn">IntroRespawnBegin</span>() {
+    Depth    = Depths.Top;   <span class="cm">// render on top of everything</span>
+    introEase = <span class="nm">1f</span>;          <span class="cm">// 1 = fully "dead", 0 = fully alive</span>
+
+    <span class="cm">// Clamp the "death effect origin" to 40px inside level bounds</span>
+    Vector2 from = Position;
+    from.X = MathHelper.<span class="fn">Clamp</span>(from.X, level.Bounds.Left + <span class="nm">40</span>, level.Bounds.Right - <span class="nm">40</span>);
+    from.Y = MathHelper.<span class="fn">Clamp</span>(from.Y, level.Bounds.Top + <span class="nm">40</span>, level.Bounds.Bottom - <span class="nm">40</span>);
+    deadOffset = from - Position;
+
+    <span class="cm">// 0.6s tween: deadOffset → 0, introEase → 0</span>
+    respawnTween = Tween.<span class="fn">Create</span>(Tween.TweenMode.Oneshot, <span class="kw">null</span>, .<span class="nm">6f</span>, <span class="kw">true</span>);
+    respawnTween.OnUpdate = (t) => {
+        deadOffset = Vector2.<span class="fn">Lerp</span>(from - Position, Vector2.Zero, t.Eased);
+        introEase  = <span class="nm">1</span> - t.Eased;
+    };
+    respawnTween.OnComplete = (t) => StateMachine.State = <span class="cn">StNormal</span>;
+}</pre>
+
+      <div class="subsection-title">Walk-in intro (StIntroWalk) — detail</div>
+      <pre><span class="kw">public</span> IEnumerator <span class="fn">IntroWalkCoroutine</span>() {
+    <span class="kw">var</span> start = Position;
+    <span class="cm">// Place player off-screen</span>
+    <span class="kw">if</span> (IntroWalkDirection == Facings.Right) X = level.Bounds.Left - <span class="nm">16</span>;
+    <span class="kw">else</span>                                    X = level.Bounds.Right + <span class="nm">16</span>;
+
+    <span class="kw">yield return</span> .<span class="nm">3f</span>;           <span class="cm">// brief pause before walking</span>
+    Sprite.<span class="fn">Play</span>(PlayerSprite.RunSlow);
+
+    <span class="cm">// Walk toward spawn until within 2px or blocked by solid</span>
+    <span class="kw">while</span> (Math.<span class="fn">Abs</span>(X - start.X) > <span class="nm">2</span>
+        &amp;&amp; !<span class="fn">CollideCheck</span>&lt;Solid&gt;(Position + <span class="kw">new</span> <span class="fn">Vector2</span>((int)Facing, <span class="nm">0</span>)))
+    {
+        <span class="fn">MoveTowardsX</span>(start.X, <span class="nm">64</span> * Engine.DeltaTime);
+        <span class="kw">yield return null</span>;
+    }
+
+    Position = start;
+    Sprite.<span class="fn">Play</span>(PlayerSprite.Idle);
+    <span class="kw">yield return</span> .<span class="nm">2f</span>;
+    StateMachine.State = <span class="cn">StNormal</span>;
+}</pre>
+
+      <div class="godot-box">
+        <div class="godot-box-title">◈ Godot 4 — implementing intro states</div>
+        <p>In Godot, use async coroutines via <code>func _intro_walk() -> void</code> with <code>await get_tree().create_timer(0.3).timeout</code> for delays and <code>await get_tree().physics_frame</code> for per-frame waits. Store a reference to the running coroutine so you can cancel it if needed (via a cancellation flag boolean). Lock input by checking <code>state != STATE_NORMAL</code> before processing movement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+function toggle(header) {
+  const card = header.closest('.technique');
+  card.classList.toggle('open');
+}
+
+function toggleTheme() {
+  const isDay = document.documentElement.classList.toggle('day');
+  document.getElementById('toggle-icon').textContent = isDay ? '☀️' : '🌙';
+  document.getElementById('toggle-label').textContent = isDay ? 'Day' : 'Night';
+  localStorage.setItem('theme', isDay ? 'day' : 'night');
+}
+
+// Restore saved theme
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'day') {
+    document.documentElement.classList.add('day');
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.getElementById('toggle-icon');
+      const label = document.getElementById('toggle-label');
+      if (icon) icon.textContent = '☀️';
+      if (label) label.textContent = 'Day';
+    });
+  }
+})();
+
+// Open all cards
+document.querySelectorAll('.technique').forEach(t => t.classList.add('open'));
+
+// Nav highlighting
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(a => { a.style.color = ''; a.style.background = ''; });
+      const active = document.querySelector(`nav a[href="#${id}"]`);
+      if (active) { active.style.color = 'var(--text)'; active.style.background = 'var(--surface3)'; }
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
