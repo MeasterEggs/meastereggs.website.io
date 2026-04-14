@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Theory — Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0ede8;
+    --muted: #888;
+    --faint: #555;
+    --accent: #c9a96e;
+    --accent2: #7eb8a4;
+    --accent3: #b07ecf;
+    --accent4: #e07a6a;
+    --green: #7eb87e;
+    --radius: 10px;
+    --toggle-bg: #1e1e24;
+    --toggle-border: rgba(255,255,255,0.13);
+    --toggle-icon: #c9a96e;
+  }
+
+  :root.light {
+    --bg: #f5f2ec;
+    --surface: #ffffff;
+    --surface2: #ede9e1;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.15);
+    --text: #1a1814;
+    --muted: #6b6560;
+    --faint: #a09a92;
+    --accent: #a07840;
+    --accent2: #3a8a74;
+    --accent3: #7a4eab;
+    --accent4: #c0503e;
+    --green: #3a7a3a;
+    --toggle-bg: #ffffff;
+    --toggle-border: rgba(0,0,0,0.15);
+    --toggle-icon: #a07840;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    line-height: 1.6;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* ── Theme toggle ── */
+  .top-bar {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 2.5rem 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .theme-toggle {
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    border-radius: 99px;
+    padding: 6px 14px 6px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+  }
+  .theme-toggle:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .theme-toggle:active { transform: scale(0.97); }
+
+  .toggle-icon {
+    width: 18px;
+    height: 18px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .icon-sun, .icon-moon {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.3s, transform 0.4s ease;
+  }
+
+  .icon-sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
+  .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+  :root.light .icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
+  :root.light .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+
+  .toggle-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--toggle-icon);
+    transition: color 0.3s;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 3rem 2.5rem 0;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    opacity: 0.85;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 480px;
+    margin-top: 0.75rem;
+  }
+
+  /* ── Tabs ── */
+  .tab-wrapper {
+    max-width: 960px;
+    margin: 2.5rem auto 0;
+    padding: 0 2.5rem;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 18px 12px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    white-space: nowrap;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+
+  .tab-btn:hover { color: var(--muted); }
+
+  .tab-btn.active {
+    color: var(--accent);
+  }
+  .tab-btn.active::after { transform: scaleX(1); }
+
+  /* ── Content panels ── */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem 4rem;
+  }
+
+  .panel { display: none; }
+  .panel.active {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Section divider ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 1.5rem 0 0.6rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  /* ────────────────────────────────────────
+     TAB 1: Notes
+  ──────────────────────────────────────── */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 10px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .note-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+
+  .note-en {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .note-divider {
+    width: 20px;
+    height: 1px;
+    background: var(--border2);
+    margin: 10px auto;
+  }
+
+  .note-fr {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Sharps/flats */
+  .enharmonic-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .enharm-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .enharm-card .note-en { font-size: 1.4rem; }
+  .enharm-eq {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--faint);
+    margin-top: 6px;
+  }
+
+  /* ────────────────────────────────────────
+     TAB 2: Scales / Modes
+  ──────────────────────────────────────── */
+  .scales-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  .scale-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--faint);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    transition: transform 0.15s, border-color 0.2s;
+  }
+  .scale-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+
+  .scale-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .scale-formula {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--faint);
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .scale-mood {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+
+  .scale-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+
+  /* tag color schemes */
+  .tag-green  { color: var(--green);   border-color: rgba(126,184,126,0.3); background: rgba(126,184,126,0.08); }
+  .tag-teal   { color: var(--accent2); border-color: rgba(126,184,164,0.3); background: rgba(126,184,164,0.08); }
+  .tag-amber  { color: var(--accent);  border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.08); }
+  .tag-purple { color: var(--accent3); border-color: rgba(176,126,207,0.3); background: rgba(176,126,207,0.08); }
+  .tag-gray   { color: var(--muted);   border-color: rgba(136,136,136,0.3); background: rgba(136,136,136,0.08); }
+  .tag-red    { color: var(--accent4); border-color: rgba(224,122,106,0.3); background: rgba(224,122,106,0.08); }
+
+  /* left border colors per scale group */
+  .border-green  { border-left-color: var(--green); }
+  .border-teal   { border-left-color: var(--accent2); }
+  .border-amber  { border-left-color: var(--accent); }
+  .border-purple { border-left-color: var(--accent3); }
+  .border-gray   { border-left-color: var(--muted); }
+  .border-red    { border-left-color: var(--accent4); }
+
+  /* ────────────────────────────────────────
+     TAB 3: Diatonic chords
+  ──────────────────────────────────────── */
+  .chord-row {
+    display: grid;
+    grid-template-columns: 60px 110px 1fr;
+    align-items: start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .chord-row:last-child { border-bottom: none; }
+
+  .chord-degree {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .chord-quality {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--faint);
+    margin-top: 2px;
+  }
+
+  .func-pill {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+
+  .pill-tonic    { color: var(--green);   border-color: rgba(126,184,126,0.35); background: rgba(126,184,126,0.1); }
+  .pill-dominant { color: var(--accent4); border-color: rgba(224,122,106,0.35); background: rgba(224,122,106,0.1); }
+  .pill-predom   { color: #7eb8e0;         border-color: rgba(126,184,224,0.35); background: rgba(126,184,224,0.1); }
+  .pill-mediant  { color: var(--accent3); border-color: rgba(176,126,207,0.35); background: rgba(176,126,207,0.1); }
+  .pill-subtonic { color: var(--accent);  border-color: rgba(201,169,110,0.35); background: rgba(201,169,110,0.1); }
+
+  .chord-body { }
+  .chord-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .chord-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .chord-example {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--faint);
+    margin-top: 5px;
+    font-style: italic;
+  }
+  .chord-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    header, .tab-wrapper, .content { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .notes-grid { grid-template-columns: repeat(4, 1fr); }
+    .enharmonic-grid { grid-template-columns: repeat(3, 1fr); }
+    .chord-row { grid-template-columns: 50px 90px 1fr; gap: 10px; }
+    .chord-degree { font-size: 1.3rem; }
+  }
+  @media (max-width: 400px) {
+    .notes-grid { grid-template-columns: repeat(3, 1fr); }
+    .chord-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode">
+    <span class="toggle-icon" aria-hidden="true">
+      <svg class="icon-moon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.5 10.5A7 7 0 0 1 7.5 2.5a7 7 0 1 0 8 8z" fill="currentColor" style="color:var(--toggle-icon)"/>
+      </svg>
+      <svg class="icon-sun" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="9" r="3.5" fill="currentColor" style="color:var(--toggle-icon)"/>
+        <line x1="9" y1="1" x2="9" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="1" y1="9" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="15" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="3.22" y1="3.22" x2="4.64" y2="4.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="13.36" y1="13.36" x2="14.78" y2="14.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="14.78" y1="3.22" x2="13.36" y2="4.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+        <line x1="4.64" y1="13.36" x2="3.22" y2="14.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
+      </svg>
+    </span>
+    <span class="toggle-label" id="toggle-label">Day</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-label">Reference · Music Theory</div>
+  <h1>The <em>Musician's</em><br>Cheat Sheet</h1>
+  <p>A quick-reference guide to notes, modes, and harmony — designed to be read at a glance.</p>
+</header>
+
+<div class="tab-wrapper">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('notes', this)">01 · Notes</button>
+    <button class="tab-btn" onclick="switchTab('scales', this)">02 · Scales & modes</button>
+    <button class="tab-btn" onclick="switchTab('chords-major', this)">03 · Diatonic · major</button>
+    <button class="tab-btn" onclick="switchTab('chords-minor', this)">04 · Diatonic · minor</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ══════════════════════════════════════
+       PANEL 1 · NOTES
+  ══════════════════════════════════════ -->
+  <div class="panel active" id="panel-notes">
+
+    <div class="section-label">Natural notes — English / French (solfège)</div>
+    <div class="notes-grid">
+      <div class="note-card"><div class="note-en">C</div><div class="note-divider"></div><div class="note-fr">Do</div></div>
+      <div class="note-card"><div class="note-en">D</div><div class="note-divider"></div><div class="note-fr">Ré</div></div>
+      <div class="note-card"><div class="note-en">E</div><div class="note-divider"></div><div class="note-fr">Mi</div></div>
+      <div class="note-card"><div class="note-en">F</div><div class="note-divider"></div><div class="note-fr">Fa</div></div>
+      <div class="note-card"><div class="note-en">G</div><div class="note-divider"></div><div class="note-fr">Sol</div></div>
+      <div class="note-card"><div class="note-en">A</div><div class="note-divider"></div><div class="note-fr">La</div></div>
+      <div class="note-card"><div class="note-en">B</div><div class="note-divider"></div><div class="note-fr">Si</div></div>
+    </div>
+
+    <div class="section-label">Sharps & flats — enharmonic equivalents</div>
+    <div class="enharmonic-grid">
+      <div class="enharm-card"><div class="note-en">C♯</div><div class="enharm-eq">= D♭ (Ré♭)</div></div>
+      <div class="enharm-card"><div class="note-en">D♯</div><div class="enharm-eq">= E♭ (Mi♭)</div></div>
+      <div class="enharm-card"><div class="note-en">F♯</div><div class="enharm-eq">= G♭ (Sol♭)</div></div>
+      <div class="enharm-card"><div class="note-en">G♯</div><div class="enharm-eq">= A♭ (La♭)</div></div>
+      <div class="enharm-card"><div class="note-en">A♯</div><div class="enharm-eq">= B♭ (Si♭)</div></div>
+    </div>
+
+    <div class="section-label">Quick tip</div>
+    <p style="font-size:13px;color:var(--muted);max-width:520px;line-height:1.7;">
+      There are 12 pitches in an octave — 7 natural notes plus 5 sharps/flats. Every sharp has an enharmonic flat twin (same pitch, different name). The French system uses solfège syllables and is standard in France, Switzerland, Spain, and Italy. <em style="font-style:italic;color:var(--faint);">Si</em> is sometimes written <em style="font-style:italic;color:var(--faint);">Ti</em> in English-speaking countries.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANEL 2 · SCALES & MODES
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-scales">
+
+    <div class="section-label">Major modes — brighter, more resolved</div>
+    <div class="scales-grid">
+
+      <div class="scale-card border-green">
+        <div class="scale-name">Ionian <span style="font-size:12px;color:var(--faint)">(major)</span></div>
+        <div class="scale-formula">Mode I · W W H W W W H</div>
+        <div class="scale-mood">Bright, happy, resolved. The most "neutral" and optimistic sound in Western music.</div>
+        <div class="scale-tags">
+          <span class="tag tag-green">joyful</span>
+          <span class="tag tag-green">uplifting</span>
+          <span class="tag tag-green">stable</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-teal">
+        <div class="scale-name">Lydian</div>
+        <div class="scale-formula">Mode IV · W W W H W W H</div>
+        <div class="scale-mood">Dreamy, ethereal, floating. Major with a raised 4th — adds wonder and magic.</div>
+        <div class="scale-tags">
+          <span class="tag tag-teal">dreamy</span>
+          <span class="tag tag-teal">magical</span>
+          <span class="tag tag-teal">otherworldly</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-amber">
+        <div class="scale-name">Mixolydian</div>
+        <div class="scale-formula">Mode V · W W H W W H W</div>
+        <div class="scale-mood">Bright but slightly unresolved. Major feel with a bluesy, rock edge from the flat 7th.</div>
+        <div class="scale-tags">
+          <span class="tag tag-amber">energetic</span>
+          <span class="tag tag-amber">bluesy</span>
+          <span class="tag tag-amber">triumphant</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label">Minor modes — darker, more expressive</div>
+    <div class="scales-grid">
+
+      <div class="scale-card border-purple">
+        <div class="scale-name">Aeolian <span style="font-size:12px;color:var(--faint)">(natural minor)</span></div>
+        <div class="scale-formula">Mode VI · W H W W H W W</div>
+        <div class="scale-mood">Sad, melancholic, introspective. The most common minor sound — heavy but familiar.</div>
+        <div class="scale-tags">
+          <span class="tag tag-purple">sad</span>
+          <span class="tag tag-purple">melancholic</span>
+          <span class="tag tag-purple">dark</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-teal">
+        <div class="scale-name">Dorian</div>
+        <div class="scale-formula">Mode II · W H W W W H W</div>
+        <div class="scale-mood">Minor but with a hopeful quality. Sad yet sophisticated — jazz, soul, and folk love this one.</div>
+        <div class="scale-tags">
+          <span class="tag tag-teal">soulful</span>
+          <span class="tag tag-teal">bittersweet</span>
+          <span class="tag tag-teal">groovy</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-gray">
+        <div class="scale-name">Phrygian</div>
+        <div class="scale-formula">Mode III · H W W W H W W</div>
+        <div class="scale-mood">Dark, tense, Spanish-flavored. The flat 2nd gives it an exotic, almost menacing quality.</div>
+        <div class="scale-tags">
+          <span class="tag tag-gray">tense</span>
+          <span class="tag tag-gray">exotic</span>
+          <span class="tag tag-gray">flamenco</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-red">
+        <div class="scale-name">Locrian</div>
+        <div class="scale-formula">Mode VII · H W W H W W W</div>
+        <div class="scale-mood">Unstable, dissonant, eerie. The only mode with a diminished tonic — rarely used melodically.</div>
+        <div class="scale-tags">
+          <span class="tag tag-red">dissonant</span>
+          <span class="tag tag-red">unsettling</span>
+          <span class="tag tag-red">horror</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label">Non-diatonic scales</div>
+    <div class="scales-grid">
+
+      <div class="scale-card border-purple">
+        <div class="scale-name">Harmonic minor</div>
+        <div class="scale-formula">Natural minor + raised 7th</div>
+        <div class="scale-mood">Dramatic, classical, Middle-Eastern. The raised 7th creates a yearning, exotic tension.</div>
+        <div class="scale-tags">
+          <span class="tag tag-purple">dramatic</span>
+          <span class="tag tag-purple">yearning</span>
+          <span class="tag tag-purple">cinematic</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-red">
+        <div class="scale-name">Pentatonic minor</div>
+        <div class="scale-formula">5-note · 1 ♭3 4 5 ♭7</div>
+        <div class="scale-mood">Raw, emotive, universal. Blues, rock, and folk staple — hard to play a wrong note.</div>
+        <div class="scale-tags">
+          <span class="tag tag-red">bluesy</span>
+          <span class="tag tag-red">raw</span>
+          <span class="tag tag-red">rock</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-amber">
+        <div class="scale-name">Pentatonic major</div>
+        <div class="scale-formula">5-note · 1 2 3 5 6</div>
+        <div class="scale-mood">Open, folk-like, timeless. Happy and simple — country, pop, and world music all use it.</div>
+        <div class="scale-tags">
+          <span class="tag tag-amber">folk</span>
+          <span class="tag tag-amber">open</span>
+          <span class="tag tag-amber">timeless</span>
+        </div>
+      </div>
+
+      <div class="scale-card border-teal">
+        <div class="scale-name">Whole tone</div>
+        <div class="scale-formula">6-note · all whole steps</div>
+        <div class="scale-mood">Ambiguous, floating, impressionistic. No sense of resolution — used for dreamlike passages.</div>
+        <div class="scale-tags">
+          <span class="tag tag-teal">ambiguous</span>
+          <span class="tag tag-teal">floating</span>
+          <span class="tag tag-teal">impressionist</span>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="font-size:12px;color:var(--faint);margin-top:1.5rem;line-height:1.7;max-width:560px;">
+      W = whole step (2 semitones) · H = half step (1 semitone). The seven church modes all share the same parent major scale — just with a different starting degree.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANEL 3 · DIATONIC CHORDS · MAJOR
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-chords-major">
+
+    <div class="section-label">Major key — diatonic chords &amp; their function</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">I</div><div class="chord-quality">major</div></div>
+      <div><span class="func-pill pill-tonic">Tonic</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Home. Resolution. Rest.</div>
+        <div class="chord-desc">The most stable chord — everything gravitates toward it. Feels complete and settled.</div>
+        <div class="chord-example">C major in C · used to open or close a phrase</div>
+        <div class="chord-tags"><span class="tag tag-green">stable</span><span class="tag tag-green">resolved</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">ii</div><div class="chord-quality">minor</div></div>
+      <div><span class="func-pill pill-predom">Pre-dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Gentle tension building.</div>
+        <div class="chord-desc">Softer than IV, adds a mild sense of longing. Often leads into V.</div>
+        <div class="chord-example">D min in C · common in jazz and pop</div>
+        <div class="chord-tags"><span class="tag tag-teal">wistful</span><span class="tag tag-teal">anticipation</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">iii</div><div class="chord-quality">minor</div></div>
+      <div><span class="func-pill pill-mediant">Mediant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Ambiguous and colourful.</div>
+        <div class="chord-desc">Between tonic and dominant — feels neither fully stable nor tense. Adds emotional complexity.</div>
+        <div class="chord-example">E min in C · used for colour and surprise</div>
+        <div class="chord-tags"><span class="tag tag-purple">ambiguous</span><span class="tag tag-purple">wistful</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">IV</div><div class="chord-quality">major</div></div>
+      <div><span class="func-pill pill-predom">Sub-dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Lift and warmth.</div>
+        <div class="chord-desc">Moves away from home without creating strong tension. Hopeful or yearning — the "gospel" chord.</div>
+        <div class="chord-example">F major in C · ubiquitous in pop, hymns, folk</div>
+        <div class="chord-tags"><span class="tag tag-teal">warm</span><span class="tag tag-teal">hopeful</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">V</div><div class="chord-quality">major</div></div>
+      <div><span class="func-pill pill-dominant">Dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Strong tension demanding resolution.</div>
+        <div class="chord-desc">The most powerful pull back to I. Adds urgency, excitement or suspense.</div>
+        <div class="chord-example">G (or G7) in C · the backbone of cadences</div>
+        <div class="chord-tags"><span class="tag tag-red">tense</span><span class="tag tag-red">urgent</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">vi</div><div class="chord-quality">minor</div></div>
+      <div><span class="func-pill pill-tonic">Tonic</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Sad twin of I.</div>
+        <div class="chord-desc">Shares two notes with the tonic — feels like I but with a melancholic shadow. Great for emotional depth.</div>
+        <div class="chord-example">A min in C · I–V–vi–IV is basically every pop song</div>
+        <div class="chord-tags"><span class="tag tag-purple">melancholic</span><span class="tag tag-purple">emotional</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">vii°</div><div class="chord-quality">dim.</div></div>
+      <div><span class="func-pill pill-dominant">Dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Maximum tension, unstable.</div>
+        <div class="chord-desc">Dissonant and unsettling. Leads urgently back to I — often used for drama.</div>
+        <div class="chord-example">B dim in C · common in classical and film scores</div>
+        <div class="chord-tags"><span class="tag tag-red">dissonant</span><span class="tag tag-red">dramatic</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANEL 4 · DIATONIC CHORDS · MINOR
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-chords-minor">
+
+    <div class="section-label">Minor key (Aeolian) — diatonic chords &amp; their function</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">i</div><div class="chord-quality">minor</div></div>
+      <div><span class="func-pill pill-tonic">Tonic</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Dark home.</div>
+        <div class="chord-desc">Stable but heavy — a resolved feeling that still carries sadness or introspection.</div>
+        <div class="chord-example">A min in A minor</div>
+        <div class="chord-tags"><span class="tag tag-purple">dark</span><span class="tag tag-purple">resolved</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">ii°</div><div class="chord-quality">dim.</div></div>
+      <div><span class="func-pill pill-predom">Pre-dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Unstable tension.</div>
+        <div class="chord-desc">Rare on its own — brittle and tense, usually passing quickly to V.</div>
+        <div class="chord-example">B dim in A minor</div>
+        <div class="chord-tags"><span class="tag tag-red">unstable</span><span class="tag tag-red">tense</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">III</div><div class="chord-quality">major</div></div>
+      <div><span class="func-pill pill-mediant">Mediant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Bright contrast.</div>
+        <div class="chord-desc">A major chord in a minor key — adds unexpected warmth or hope, like a ray of light through clouds.</div>
+        <div class="chord-example">C major in A minor · emotional pivot point</div>
+        <div class="chord-tags"><span class="tag tag-teal">contrast</span><span class="tag tag-teal">hopeful</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">iv</div><div class="chord-quality">minor</div></div>
+      <div><span class="func-pill pill-predom">Sub-dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Deep longing.</div>
+        <div class="chord-desc">Minor IV is heavier and more mournful than major IV — one of the most emotionally rich chords in music.</div>
+        <div class="chord-example">D min in A minor · beloved in blues and soul</div>
+        <div class="chord-tags"><span class="tag tag-purple">mournful</span><span class="tag tag-purple">longing</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">v / V</div><div class="chord-quality">min / maj</div></div>
+      <div><span class="func-pill pill-dominant">Dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Soft or strong tension.</div>
+        <div class="chord-desc">Natural minor gives v (minor) — weak pull. Raise the 7th (harmonic minor) to get V (major) — strong, classical tension toward i.</div>
+        <div class="chord-example">E min (soft) vs E major (dramatic) in A minor</div>
+        <div class="chord-tags"><span class="tag tag-red">tension</span><span class="tag tag-red">suspense</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">VI</div><div class="chord-quality">major</div></div>
+      <div><span class="func-pill pill-tonic">Sub-mediant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Gentle and bittersweet.</div>
+        <div class="chord-desc">A major chord with a soft, comforting quality — offers brief relief in a minor-key progression.</div>
+        <div class="chord-example">F major in A minor · i–VII–VI–VII classic rock move</div>
+        <div class="chord-tags"><span class="tag tag-green">bittersweet</span><span class="tag tag-green">relief</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">VII</div><div class="chord-quality">major</div></div>
+      <div><span class="func-pill pill-subtonic">Subtonic</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Unresolved momentum.</div>
+        <div class="chord-desc">A major chord one step below i — doesn't demand resolution like V does, but keeps energy moving. Rock and folk staple.</div>
+        <div class="chord-example">G major in A minor · Stairway, Sultans of Swing</div>
+        <div class="chord-tags"><span class="tag tag-amber">driving</span><span class="tag tag-amber">open</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /content -->
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    document.getElementById('toggle-label').textContent = isLight ? 'Night' : 'Day';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
+
+  (function() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        const lbl = document.getElementById('toggle-label');
+        if (lbl) lbl.textContent = 'Night';
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
