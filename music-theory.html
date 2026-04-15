@@ -470,6 +470,9 @@
     <button class="tab-btn" onclick="switchTab('scales', this)">02 · Scales & modes</button>
     <button class="tab-btn" onclick="switchTab('chords-major', this)">03 · Diatonic · major</button>
     <button class="tab-btn" onclick="switchTab('chords-minor', this)">04 · Diatonic · minor</button>
+    <button class="tab-btn" onclick="switchTab('melody', this)">05 · Melody</button>
+    <button class="tab-btn" onclick="switchTab('classical', this)">06 · Classical harmony</button>
+    <button class="tab-btn" onclick="switchTab('construction', this)">07 · Chord construction</button>
   </div>
 </div>
 
@@ -821,6 +824,522 @@
         <div class="chord-tags"><span class="tag tag-amber">driving</span><span class="tag tag-amber">open</span></div>
       </div>
     </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANEL 5 · MELODY
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-melody">
+
+    <div class="section-label">Core melody concepts</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;line-height:1.3;">Contour</div><div class="chord-quality">shape in pitch</div></div>
+      <div><span class="func-pill pill-tonic">Foundation</span></div>
+      <div class="chord-body">
+        <div class="chord-name">The arc your melody draws in space.</div>
+        <div class="chord-desc">Mix stepwise motion (adjacent notes) with occasional leaps for drama. Too many leaps = chaotic. All steps = boring. Leaps should be followed by resolution in the opposite direction.</div>
+        <div class="chord-example">Rising arch · falling line · valley shape · zigzag</div>
+        <div class="chord-tags"><span class="tag tag-green">shape</span><span class="tag tag-green">direction</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;line-height:1.3;">Tension &amp; release</div><div class="chord-quality">stability</div></div>
+      <div><span class="func-pill pill-dominant">Tension</span></div>
+      <div class="chord-body">
+        <div class="chord-name">The heartbeat of any melody.</div>
+        <div class="chord-desc">Move away from stable notes (1, 3, 5) toward unstable ones, then resolve back. The 7th degree is the classic pull tone — it leans hard toward the tonic. Build tension, then pay it off.</div>
+        <div class="chord-example">Scale degree 7 → 1 · leading tone resolution</div>
+        <div class="chord-tags"><span class="tag tag-red">instability</span><span class="tag tag-red">resolution</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;line-height:1.3;">Phrase structure</div><div class="chord-quality">breath &amp; form</div></div>
+      <div><span class="func-pill pill-predom">Structure</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Give the listener a sense of breath.</div>
+        <div class="chord-desc">Think in 4 or 8-bar units. A question phrase ends unresolved (on V or 2); an answer phrase lands on the tonic. This call-and-response shape appears in virtually every genre of music.</div>
+        <div class="chord-example">Antecedent (question) → Consequent (answer)</div>
+        <div class="chord-tags"><span class="tag tag-teal">call &amp; response</span><span class="tag tag-teal">phrase</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;line-height:1.3;">Repetition</div><div class="chord-quality">with variation</div></div>
+      <div><span class="func-pill pill-mediant">Memory</span></div>
+      <div class="chord-body">
+        <div class="chord-name">What makes a melody stick.</div>
+        <div class="chord-desc">State a motif, repeat it (at a different pitch or rhythm), then vary it — extend it, invert it, or surprise the listener by going somewhere unexpected. Too much repetition = boring. No repetition = forgettable.</div>
+        <div class="chord-example">State · repeat · vary · surprise</div>
+        <div class="chord-tags"><span class="tag tag-purple">motif</span><span class="tag tag-purple">development</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;line-height:1.3;">Rhythmic identity</div><div class="chord-quality">the first thing you hum</div></div>
+      <div><span class="func-pill pill-tonic">Rhythm</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Often more important than pitch.</div>
+        <div class="chord-desc">The rhythm of a melody is usually what you recognize first. A strong rhythmic motif with a simple pitch shape often beats a complex pitch contour with flat rhythm. Lock the rhythm, then find the notes.</div>
+        <div class="chord-example">Beethoven's 5th: da-da-da-DUM is rhythm first</div>
+        <div class="chord-tags"><span class="tag tag-green">groove</span><span class="tag tag-green">recognition</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">MESH — composing framework</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:0.5rem;">
+
+      <div class="scale-card border-amber" style="position:relative;">
+        <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--accent);line-height:1;margin-bottom:8px;">M</div>
+        <div class="scale-name">Melody</div>
+        <div class="scale-mood">Start with a raw idea — a few notes, a rhythm, a shape. Don't judge it yet. Just get something down.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-amber">first idea</span><span class="tag tag-amber">raw material</span></div>
+      </div>
+
+      <div class="scale-card border-teal">
+        <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--accent2);line-height:1;margin-bottom:8px;">E</div>
+        <div class="scale-name">Evolve</div>
+        <div class="scale-mood">Develop the idea. Sequence it, transpose it, invert it, change its rhythm. Push it somewhere new.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-teal">develop</span><span class="tag tag-teal">transform</span></div>
+      </div>
+
+      <div class="scale-card border-purple">
+        <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--accent3);line-height:1;margin-bottom:8px;">S</div>
+        <div class="scale-name">Shape</div>
+        <div class="scale-mood">Step back and look at the arc. Does it rise and fall with intention? Does it breathe? Sculpt the contour deliberately.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-purple">contour</span><span class="tag tag-purple">arc</span></div>
+      </div>
+
+      <div class="scale-card border-green">
+        <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--green);line-height:1;margin-bottom:8px;">H</div>
+        <div class="scale-name">Home</div>
+        <div class="scale-mood">Always ask where home is. Make sure the melody lands somewhere — on the tonic, on a phrase ending, on a rhythmic resolution.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-green">tonic</span><span class="tag tag-green">arrival</span></div>
+      </div>
+
+    </div>
+
+    <p style="font-size:12px;color:var(--faint);margin-top:1.5rem;line-height:1.7;max-width:560px;">
+      A good composing session might cycle through MESH two or three times — each pass refining the melody further. M → E → S → H → repeat.
+    </p>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANEL 6 · CLASSICAL HARMONY
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-classical">
+
+    <div class="section-label">Seventh chords — stacking beyond the triad</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">V<sup style="font-size:0.6em">7</sup></div><div class="chord-quality">dominant 7th</div></div>
+      <div><span class="func-pill pill-dominant">Dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">The engine of classical harmony.</div>
+        <div class="chord-desc">A tritone between the 3rd and 7th creates two unstable intervals that both want to resolve. Far more directional than plain V. Almost every classical cadence uses it.</div>
+        <div class="chord-example">G7 → C in C major · the universal cadence</div>
+        <div class="chord-tags"><span class="tag tag-red">urgent</span><span class="tag tag-red">directed</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">Imaj<sup style="font-size:0.6em">7</sup></div><div class="chord-quality">major 7th</div></div>
+      <div><span class="func-pill pill-tonic">Tonic</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Dreamy, lush tonic colour.</div>
+        <div class="chord-desc">Adds a note a major 7th above the root to the tonic triad — soft and yearning. Common in Romantic era music and jazz. Feels like home, but with a sigh.</div>
+        <div class="chord-example">Cmaj7 in C · Debussy, Ravel, Bill Evans</div>
+        <div class="chord-tags"><span class="tag tag-teal">lush</span><span class="tag tag-teal">dreamy</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">ii<sup style="font-size:0.6em">ø7</sup></div><div class="chord-quality">half-diminished 7th</div></div>
+      <div><span class="func-pill pill-predom">Pre-dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Fragile, aching — the Chopin chord.</div>
+        <div class="chord-desc">The pre-dominant chord in minor keys. A diminished triad with a minor 7th on top — less explosive than fully diminished, but deeply melancholic. Chopin and Brahms used it constantly.</div>
+        <div class="chord-example">D half-dim in C minor → G7 → Cm</div>
+        <div class="chord-tags"><span class="tag tag-purple">aching</span><span class="tag tag-purple">fragile</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">vii°<sup style="font-size:0.6em">7</sup></div><div class="chord-quality">fully diminished 7th</div></div>
+      <div><span class="func-pill pill-dominant">Dominant</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Maximum drama. Symmetric tension.</div>
+        <div class="chord-desc">Four notes all a minor 3rd apart — completely symmetric, so it sounds tense from any angle. Used for dramatic moments and modulation (it can resolve to 4 different keys). One of the most recognizable classical sounds.</div>
+        <div class="chord-example">B dim7 in C · Beethoven storm passages</div>
+        <div class="chord-tags"><span class="tag tag-red">dramatic</span><span class="tag tag-red">explosive</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">Borrowed chords — modal mixture</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">iv</div><div class="chord-quality">minor subdominant</div></div>
+      <div><span class="func-pill pill-predom">Borrowed</span></div>
+      <div class="chord-body">
+        <div class="chord-name">One of the most devastating chords in music.</div>
+        <div class="chord-desc">Borrowing the minor iv into a major key — e.g. F minor in C major. Heavier and more mournful than IV major. Schubert built whole pieces around this move. The sudden darkening is deeply emotional.</div>
+        <div class="chord-example">F min in C major → C · Schubert, Radiohead</div>
+        <div class="chord-tags"><span class="tag tag-purple">mournful</span><span class="tag tag-purple">borrowed</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">♭VI</div><div class="chord-quality">flat submediant</div></div>
+      <div><span class="func-pill pill-mediant">Borrowed</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Warm shadow — stepping into darkness.</div>
+        <div class="chord-desc">A major chord a minor 3rd below the tonic, borrowed from the parallel minor. Feels like stepping from sunlight into shade — unexpected but immediately beautiful. A Romantic era staple.</div>
+        <div class="chord-example">A♭ major in C major · Beethoven slow movements</div>
+        <div class="chord-tags"><span class="tag tag-amber">warm</span><span class="tag tag-amber">shadowy</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">♭VII</div><div class="chord-quality">flat subtonic</div></div>
+      <div><span class="func-pill pill-subtonic">Borrowed</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Dark cinematic weight.</div>
+        <div class="chord-desc">A major chord one whole step below the tonic, borrowed from Mixolydian or the parallel minor. Gives sudden heaviness without the urgency of V. Common in film scores and Romantic piano music.</div>
+        <div class="chord-example">B♭ major in C major · cinematic, grand</div>
+        <div class="chord-tags"><span class="tag tag-gray">dark</span><span class="tag tag-gray">cinematic</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">Special chords — chromatic colour</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">V<sup style="font-size:0.6em">7</sup>/X</div><div class="chord-quality">secondary dominant</div></div>
+      <div><span class="func-pill pill-dominant">Secondary</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Tonicization — a key within a key.</div>
+        <div class="chord-desc">Any chord can be temporarily treated as a local tonic by placing its own V7 before it. Creates a brief feeling of visiting another key without fully leaving home. Bach used this constantly to give every chord a sense of destination.</div>
+        <div class="chord-example">A7 → Dm in C major · V7/ii → ii</div>
+        <div class="chord-tags"><span class="tag tag-red">tonicization</span><span class="tag tag-red">borrowed</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">♭II<sup style="font-size:0.6em">6</sup></div><div class="chord-quality">Neapolitan</div></div>
+      <div><span class="func-pill pill-predom">Neapolitan</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Tragic, operatic, final-feeling.</div>
+        <div class="chord-desc">A major chord built on the flattened 2nd degree — always in first inversion. Pre-dominant function, leads into V. Unmistakably heavy and dramatic. Beloved by Beethoven, Schubert, and Verdi.</div>
+        <div class="chord-example">D♭ major (1st inv.) in C minor → G7 → Cm</div>
+        <div class="chord-tags"><span class="tag tag-purple">tragic</span><span class="tag tag-purple">operatic</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">It<sup style="font-size:0.6em">+6</sup></div><div class="chord-quality">Italian aug. 6th</div></div>
+      <div><span class="func-pill pill-predom">Aug. 6th</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Two notes that explode outward to V.</div>
+        <div class="chord-desc">The simplest augmented 6th chord — two notes an augmented 6th apart that resolve outward by a half step each to the dominant. Intensely directed. Used for dramatic cadential approach.</div>
+        <div class="chord-example">A♭–F♯ → G–G · resolves to V in C</div>
+        <div class="chord-tags"><span class="tag tag-red">explosive</span><span class="tag tag-red">directed</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree">Ger<sup style="font-size:0.6em">+6</sup></div><div class="chord-quality">German aug. 6th</div></div>
+      <div><span class="func-pill pill-dominant">Aug. 6th</span></div>
+      <div class="chord-body">
+        <div class="chord-name">The shape-shifter — enharmonic pivot.</div>
+        <div class="chord-desc">The richest augmented 6th chord. Enharmonically identical to a dominant 7th chord, allowing composers to pivot between distant keys with a single harmonic sleight of hand. Beethoven and Schubert exploited this endlessly.</div>
+        <div class="chord-example">Ger+6 = enharmonic V7 of another key</div>
+        <div class="chord-tags"><span class="tag tag-amber">pivot</span><span class="tag tag-amber">modulation</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">Modulation — moving between keys</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:0.5rem;">
+
+      <div class="scale-card border-teal">
+        <div class="scale-name">Pivot chord</div>
+        <div class="scale-mood">Find a chord shared by both keys, use it as a hinge, then proceed in the new key. The smoothest, most invisible technique. The listener barely notices the key has shifted.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-teal">smooth</span><span class="tag tag-teal">classical</span></div>
+      </div>
+
+      <div class="scale-card border-amber">
+        <div class="scale-name">Phrase modulation</div>
+        <div class="scale-mood">Simply jump to the new key with no preparation — just start a new phrase in the new tonic. Jarring but effective for drama, surprise, or emotional lift. Common in pop and folk.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-amber">direct</span><span class="tag tag-amber">dramatic</span></div>
+      </div>
+
+      <div class="scale-card border-purple">
+        <div class="scale-name">Chromatic modulation</div>
+        <div class="scale-mood">Slide by half-step into the new key using an altered chord or enharmonic pivot. Creates a sense of harmonic surprise — the floor shifts beneath you. Romantic era hallmark.</div>
+        <div class="scale-tags" style="margin-top:8px;"><span class="tag tag-purple">chromatic</span><span class="tag tag-purple">Romantic</span></div>
+      </div>
+
+    </div>
+
+    <p style="font-size:12px;color:var(--faint);margin-top:1.5rem;line-height:1.7;max-width:580px;">
+      What truly sets classical harmony apart: <em style="font-style:italic;">voice leading</em> (each chord note is an independent melody), <em style="font-style:italic;">functional directionality</em> (every chord has a destination), and increasing <em style="font-style:italic;">chromaticism</em> — from Bach's order through Romantic ambiguity all the way to Wagner's tonal dissolution.
+    </p>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANEL 7 · CHORD CONSTRUCTION
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-construction">
+
+    <div class="section-label">The interval building blocks — semitones</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:1.5rem;">
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">1 semitone</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Minor 2nd (m2)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → C♯ · half step</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">2 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Major 2nd (M2)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → D · whole step</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">3 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Minor 3rd (m3)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → E♭ · minor quality</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">4 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Major 3rd (M3)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → E · major quality</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">5 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Perfect 4th (P4)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → F · open, stable</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">6 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Tritone (TT)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → F♯ · maximally tense</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">7 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Perfect 5th (P5)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → G · power, fullness</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">8 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Minor 6th (m6)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → A♭ · dark colour</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">9 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Major 6th (M6)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → A · warm, open</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">10 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Minor 7th (m7)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → B♭ · bluesy, tense</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">11 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Major 7th (M7)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → B · yearning, lush</div>
+      </div>
+      <div class="enharm-card" style="text-align:left;padding:12px 14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:4px;">12 semitones</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">Octave (P8)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">C → C · same note, higher</div>
+      </div>
+    </div>
+
+    <div class="section-label">Triads — the four basic chord qualities</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:1.5rem;">
+
+      <div class="scale-card border-green">
+        <div class="scale-name">Major</div>
+        <div class="scale-formula">Root + M3 (4st) + P5 (7st)</div>
+        <div class="scale-mood">Bright, happy, stable. The 3rd sits 4 semitones above root — this single note makes the chord feel resolved and open.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">C – E – G</div>
+        <div class="scale-tags" style="margin-top:6px;"><span class="tag tag-green">bright</span><span class="tag tag-green">stable</span></div>
+      </div>
+
+      <div class="scale-card border-purple">
+        <div class="scale-name">Minor</div>
+        <div class="scale-formula">Root + m3 (3st) + P5 (7st)</div>
+        <div class="scale-mood">Dark, melancholic, introspective. The 3rd is one semitone lower than major — that single shift is the entire mood difference.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">C – E♭ – G</div>
+        <div class="scale-tags" style="margin-top:6px;"><span class="tag tag-purple">dark</span><span class="tag tag-purple">melancholic</span></div>
+      </div>
+
+      <div class="scale-card border-red">
+        <div class="scale-name">Diminished</div>
+        <div class="scale-formula">Root + m3 (3st) + d5 (6st)</div>
+        <div class="scale-mood">Tense, unstable, dramatic. Both 3rd and 5th are lowered — the tritone between them creates maximum dissonance and a strong pull to resolve.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">C – E♭ – G♭</div>
+        <div class="scale-tags" style="margin-top:6px;"><span class="tag tag-red">tense</span><span class="tag tag-red">unstable</span></div>
+      </div>
+
+      <div class="scale-card border-amber">
+        <div class="scale-name">Augmented</div>
+        <div class="scale-formula">Root + M3 (4st) + A5 (8st)</div>
+        <div class="scale-mood">Eerie, floating, ambiguous. The raised 5th creates a dreamlike instability — neither resolved nor sharply tense. Used for colour and surprise.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">C – E – G♯</div>
+        <div class="scale-tags" style="margin-top:6px;"><span class="tag tag-amber">eerie</span><span class="tag tag-amber">floating</span></div>
+      </div>
+
+    </div>
+
+    <div class="section-label">Major vs minor — the one note that changes everything</div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:10px;letter-spacing:0.1em;text-transform:uppercase;">Major (C)</div>
+          <div style="display:flex;gap:6px;align-items:flex-end;">
+            <div style="text-align:center;">
+              <div style="background:var(--accent);color:var(--bg);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;">C</div>
+              <div style="font-size:10px;color:var(--faint);margin-top:4px;">root</div>
+            </div>
+            <div style="font-size:10px;color:var(--faint);padding-bottom:12px;">+4st</div>
+            <div style="text-align:center;">
+              <div style="background:var(--green);color:var(--bg);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;">E</div>
+              <div style="font-size:10px;color:var(--green);margin-top:4px;font-weight:500;">M3</div>
+            </div>
+            <div style="font-size:10px;color:var(--faint);padding-bottom:12px;">+3st</div>
+            <div style="text-align:center;">
+              <div style="background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);">G</div>
+              <div style="font-size:10px;color:var(--faint);margin-top:4px;">P5</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;">The E is natural — 4 semitones above C. This gives the chord its bright, open quality.</div>
+        </div>
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:10px;letter-spacing:0.1em;text-transform:uppercase;">Minor (Cm)</div>
+          <div style="display:flex;gap:6px;align-items:flex-end;">
+            <div style="text-align:center;">
+              <div style="background:var(--accent);color:var(--bg);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;">C</div>
+              <div style="font-size:10px;color:var(--faint);margin-top:4px;">root</div>
+            </div>
+            <div style="font-size:10px;color:var(--faint);padding-bottom:12px;">+3st</div>
+            <div style="text-align:center;">
+              <div style="background:var(--accent3);color:var(--bg);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;">E♭</div>
+              <div style="font-size:10px;color:var(--accent3);margin-top:4px;font-weight:500;">m3 ←</div>
+            </div>
+            <div style="font-size:10px;color:var(--faint);padding-bottom:12px;">+4st</div>
+            <div style="text-align:center;">
+              <div style="background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);">G</div>
+              <div style="font-size:10px;color:var(--faint);margin-top:4px;">P5</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;">The E♭ is one semitone lower — that single change darkens the entire chord.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Seventh chords — adding a 4th note</div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;">maj7</div><div class="chord-quality">major 7th</div></div>
+      <div><span class="func-pill pill-tonic">Lush</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Major triad + major 7th (11 semitones)</div>
+        <div class="chord-desc">Warm and dreamy. The major 7th sits just a semitone below the octave, creating a sweet, unresolved sigh above the stable triad.</div>
+        <div class="chord-example">Cmaj7 = C – E – G – B</div>
+        <div class="chord-tags"><span class="tag tag-teal">dreamy</span><span class="tag tag-teal">jazz</span><span class="tag tag-teal">Romantic</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;">dom7</div><div class="chord-quality">dominant 7th</div></div>
+      <div><span class="func-pill pill-dominant">Tense</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Major triad + minor 7th (10 semitones)</div>
+        <div class="chord-desc">The most directional chord in tonal music. The minor 7th + major 3rd create a tritone that demands resolution. Used at every cadence.</div>
+        <div class="chord-example">G7 = G – B – D – F · tritone: B↔F</div>
+        <div class="chord-tags"><span class="tag tag-red">urgent</span><span class="tag tag-red">directed</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;">min7</div><div class="chord-quality">minor 7th</div></div>
+      <div><span class="func-pill pill-predom">Mellow</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Minor triad + minor 7th (10 semitones)</div>
+        <div class="chord-desc">Soft and rounded — less tense than a dominant 7th, darker than a major 7th. The workhorse of jazz and soul. Often used as ii7 in a ii–V–I.</div>
+        <div class="chord-example">Dm7 = D – F – A – C</div>
+        <div class="chord-tags"><span class="tag tag-purple">soulful</span><span class="tag tag-purple">mellow</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;">dim7</div><div class="chord-quality">diminished 7th</div></div>
+      <div><span class="func-pill pill-dominant">Explosive</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Diminished triad + diminished 7th (9 semitones)</div>
+        <div class="chord-desc">Four notes equally spaced by minor 3rds — a perfectly symmetric chord. Maximally tense. Can resolve to 4 different keys, making it a master modulation pivot.</div>
+        <div class="chord-example">Bdim7 = B – D – F – A♭</div>
+        <div class="chord-tags"><span class="tag tag-red">dramatic</span><span class="tag tag-red">symmetric</span></div>
+      </div>
+    </div>
+
+    <div class="chord-row">
+      <div><div class="chord-degree" style="font-size:1.1rem;">m7♭5</div><div class="chord-quality">half-diminished</div></div>
+      <div><span class="func-pill pill-predom">Aching</span></div>
+      <div class="chord-body">
+        <div class="chord-name">Diminished triad + minor 7th (10 semitones)</div>
+        <div class="chord-desc">Also called ø7. Less explosive than full dim7 — fragile and melancholic. The ii chord in minor keys, and beloved in jazz ballads and Romantic music.</div>
+        <div class="chord-example">Bm7♭5 = B – D – F – A</div>
+        <div class="chord-tags"><span class="tag tag-purple">fragile</span><span class="tag tag-purple">Chopin</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">Inversions — same notes, different bass</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:0.5rem;">
+
+      <div class="scale-card border-gray">
+        <div class="scale-name">Root position</div>
+        <div class="scale-formula">Root in the bass</div>
+        <div class="scale-mood">The default and most stable voicing. The chord's name note is on the bottom. Feels grounded and complete.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">C / E / G</div>
+      </div>
+
+      <div class="scale-card border-teal">
+        <div class="scale-name">1st inversion</div>
+        <div class="scale-formula">3rd in the bass</div>
+        <div class="scale-mood">Lighter and less final than root position. Often used to smooth a bass line — the bass steps by step rather than leaping. Common in baroque chorales.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">E / G / C</div>
+      </div>
+
+      <div class="scale-card border-amber">
+        <div class="scale-name">2nd inversion</div>
+        <div class="scale-formula">5th in the bass</div>
+        <div class="scale-mood">The most unstable inversion — the 5th in the bass creates ambiguity. Often used as a cadential ⁶₄ chord (the I⁶₄ before V in classical cadences).</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">G / C / E</div>
+      </div>
+
+      <div class="scale-card border-purple">
+        <div class="scale-name">3rd inversion</div>
+        <div class="scale-formula">7th in the bass (7th chords only)</div>
+        <div class="scale-mood">For 7th chords — the 7th degree in the bass. Creates strong forward motion; the bass note strongly wants to resolve downward by step.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-top:8px;">F / G / B / D (G7 3rd inv.)</div>
+      </div>
+
+    </div>
+
+    <p style="font-size:12px;color:var(--faint);margin-top:1.5rem;line-height:1.7;max-width:580px;">
+      Inversions are notated with a slash: C/E means a C major chord with E in the bass. In classical figured bass notation, root position = ⁵₃, 1st inversion = ⁶₃, 2nd inversion = ⁶₄.
+    </p>
 
   </div>
 
