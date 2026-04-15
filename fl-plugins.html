@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FL Studio Effects — Plugin Reference</title>
+<title>FL Studio — Music Reference</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -325,46 +325,473 @@
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* MUSIC STYLES PAGE */
+  .styles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .style-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 24px; padding: 0;
+    box-shadow: var(--shadow-card); overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
+    cursor: pointer; position: relative;
+  }
+  .style-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+  .style-card.expanded { background: var(--bg2); border-color: var(--border-h); }
+  .style-card::before {
+    content: ''; position: absolute; top: 1rem; left: 0;
+    width: 3px; height: calc(100% - 2rem); border-radius: 0 6px 6px 0;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .style-card:hover::before, .style-card.expanded::before { opacity: 1; background: var(--sc-color, var(--rev)); }
+
+  .style-card-top { padding: 1.3rem 1.4rem 1rem; }
+  .style-header { display: flex; align-items: center; gap: 12px; margin-bottom: 0.6rem; }
+  .style-icon {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; background: color-mix(in srgb, var(--sc-color, var(--rev)) 15%, transparent);
+  }
+  .style-title-group { flex: 1; min-width: 0; }
+  .style-name { font-size: 16px; font-weight: 900; letter-spacing: -0.02em; }
+  .style-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .style-expand { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); flex-shrink: 0; transition: transform 0.2s; }
+  .style-card.expanded .style-expand { transform: rotate(180deg); }
+
+  .style-desc { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.65; margin-bottom: 1rem; }
+
+  .mood-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0; }
+  .mood-pill {
+    font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 999px;
+    background: color-mix(in srgb, var(--sc-color, var(--rev)) 12%, transparent);
+    color: var(--sc-color, var(--rev));
+    border: 1px solid color-mix(in srgb, var(--sc-color, var(--rev)) 28%, transparent);
+  }
+
+  .style-body { display: none; padding: 0 1.4rem 1.3rem; border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1.1rem; }
+  .style-card.expanded .style-body { display: block; }
+
+  .style-body-section { margin-bottom: 1.1rem; }
+  .style-body-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.55rem; }
+
+  .instrument-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .instrument-tag { font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: var(--bg3); border: 1px solid var(--border); color: var(--muted); }
+
+  .ost-list { display: flex; flex-direction: column; gap: 8px; }
+  .ost-item {
+    background: var(--recipe-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 10px 13px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .ost-left { flex: 1; min-width: 0; }
+  .ost-game { font-size: 13px; font-weight: 800; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ost-composer { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+  .ost-note { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.5; }
+  .ost-tracks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .ost-track-tag {
+    font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 999px;
+    background: color-mix(in srgb, var(--sc-color, var(--rev)) 10%, transparent);
+    color: color-mix(in srgb, var(--sc-color, var(--rev)) 80%, var(--text));
+    border: 1px solid color-mix(in srgb, var(--sc-color, var(--rev)) 22%, transparent);
+  }
+
+  .tip-callout {
+    background: var(--tip-bg); border: 1px solid var(--border); border-radius: 14px;
+    padding: 10px 13px; font-size: 12px; font-weight: 500; line-height: 1.6; color: var(--muted);
+  }
+  .tip-callout .tip-label { color: var(--eq); font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+  .tip-callout .tip-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--eq); flex-shrink: 0; }
+
+  @media (max-width: 640px) { .styles-grid { grid-template-columns: 1fr; } }
+
   @media (max-width: 600px) {
     h1 { font-size: 2.4rem; }
     .plugin-grid { grid-template-columns: 1fr; padding: 0 1rem 4rem; }
-    .controls, header, .legend { padding-left: 1rem; padding-right: 1rem; }
+    .controls, header, .legend, .palette-wrap { padding-left: 1rem; padding-right: 1rem; }
     nav { padding: 0.75rem 1rem; }
   }
+
+  /* PAGE TABS */
+  .page-tabs {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 0 2rem; display: flex; gap: 6px; border-bottom: 1px solid var(--border);
+  }
+  .page-tab-btn {
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    padding: 10px 20px; border: none; background: transparent;
+    color: var(--muted); cursor: pointer; position: relative;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.18s;
+  }
+  .page-tab-btn:hover { color: var(--text); }
+  .page-tab-btn.active { color: var(--text); border-bottom-color: var(--rev); }
+
+  .page-section { display: none; }
+  .page-section.active { display: block; }
+
+  /* PALETTE PAGE */
+  .palette-wrap {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 2.5rem 2rem 6rem;
+  }
+  .pal-header { margin-bottom: 2.5rem; }
+  .pal-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 0.8rem;
+  }
+  .pal-title {
+    font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
+    line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 0.8rem;
+  }
+  .pal-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--mod) 0%, var(--rev) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .pal-desc { font-size: 15px; font-weight: 500; color: var(--muted); max-width: 540px; line-height: 1.75; }
+
+  .pal-section-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 0.9rem; padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pal-section { margin-bottom: 2.5rem; }
+
+  .pal-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 1.2rem 1.4rem;
+    box-shadow: var(--shadow-card); margin-bottom: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .pal-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-hover); }
+  .pal-card-h { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 5px; }
+  .pal-card-b { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.7; }
+  .pal-quote {
+    border-left: 3px solid var(--rev); padding: 8px 12px; margin-top: 10px;
+    font-size: 12px; font-style: italic; color: var(--muted);
+    background: color-mix(in srgb, var(--rev) 6%, transparent); border-radius: 0 10px 10px 0;
+  }
+
+  .pal-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .pal-two { grid-template-columns: 1fr; } }
+
+  .technique-list { display: flex; flex-direction: column; }
+  .tech-row {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .tech-row:last-child { border-bottom: none; }
+  .tech-dot-wrap { padding-top: 4px; flex-shrink: 0; }
+  .tech-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .tech-title { font-size: 14px; font-weight: 800; margin-bottom: 3px; letter-spacing: -0.01em; }
+  .tech-body { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.65; }
+
+  .pal-pill-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+  .pal-pill {
+    font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 999px;
+    background: var(--bg3); border: 1px solid var(--border); color: var(--muted);
+  }
+  .pal-pill-accent { border-color: var(--rev); color: var(--rev);
+    background: color-mix(in srgb, var(--rev) 8%, transparent); }
+
+  .fl-method {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 18px; padding: 1rem 1.2rem; margin-bottom: 8px;
+    box-shadow: var(--shadow-card); display: flex; gap: 12px; align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .fl-method:hover { border-color: var(--border-h); }
+  .fl-badge {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    padding: 3px 10px; border-radius: 999px; flex-shrink: 0; margin-top: 1px;
+    background: color-mix(in srgb, var(--util) 15%, transparent);
+    color: var(--util); border: 1px solid color-mix(in srgb, var(--util) 30%, transparent);
+  }
+  .fl-method-body { flex: 1; }
+  .fl-method-h { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+  .fl-method-b { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.6; }
+  .kbd {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    background: var(--bg3); border: 1px solid var(--border-h);
+    border-radius: 5px; padding: 1px 6px; color: var(--text);
+  }
+
+  .example-palette {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 1.2rem 1.4rem; box-shadow: var(--shadow-card);
+  }
+  .ep-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .ep-row:last-child { border-bottom: none; }
+  .ep-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ep-role { font-family: var(--mono); font-size: 10px; color: var(--muted); min-width: 90px; letter-spacing: 0.06em; }
+  .ep-name { font-size: 13px; font-weight: 800; flex: 1; }
+  .ep-note { font-size: 12px; font-weight: 500; color: var(--muted); font-style: italic; }
+  .ep-fx-note { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand"><span class="nav-brand-dot"></span>FL Studio Effects</div>
+  <div class="nav-brand"><span class="nav-brand-dot"></span>FL Studio Music Reference</div>
   <div class="theme-toggle" onclick="toggleTheme()">
     <div class="toggle-track"><div class="toggle-thumb"></div></div>
     <span id="themeLabel">Night</span>
   </div>
 </nav>
 
-<header>
-  <div class="eyebrow">Plugin reference · 17 effects</div>
-  <h1>Effects<br><em>Cheat Sheet</em></h1>
-  <p class="header-desc">Every native FL Studio effect plugin, sorted by how often you'll reach for it. Each plugin includes sound recipes with exact settings.</p>
-</header>
-
-<div class="legend" id="legend"></div>
-
-<div class="controls">
-  <div class="search-wrap">
-    <span class="search-icon">⌕</span>
-    <input type="text" id="search" placeholder="Search plugins or sounds…" oninput="renderPlugins()" />
-  </div>
-  <div class="filters" id="filters"></div>
+<div class="page-tabs">
+  <button class="page-tab-btn active" onclick="switchPage('plugins', this)">Effects &amp; Plugins</button>
+  <button class="page-tab-btn" onclick="switchPage('palette', this)">Sound Palette</button>
+  <button class="page-tab-btn" onclick="switchPage('styles', this)">Music Styles</button>
 </div>
 
-<div class="count-bar" id="count-bar"></div>
-<div class="plugin-grid" id="plugin-grid"></div>
+<!-- PAGE: PLUGINS -->
+<div class="page-section active" id="page-plugins">
+  <header>
+    <div class="eyebrow">Plugin reference · 17 effects</div>
+    <h1>Effects<br><em>Cheat Sheet</em></h1>
+    <p class="header-desc">Every native FL Studio effect plugin, sorted by how often you'll reach for it. Each plugin includes sound recipes with exact settings.</p>
+  </header>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search" placeholder="Search plugins or sounds…" oninput="renderPlugins()" />
+    </div>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="count-bar" id="count-bar"></div>
+  <div class="plugin-grid" id="plugin-grid"></div>
+</div>
+
+<!-- PAGE: SOUND PALETTE -->
+<div class="page-section" id="page-palette">
+  <div class="palette-wrap">
+
+    <div class="pal-header">
+      <div class="pal-eyebrow">Composition guide · indie game music</div>
+      <div class="pal-title">Sound<br><em>Palette</em></div>
+      <p class="pal-desc">How to build a coherent sonic identity for your game — and keep it consistent across every track. Plus how to save your palette in FL Studio.</p>
+    </div>
+
+    <!-- WHAT IS A PALETTE -->
+    <div class="pal-section">
+      <div class="pal-section-label">What a sound palette is</div>
+      <div class="pal-card">
+        <div class="pal-card-b">A sound palette is a deliberately constrained set of instruments, timbres, and effects you commit to <em>before</em> writing any music. The constraint is the point — variety comes from how you use the sounds, not from adding more of them. Think of it like a painter limiting themselves to 4 colours.</div>
+        <div class="pal-quote">"I worked with mostly factory default settings &amp; literally one synth for years &amp; shipped an award-winning game before I could afford anything else." — Lena Raine (Celeste)</div>
+      </div>
+    </div>
+
+    <!-- 4 DIMENSIONS -->
+    <div class="pal-section">
+      <div class="pal-section-label">The 4 dimensions of a palette</div>
+      <div class="pal-two">
+        <div class="pal-card">
+          <div class="pal-card-h" style="color:var(--rev)">Timbre core</div>
+          <div class="pal-card-b">Your 1–3 "hero" instruments. Every track features at least one of these. They define how your world sounds at first listen — the thing players remember.</div>
+        </div>
+        <div class="pal-card">
+          <div class="pal-card-h" style="color:var(--mod)">Texture layer</div>
+          <div class="pal-card-b">Ambient pads, noise, drone — never melodic, never loud. Always present in the background. Creates the emotional "air" of a scene.</div>
+        </div>
+        <div class="pal-card">
+          <div class="pal-card-h" style="color:var(--del)">Effect signature</div>
+          <div class="pal-card-b">1–2 effects applied consistently across everything. Celeste: heavy reverb on everything + delay woven into melodies. This is the glue that makes all tracks feel like one world.</div>
+        </div>
+        <div class="pal-card">
+          <div class="pal-card-h" style="color:var(--dyn)">Dynamic range rule</div>
+          <div class="pal-card-b">A decision about how loud, compressed, or soft your world is overall. Celeste: intimate and soft. Doom: crushed and loud. Commit to one end of the spectrum.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECHNIQUES -->
+    <div class="pal-section">
+      <div class="pal-section-label">Known techniques for building a palette</div>
+      <div class="pal-card" style="padding: 0.4rem 1.4rem;">
+        <div class="technique-list">
+
+          <div class="tech-row">
+            <div class="tech-dot-wrap"><div class="tech-dot" style="color:var(--rev);background:var(--rev)"></div></div>
+            <div>
+              <div class="tech-title">The "3 sounds" rule</div>
+              <div class="tech-body">Pick exactly one melodic instrument, one textural/pad sound, and one rhythmic/percussive element. Everything else is optional and tracked carefully. Forces economy and clarity.</div>
+            </div>
+          </div>
+
+          <div class="tech-row">
+            <div class="tech-dot-wrap"><div class="tech-dot" style="color:var(--dyn);background:var(--dyn)"></div></div>
+            <div>
+              <div class="tech-title">Frequency separation by role</div>
+              <div class="tech-body">Assign each palette sound its own frequency range: bass lives low, melody lives mid, texture lives high/ambient. Good palettes naturally separate in frequency — they never fight each other for space.</div>
+            </div>
+          </div>
+
+          <div class="tech-row">
+            <div class="tech-dot-wrap"><div class="tech-dot" style="color:var(--eq);background:var(--eq)"></div></div>
+            <div>
+              <div class="tech-title">Single reverb space</div>
+              <div class="tech-body">Use one reverb preset for all instruments. Everything sounds like it exists in the same room. Mixing different reverbs is the #1 way to make a palette feel incoherent. In FL Studio: one send bus, all channels route to it.</div>
+            </div>
+          </div>
+
+          <div class="tech-row">
+            <div class="tech-dot-wrap"><div class="tech-dot" style="color:var(--dist);background:var(--dist)"></div></div>
+            <div>
+              <div class="tech-title">Emotional anchoring</div>
+              <div class="tech-body">Before choosing sounds, write 3–5 adjectives for how your game should feel. "Lonely, warm, melancholic, hopeful." Then evaluate every candidate sound: does it evoke those words? Reject everything that doesn't.</div>
+            </div>
+          </div>
+
+          <div class="tech-row">
+            <div class="tech-dot-wrap"><div class="tech-dot" style="color:var(--util);background:var(--util)"></div></div>
+            <div>
+              <div class="tech-title">Reference track method</div>
+              <div class="tech-body">Find 2–3 tracks from other games whose feel matches your target. Load them in FL Studio alongside your work. If your sounds feel jarringly different in context, they're wrong for the palette.</div>
+            </div>
+          </div>
+
+          <div class="tech-row">
+            <div class="tech-dot-wrap"><div class="tech-dot" style="color:var(--mod);background:var(--mod)"></div></div>
+            <div>
+              <div class="tech-title">The "one track test"</div>
+              <div class="tech-body">Before locking in your palette, write one complete track using only those sounds. If you feel constrained in a bad way, expand. If it feels naturally rich and expressive, the palette is right.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- EXAMPLE PALETTE -->
+    <div class="pal-section">
+      <div class="pal-section-label">Example palette — Celeste-style platformer</div>
+      <div class="example-palette">
+        <div class="ep-row">
+          <div class="ep-dot" style="background:var(--rev)"></div>
+          <div class="ep-role">melodic core</div>
+          <div class="ep-name">Spitfire Felt Piano <span style="font-weight:500;color:var(--muted)">(LABS — free)</span></div>
+          <div class="ep-note">emotional anchor</div>
+        </div>
+        <div class="ep-row">
+          <div class="ep-dot" style="background:var(--mod)"></div>
+          <div class="ep-role">texture layer</div>
+          <div class="ep-name">Warm pad synth <span style="font-weight:500;color:var(--muted)">(Vital / Surge XT)</span></div>
+          <div class="ep-note">background presence</div>
+        </div>
+        <div class="ep-row">
+          <div class="ep-dot" style="background:var(--dist)"></div>
+          <div class="ep-role">energy/action</div>
+          <div class="ep-name">Lo-fi synth lead <span style="font-weight:500;color:var(--muted)">(NI Massive or Vital)</span></div>
+          <div class="ep-note">bitcrushed, gritty</div>
+        </div>
+        <div class="ep-row">
+          <div class="ep-dot" style="background:var(--del)"></div>
+          <div class="ep-role">rhythm</div>
+          <div class="ep-name">Sparse percussion <span style="font-weight:500;color:var(--muted)">(optional)</span></div>
+          <div class="ep-note">enters last, never dominates</div>
+        </div>
+        <div class="ep-fx-note">Effects across all channels: one room reverb send (ValhallaRoom / Fruity Reeverb 2) + ping-pong delay on melodic lines (Fruity Delay 3)</div>
+      </div>
+    </div>
+
+    <!-- FL STUDIO SAVING -->
+    <div class="pal-section">
+      <div class="pal-section-label">FL Studio — saving your palette across projects</div>
+
+      <div class="fl-method">
+        <div class="fl-badge">Method 1</div>
+        <div class="fl-method-body">
+          <div class="fl-method-h">Save instrument preset</div>
+          <div class="fl-method-b">Right-click any instrument in the Channel Rack → <em>Save preset as...</em> Saves the instrument + all settings as a <span class="kbd">.fst</span> file. Available in the Browser under Presets in every future project.</div>
+        </div>
+      </div>
+
+      <div class="fl-method">
+        <div class="fl-badge">Method 2</div>
+        <div class="fl-method-body">
+          <div class="fl-method-h">Save mixer FX chain</div>
+          <div class="fl-method-b">On a Mixer track with your reverb/delay/EQ setup, click the floppy disk icon at the top of the FX chain → <em>Save preset</em>. Saves the entire effect chain as a <span class="kbd">.fxp</span> file, loadable on any mixer track in any project.</div>
+        </div>
+      </div>
+
+      <div class="fl-method" style="border-color: color-mix(in srgb, var(--rev) 40%, transparent);">
+        <div class="fl-badge" style="background:color-mix(in srgb,var(--rev) 15%,transparent);color:var(--rev);border-color:color-mix(in srgb,var(--rev) 35%,transparent);">Recommended</div>
+        <div class="fl-method-body">
+          <div class="fl-method-h">Template project</div>
+          <div class="fl-method-b">Build a project with your full palette: all instruments in the Channel Rack, mixer tracks with the right effects, your reverb send configured. Then go <em>File → Save as template</em>. Every new project starts with the palette already loaded.</div>
+        </div>
+      </div>
+
+      <div class="fl-method">
+        <div class="fl-badge">Method 4</div>
+        <div class="fl-method-body">
+          <div class="fl-method-h">Browser favorites folder</div>
+          <div class="fl-method-b">In the Browser, navigate to your saved presets, right-click a folder → <em>Add to favorites</em>. Creates a shortcut at the top of the Browser. Your whole palette is one click away from any project.</div>
+        </div>
+      </div>
+
+      <div class="fl-method">
+        <div class="fl-badge">Method 5</div>
+        <div class="fl-method-body">
+          <div class="fl-method-h">Drag between projects</div>
+          <div class="fl-method-b">Open two FL Studio instances simultaneously. Drag instrument channels directly from one Channel Rack to another — settings, automation, and effects all transfer. Good for pulling a specific sound from an old project without rebuilding it.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FREE TOOLS -->
+    <div class="pal-section">
+      <div class="pal-section-label">Free tools to get started</div>
+      <div class="pal-card">
+        <div class="pal-card-b" style="margin-bottom:10px">Everything below is free and covers the full Celeste-style palette without spending anything.</div>
+        <div class="pal-pill-row">
+          <span class="pal-pill pal-pill-accent">Spitfire LABS Felt Piano</span>
+          <span class="pal-pill pal-pill-accent">Spitfire LABS Soft Piano</span>
+          <span class="pal-pill">Vital (wavetable synth)</span>
+          <span class="pal-pill">Surge XT (open source synth)</span>
+          <span class="pal-pill">ValhallaSupermassive (reverb)</span>
+          <span class="pal-pill">Fruity Reeverb 2 (built-in)</span>
+          <span class="pal-pill">Fruity Delay 3 (built-in)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE: MUSIC STYLES -->
+<div class="page-section" id="page-styles">
+  <div class="palette-wrap">
+
+    <div class="pal-header">
+      <div class="pal-eyebrow">Inspiration guide · OST reference library</div>
+      <div class="pal-title">Music<br><em>Styles</em></div>
+      <p class="pal-desc">A curated map of game music styles with reference OSTs for each. Use this to find your direction before committing to a palette.</p>
+    </div>
+
+    <div id="styles-grid"></div>
+
+  </div>
+</div>
 
 <footer>
-  <span>FL Studio Effects Cheat Sheet</span>
-  <span>17 plugins · sorted by frequency of use</span>
+  <span>FL Studio Music Reference</span>
+  <span>17 plugins · sound palette guide · music styles</span>
 </footer>
 
 <script>
@@ -824,6 +1251,13 @@ let activeTab = {}; // rank -> 'overview'|'recipes'
 let openRecipes = {}; // rank-recipeIdx -> bool
 let theme = 'dark';
 
+function switchPage(page, btn) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  btn.classList.add('active');
+}
+
 function toggleTheme() {
   theme = theme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', theme);
@@ -945,7 +1379,193 @@ function renderPlugins() {
 function toggle(rank) { expanded = expanded === rank ? null : rank; renderPlugins(); }
 function setFilter(cat) { activeCat = cat; renderFilters(); renderPlugins(); }
 
-renderLegend(); renderFilters(); renderPlugins();
+// ── MUSIC STYLES DATA ──────────────────────────────────────────────────────
+const STYLES = [
+  {
+    id:'felt-piano', icon:'🎹', color:'#a87eff',
+    name:'Felt / Soft Piano',
+    sub:'intimate · emotional · cinematic',
+    desc:'The most emotionally direct style in indie game music. A muted, felted piano carries the melody alone or with sparse accompaniment. Warmth comes from the softness of the sound itself — no need for complex arrangement.',
+    moods:['Melancholic','Intimate','Hopeful','Quiet'],
+    instruments:['Felt piano (LABS)','Sparse strings','Ambient pad','Light reverb'],
+    tip:'Keep it simple. A single melodic line over slow chord changes hits harder than a complex arrangement. Let silence do work — not every beat needs a note.',
+    osts:[
+      { game:'Celeste', composer:'Lena Raine (2018)', note:'The gold standard. Felt Piano + Massive synths. "First Steps" and "Reach for the Summit" show the full emotional range.', tracks:['First Steps','Resurrections','My Dearest Friends'] },
+      { game:'My Castle Town (Deltarune)', composer:'Toby Fox (2021)', note:'Two layered muted pianos — one melody, one accompaniment. Same LABS Soft Piano, almost nothing else.', tracks:['My Castle Town'] },
+      { game:'Florence', composer:'Kevin Penkin (2018)', note:'Piano-only score that literally splits into two hands to represent two people falling in love. Masterclass in emotional restraint.', tracks:['Chasing the Wind','Becoming'] },
+    ]
+  },
+  {
+    id:'jazz-noir', icon:'🎷', color:'#ffb347',
+    name:'Jazz & Noir',
+    sub:'moody · cinematic · bittersweet',
+    desc:'Sparse jazz instrumentation — double bass, brushed drums, piano, occasional woodwinds — played in a minor key with film noir atmosphere. Alternates between warmly nostalgic and quietly heartbreaking.',
+    moods:['Moody','Nostalgic','Bittersweet','Mysterious'],
+    instruments:['Acoustic piano','Double bass','Brushed drum kit','Clarinet / saxophone','Muted trumpet'],
+    tip:'Jazz harmony is the secret weapon here — extended chords (maj7, min9, dim7) give you emotion without sentimentality. One or two "wrong" notes per phrase make it feel alive.',
+    osts:[
+      { game:'Machinarium', composer:'Floex / Tomáš Dvořák (2009)', note:'The purest jazz game OST. Live clarinet over electronic percussion. Both joyful ("Clockwise Operetta") and deeply melancholic ("The Prison").', tracks:['Mr. Handagote','Clockwise Operetta','The Glasshouse with Butterfly'] },
+      { game:'Gunpoint', composer:'Ryan Ike (2013)', note:'Pure film noir — sparse piano, brushed drums, double bass. Consistently dark and cinematic. One of the few game OSTs that genuinely sounds like a 1950s detective film.', tracks:['The Punk and the Procedural','Double Cross'] },
+      { game:'Disco Elysium', composer:'British Sea Power (2019)', note:'Not jazz in the strict sense, but deeply noir in mood — melancholy rock arrangements with jazz harmony underpinning. "Martinet Square" alone is worth the listen.', tracks:['The Pigs','Martinet Square','Whirling-in-Rags'] },
+    ]
+  },
+  {
+    id:'lofi-jazz-hop', icon:'☕', color:'#2de898',
+    name:'Lo-fi Jazz Hop',
+    sub:'warm · cozy · understated',
+    desc:'Jazz chords and melodies delivered through a lo-fi hip-hop production lens — soft drum loops, vinyl crackle, warm bass, electric piano. The "study music" style applied thoughtfully to game audio.',
+    moods:['Cozy','Warm','Contemplative','Gentle'],
+    instruments:['Electric piano / Rhodes','Lo-fi drum loop','Warm bass','Vinyl crackle','Soft guitar'],
+    tip:'Lo-fi is about controlled imperfection. A slight pitch wobble, a gentle high-cut EQ rolling off around 12kHz, and a touch of vinyl crackle transform a clean piano into something that feels lived-in.',
+    osts:[
+      { game:'Coffee Talk', composer:'Andrew Jeremy (2020)', note:'The defining lo-fi jazz-hop game OST. Jazz chords, hip-hop beats, vinyl crackles. "Tenderhearted" and "Sleepless Mind" are the emotional highlights.', tracks:['Tenderhearted','Sleepless Mind','Gala Gila'] },
+      { game:'Coffee Talk Ep.2', composer:'Andrew Jeremy (2023)', note:'Richer and more bittersweet than the first. Adds moments of real sadness alongside the warmth. "Deeply Inside" and "War of Mind" hit differently.', tracks:['Heartfelt Smile','Deeply Inside','Night Road'] },
+      { game:'Spiritfarer', composer:'Max LL (2020)', note:'Bossa nova and acoustic jazz applied to a game about death. Warm and joyful tracks right next to ones that will quietly break you.', tracks:['Spirit Dinner Party','Hummingbird'] },
+    ]
+  },
+  {
+    id:'synthwave', icon:'🌆', color:'#ff5fad',
+    name:'Synthwave',
+    sub:'retro · neon · cinematic',
+    desc:'Rooted in 80s electronic music — arpeggiated synthesizers, gated reverb drums, lush pads, and driving basslines. Simultaneously nostalgic and futuristic. Works for action, mystery, and late-night atmospheres.',
+    moods:['Energetic','Mysterious','Nostalgic','Tense'],
+    instruments:['Analog synth leads','Arpeggiator','Gated reverb drums','Lush pads','Driving bass'],
+    tip:'The arpeggiator is your best friend. A fast 16th-note arp on a simple chord progression with heavy reverb and delay is the foundation of 80% of synthwave tracks.',
+    osts:[
+      { game:'VA-11 Hall-A', composer:'Garoad (2016)', note:'Synthwave + vaporwave + Japanese city pop. The jukebox format means every track stands alone. "Every Day Is Night" and "Meet the Staff" are essential listens.', tracks:['Every Day Is Night','Neon Impasse','Midnight Rendezvous'] },
+      { game:'Katana Zero', composer:'Various (2019)', note:'High-energy synthwave for a neon-drenched action game. Propulsive and cinematic. Mixes slow, tense pads with explosive leads.', tracks:['Slum Lord','Sneaky Driver','Reverence'] },
+      { game:'Hotline Miami', composer:'Various (2012)', note:'The pioneering game synthwave OST. Aggressive, hypnotic, uncomfortable. Carpenter Brut and Perturbator define the style here.', tracks:['Paris','Hydrogen','Sexualizer'] },
+    ]
+  },
+  {
+    id:'orchestral-emotional', icon:'🎻', color:'#3dd6ff',
+    name:'Orchestral / Neoclassical',
+    sub:'sweeping · epic · delicate',
+    desc:'Full or chamber orchestral writing — strings, woodwinds, brass, piano — arranged to tell emotional stories without words. Ranges from delicate solo instrument pieces to sweeping multi-section climaxes.',
+    moods:['Epic','Delicate','Wonder','Grief'],
+    instruments:['Strings','Solo piano','Woodwinds','Choir','Harp'],
+    tip:'Chamber arrangements (small ensembles — quartet, solo + piano) are much more achievable with sample libraries than full orchestra. They also read as more intimate, which suits indie games well.',
+    osts:[
+      { game:'Ori and the Blind Forest', composer:'Gareth Coker (2015)', note:'90 minutes of orchestral emotion that runs the full gamut. The score for "Restoring the Light, Facing the Dark" is one of the most powerful pieces in game music.', tracks:['Restoring the Light','Light of Nibel','Definitive Ending'] },
+      { game:'Hollow Knight', composer:'Christopher Larkin (2017)', note:'Dark, intimate orchestral writing for a world of insect tragedy. Solo instruments in a dry room — violin, cello, piano. Every track feels lonely and beautiful.', tracks:['Hollow Knight','City of Tears','Sealed Vessel'] },
+      { game:'Hoa', composer:'Takeshi Furukawa (2021)', note:'Studio Ghibli-influenced full orchestra. Warm, innocent, and gently melancholic. A perfect reference for a pastoral or nature-themed game.', tracks:['Hello Rocks','Departure'] },
+    ]
+  },
+  {
+    id:'electronic-ambient', icon:'🌌', color:'#c8f535',
+    name:'Electronic Ambient',
+    sub:'atmospheric · textural · drifting',
+    desc:'Slow-moving synthesizer pads, evolving textures, and minimal melodic content. Designed to create a sense of place rather than communicate emotion directly. Paired with sparse percussion or none at all.',
+    moods:['Mysterious','Peaceful','Vast','Lonely'],
+    instruments:['Evolving pads','Granular synthesis','Filtered noise','Sparse piano','Field recordings'],
+    tip:'Ambient music lives in the reverb tail, not the note. Write a simple 4-note phrase, bury it in 6 seconds of reverb, and slow it to half speed. That is 80% of ambient game music.',
+    osts:[
+      { game:'Hyper Light Drifter', composer:'Disasterpeace (2016)', note:'Melancholy electronic ambient with occasional melodic moments. The sense of a dying, forgotten world is entirely communicated through texture and atmosphere.', tracks:['Vignette: Panacea','Lots of Bells'] },
+      { game:'Journey', composer:'Austin Wintory (2012)', note:'Technically orchestral but the production is ambient in character — everything floats and dissolves. Adapts dynamically to player movement. Soundtrack Grammy nominee.', tracks:['Nascence','The Road of Trials'] },
+      { game:'Outer Wilds', composer:'Andrew Prahlow (2019)', note:'Acoustic folk meets electronic ambient. Camp songs on banjo float over vast synthesizer drones. The contrast between the small and the cosmic is the whole point.', tracks:['Travelers','Dark Bramble'] },
+    ]
+  },
+  {
+    id:'folk-acoustic', icon:'🪕', color:'#ff6b35',
+    name:'Folk & Acoustic',
+    sub:'grounded · human · warm',
+    desc:'Acoustic instruments — guitar, banjo, fiddle, piano, accordion — played in folk, country, or bluegrass traditions. Feels handmade and personal. Works beautifully for games with rural settings, coming-of-age stories, or themes of home.',
+    moods:['Warm','Nostalgic','Playful','Bittersweet'],
+    instruments:['Acoustic guitar','Banjo / mandolin','Fiddle','Accordion','Upright piano'],
+    tip:'Real or realistic acoustic instruments at low velocities feel inherently intimate. Slight humanisation (timing variance, velocity curve) makes sample libraries feel like actual performances.',
+    osts:[
+      { game:'Stardew Valley', composer:'Eric Barone (2016)', note:'One solo developer, every instrument, every season. The seasonal variation keeps the palette fresh. Summer tracks feel joyful and breezy; winter tracks feel still and wistful.', tracks:['Spring (It\'s a Bright New Day)','Summer (Nature\'s Crescendo)','Winter (A Winter Mystery)'] },
+      { game:'Bastion', composer:'Darren Korb (2011)', note:'"Acoustic frontier trip-hop" — acoustic guitar and bluegrass instruments over sampled hip-hop beats. Rough and emotional in equal measure. "Build That Wall" is unforgettable.', tracks:['Build That Wall (Zia\'s Theme)','Bynn the Breaker','Setting Sail, Coming Home'] },
+      { game:'Outer Wilds', composer:'Andrew Prahlow (2019)', note:'Banjo and acoustic guitar campfire songs used as emotional anchors in a game about the end of the universe. The contrast makes both sides hit harder.', tracks:['Travelers','Timber Hearth'] },
+    ]
+  },
+  {
+    id:'chiptune', icon:'👾', color:'#eeedf5',
+    name:'Chiptune / 8-bit',
+    sub:'retro · energetic · nostalgic',
+    desc:'Music built from the waveforms of old game console hardware — NES pulse waves, Game Boy channels, SID chip tones. Can be purely retro or blended with modern production. The constraint breeds creativity.',
+    moods:['Energetic','Playful','Nostalgic','Urgent'],
+    instruments:['Square wave','Pulse wave','Triangle wave','Noise channel','DPCM samples'],
+    tip:'The emotional secret of chiptune is melody. With no timbral variation, your melodic writing has to carry everything. Study Koji Kondo — every Zelda and Mario theme works on a single channel.',
+    osts:[
+      { game:'Undertale', composer:'Toby Fox (2015)', note:'Not pure chiptune but heavily chiptune-influenced. Blends NES-style square waves with orchestral instruments for emotional contrast. "Megalovania" and "Undertale" itself are the peaks.', tracks:['Once Upon a Time','Undertale','Megalovania'] },
+      { game:'Shovel Knight', composer:'Jake Kaufman (2014)', note:'The purest modern chiptune game OST. Written within strict NES constraints but with sophisticated harmony. Joyful and rousing throughout.', tracks:['Strike the Earth!','Flowers of Antimony','The Vital Vitriol'] },
+      { game:'Deltarune Ch.1', composer:'Toby Fox (2018)', note:'Expands the Undertale palette — more orchestral depth, but the chiptune DNA is clear. "Field of Hopes and Dreams" is one of the most joyful pieces in game music.', tracks:['Field of Hopes and Dreams','A Cyber\'s World?','The World Revolving'] },
+    ]
+  },
+  {
+    id:'trip-hop-cinematic', icon:'🌙', color:'#ff6b35',
+    name:'Trip-hop / Cinematic Electronic',
+    sub:'brooding · dark · hypnotic',
+    desc:'Slow hip-hop drum patterns, heavy bass, melancholy melodies, and atmospheric production. Cinematic in scale but intimate in mood. Massive influence from artists like Portishead, Massive Attack, and Unkle.',
+    moods:['Brooding','Hypnotic','Dark','Tense'],
+    instruments:['Sampled drums','Bass (acoustic or synth)','Strings','Atmospheric pads','Sparse guitar'],
+    tip:'Trip-hop lives in the space between beats. A 70 BPM kick with a heavy 808 bass underneath and a melancholy string sample on top is all you need. The slowness creates the tension.',
+    osts:[
+      { game:'Bastion', composer:'Darren Korb (2011)', note:'Explicitly described as "acoustic frontier trip-hop". The production has that heavy, sampled-drum quality even with acoustic instruments on top.', tracks:['Bynn the Breaker','Mother I\'m Here (Zulf\'s Theme)'] },
+      { game:'Disco Elysium', composer:'British Sea Power (2019)', note:'Slow, brooding, and cinematic. Not trip-hop proper, but the dark weight and atmospheric production overlap heavily. "The Pigs" has that Massive Attack DNA.', tracks:['The Pigs','RCM Headquarters'] },
+      { game:'Celeste (Mirror Temple)', composer:'Lena Raine (2018)', note:'The darker sections of the Celeste OST — reversed samples, heavy reverb, dissonance — venture into trip-hop territory. "In the Mirror" is the best example.', tracks:['In the Mirror','Reflection (B-Side)'] },
+    ]
+  },
+];
+
+let expandedStyle = null;
+
+function renderStyles() {
+  const grid = document.getElementById('styles-grid');
+  grid.className = 'styles-grid';
+  grid.innerHTML = STYLES.map((s, i) => {
+    const isOpen = expandedStyle === s.id;
+    return `
+    <div class="style-card ${isOpen ? 'expanded' : ''}"
+         style="--sc-color:${s.color}; animation-delay:${i*30}ms"
+         onclick="toggleStyle('${s.id}')">
+      <div class="style-card-top">
+        <div class="style-header">
+          <div class="style-icon">${s.icon}</div>
+          <div class="style-title-group">
+            <div class="style-name">${s.name}</div>
+            <div class="style-sub">${s.sub}</div>
+          </div>
+          <div class="style-expand">▾</div>
+        </div>
+        <div class="style-desc">${s.desc}</div>
+        <div class="mood-pills">${s.moods.map(m => `<span class="mood-pill">${m}</span>`).join('')}</div>
+      </div>
+      <div class="style-body">
+        <div class="style-body-section">
+          <div class="style-body-label">Core instruments</div>
+          <div class="instrument-list">${s.instruments.map(inst => `<span class="instrument-tag">${inst}</span>`).join('')}</div>
+        </div>
+        <div class="style-body-section">
+          <div class="style-body-label">Reference OSTs</div>
+          <div class="ost-list">
+            ${s.osts.map(o => `
+            <div class="ost-item">
+              <div class="ost-left">
+                <div class="ost-game">${o.game}</div>
+                <div class="ost-composer">${o.composer}</div>
+                <div class="ost-note">${o.note}</div>
+                <div class="ost-tracks">${o.tracks.map(t => `<span class="ost-track-tag">${t}</span>`).join('')}</div>
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="tip-callout">
+          <div class="tip-label">Production tip</div>
+          ${s.tip}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleStyle(id) {
+  expandedStyle = expandedStyle === id ? null : id;
+  renderStyles();
+}
+
+renderLegend(); renderFilters(); renderPlugins(); renderStyles();
 </script>
 </body>
 </html>
