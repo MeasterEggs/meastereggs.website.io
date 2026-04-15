@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FL Studio Effects — Plugin Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  [data-theme="dark"] {
+    --bg:         #13131a;
+    --bg2:        #1c1c26;
+    --bg3:        #23232f;
+    --surface:    #1e1e2a;
+    --border:     rgba(255,255,255,0.07);
+    --border-h:   rgba(255,255,255,0.15);
+    --text:       #eeedf5;
+    --muted:      #6b6a7e;
+    --muted2:     #4a4a5e;
+    --shadow-card:0 4px 24px rgba(0,0,0,0.35);
+    --shadow-hover:0 8px 32px rgba(0,0,0,0.5);
+    --tip-bg:     rgba(255,255,255,0.04);
+    --recipe-bg:  rgba(255,255,255,0.03);
+  }
+
+  [data-theme="light"] {
+    --bg:         #f4f3fc;
+    --bg2:        #eceaf7;
+    --bg3:        #e2dfef;
+    --surface:    #ffffff;
+    --border:     rgba(0,0,0,0.08);
+    --border-h:   rgba(0,0,0,0.18);
+    --text:       #1a1928;
+    --muted:      #8a8a9e;
+    --muted2:     #b0b0c4;
+    --shadow-card:0 4px 20px rgba(100,90,180,0.08);
+    --shadow-hover:0 8px 32px rgba(100,90,180,0.15);
+    --tip-bg:     rgba(0,0,0,0.03);
+    --recipe-bg:  rgba(0,0,0,0.025);
+  }
+
+  :root {
+    --eq:   #c8f535;
+    --dyn:  #2de898;
+    --rev:  #a87eff;
+    --del:  #ffb347;
+    --dist: #ff6b35;
+    --mod:  #ff5fad;
+    --util: #3dd6ff;
+    --font: 'Nunito', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font); min-height: 100vh;
+    overflow-x: hidden; transition: background 0.3s, color 0.3s;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events: none; z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.3s;
+  }
+  .nav-brand {
+    font-size: 15px; font-weight: 900; letter-spacing: -0.02em; color: var(--text);
+    display: flex; align-items: center; gap: 9px;
+  }
+  .nav-brand-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--rev); box-shadow: 0 0 10px var(--rev); flex-shrink: 0;
+  }
+  .theme-toggle {
+    display: flex; align-items: center; gap: 9px; cursor: pointer;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 14px 5px 8px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    transition: border-color 0.2s, color 0.2s; user-select: none;
+  }
+  .theme-toggle:hover { border-color: var(--border-h); color: var(--text); }
+  .toggle-track {
+    width: 34px; height: 19px; background: var(--bg3); border-radius: 999px;
+    position: relative; border: 1px solid var(--border-h);
+    transition: background 0.25s; flex-shrink: 0;
+  }
+  [data-theme="light"] .toggle-track { background: var(--rev); }
+  .toggle-thumb {
+    width: 13px; height: 13px; background: var(--muted);
+    border-radius: 50%; position: absolute; top: 2px; left: 2px;
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s;
+  }
+  [data-theme="light"] .toggle-thumb { transform: translateX(15px); background: #fff; }
+
+  /* HEADER */
+  header {
+    position: relative; z-index: 10;
+    padding: 3.5rem 2rem 2rem; max-width: 1120px; margin: 0 auto;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 5.5vw, 4.6rem); font-weight: 900;
+    line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 1rem;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--rev) 0%, var(--mod) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .header-desc {
+    font-size: 15px; font-weight: 500; color: var(--muted); max-width: 520px; line-height: 1.75;
+  }
+
+  /* LEGEND */
+  .legend {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 0 2rem; display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .legend-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 4px 12px; box-shadow: var(--shadow-card);
+  }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* CONTROLS */
+  .controls {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 1.5rem 2rem 1rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; }
+  .search-wrap input {
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 999px; color: var(--text); font-family: var(--font);
+    font-size: 14px; font-weight: 600; padding: 11px 18px 11px 44px;
+    outline: none; box-shadow: var(--shadow-card); transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-wrap input:focus {
+    border-color: var(--rev);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--rev) 18%, transparent);
+  }
+  .search-wrap input::placeholder { color: var(--muted2); font-weight: 500; }
+  .search-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 16px; pointer-events: none;
+  }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn {
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--muted); cursor: pointer;
+    transition: all 0.18s; box-shadow: var(--shadow-card);
+  }
+  .filter-btn:hover { border-color: var(--border-h); color: var(--text); }
+  .filter-btn.active { border-color: transparent; color: #13131a; }
+  .filter-btn[data-cat="all"].active  { background: var(--text); color: var(--bg); }
+  .filter-btn[data-cat="eq"].active   { background: var(--eq); }
+  .filter-btn[data-cat="dyn"].active  { background: var(--dyn); }
+  .filter-btn[data-cat="rev"].active  { background: var(--rev); }
+  .filter-btn[data-cat="del"].active  { background: var(--del); }
+  .filter-btn[data-cat="dist"].active { background: var(--dist); color: #fff; }
+  .filter-btn[data-cat="mod"].active  { background: var(--mod); color: #fff; }
+  .filter-btn[data-cat="util"].active { background: var(--util); }
+
+  .count-bar {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 0 2rem 1rem; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: 0.04em;
+  }
+
+  /* GRID */
+  .plugin-grid {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 0 2rem 6rem;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(316px, 1fr)); gap: 14px;
+  }
+
+  /* CARD */
+  .plugin-card {
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: 24px;
+    padding: 1.4rem 1.4rem 1.2rem; cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s, background 0.2s;
+    box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+    display: flex; flex-direction: column; animation: fadeUp 0.4s ease both;
+  }
+  .plugin-card:hover {
+    border-color: var(--border-h); box-shadow: var(--shadow-hover); transform: translateY(-3px);
+  }
+  .plugin-card.expanded { background: var(--bg2); border-color: var(--border-h); }
+  .plugin-card::before {
+    content: ''; position: absolute; top: 1rem; left: 0;
+    width: 3px; height: calc(100% - 2rem); border-radius: 0 6px 6px 0;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .plugin-card:hover::before, .plugin-card.expanded::before { opacity: 1; }
+  .plugin-card[data-cat="eq"]::before   { background: var(--eq); }
+  .plugin-card[data-cat="dyn"]::before  { background: var(--dyn); }
+  .plugin-card[data-cat="rev"]::before  { background: var(--rev); }
+  .plugin-card[data-cat="del"]::before  { background: var(--del); }
+  .plugin-card[data-cat="dist"]::before { background: var(--dist); }
+  .plugin-card[data-cat="mod"]::before  { background: var(--mod); }
+  .plugin-card[data-cat="util"]::before { background: var(--util); }
+
+  .card-top { display: flex; align-items: center; gap: 11px; margin-bottom: 0.55rem; }
+  .cat-badge {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    flex-shrink: 0; color: #13131a;
+  }
+  .cat-badge[data-cat="eq"]   { background: var(--eq); }
+  .cat-badge[data-cat="dyn"]  { background: var(--dyn); }
+  .cat-badge[data-cat="rev"]  { background: var(--rev); }
+  .cat-badge[data-cat="del"]  { background: var(--del); }
+  .cat-badge[data-cat="dist"] { background: var(--dist); color: #fff; }
+  .cat-badge[data-cat="mod"]  { background: var(--mod); color: #fff; }
+  .cat-badge[data-cat="util"] { background: var(--util); }
+
+  .card-title-group { flex: 1; min-width: 0; }
+  .plugin-name { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-label { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .expand-btn {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--bg3);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--muted); flex-shrink: 0; transition: transform 0.2s;
+  }
+  .plugin-card.expanded .expand-btn { transform: rotate(180deg); }
+
+  .tagline { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 0.9rem; line-height: 1.5; padding-left: 47px; }
+
+  .importance-bar { padding-left: 47px; margin-bottom: 0; }
+  .bar-track { height: 4px; background: var(--bg3); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; }
+
+  /* EXPANDED BODY */
+  .card-body { display: none; padding-top: 1.1rem; border-top: 1px solid var(--border); margin-top: 1rem; }
+  .plugin-card.expanded .card-body { display: block; }
+
+  /* TABS */
+  .tab-row {
+    display: flex; gap: 4px; margin-bottom: 1rem;
+    background: var(--bg3); border-radius: 999px; padding: 3px;
+  }
+  .tab-btn {
+    flex: 1; font-family: var(--font); font-size: 12px; font-weight: 700;
+    padding: 6px 10px; border-radius: 999px; border: none;
+    background: transparent; color: var(--muted); cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+  }
+  .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* OVERVIEW TAB */
+  .desc-text { font-size: 14px; font-weight: 500; line-height: 1.75; color: color-mix(in srgb, var(--text) 72%, transparent); margin-bottom: 1.1rem; }
+  .uses-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .uses-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+  .use-tag { font-size: 12px; font-weight: 700; padding: 4px 13px; border-radius: 999px; background: var(--bg3); border: 1px solid var(--border); color: var(--muted); }
+  .tip-block { background: var(--tip-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.1rem; font-size: 13px; font-weight: 500; line-height: 1.7; color: var(--muted); }
+  .tip-label { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--eq); margin-bottom: 0.4rem; }
+  .tip-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--eq); flex-shrink: 0; }
+
+  /* RECIPES TAB */
+  .recipes-list { display: flex; flex-direction: column; gap: 10px; }
+  .recipe-card {
+    background: var(--recipe-bg); border: 1px solid var(--border); border-radius: 18px;
+    overflow: hidden;
+  }
+  .recipe-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.85rem 1rem 0.85rem 1rem; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .recipe-header:hover { background: color-mix(in srgb, var(--border) 60%, transparent); }
+  .recipe-emoji { font-size: 18px; flex-shrink: 0; line-height: 1; }
+  .recipe-name { font-size: 13px; font-weight: 800; flex: 1; }
+  .recipe-arrow { font-size: 10px; color: var(--muted); transition: transform 0.2s; }
+  .recipe-card.open .recipe-arrow { transform: rotate(180deg); }
+
+  .recipe-body { display: none; padding: 0 1rem 1rem; }
+  .recipe-card.open .recipe-body { display: block; }
+
+  .recipe-desc { font-size: 13px; font-weight: 500; line-height: 1.65; color: var(--muted); margin-bottom: 0.85rem; }
+
+  .settings-grid { display: flex; flex-direction: column; gap: 6px; }
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 5px 10px; background: var(--bg3); border-radius: 10px;
+  }
+  .setting-name { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 1; }
+  .setting-val {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    padding: 2px 10px; border-radius: 999px; color: #13131a; flex-shrink: 0;
+  }
+  .setting-note { font-size: 11px; font-weight: 600; color: var(--muted2); font-style: italic; flex: 1; text-align: right; }
+
+  /* EMPTY */
+  .empty-state { grid-column: 1 / -1; padding: 4rem; text-align: center; font-size: 14px; font-weight: 600; color: var(--muted); }
+
+  footer {
+    position: relative; z-index: 10; max-width: 1120px; margin: 0 auto;
+    padding: 1.5rem 2rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.4rem; }
+    .plugin-grid { grid-template-columns: 1fr; padding: 0 1rem 4rem; }
+    .controls, header, .legend { padding-left: 1rem; padding-right: 1rem; }
+    nav { padding: 0.75rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><span class="nav-brand-dot"></span>FL Studio Effects</div>
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    <span id="themeLabel">Night</span>
+  </div>
+</nav>
+
+<header>
+  <div class="eyebrow">Plugin reference · 17 effects</div>
+  <h1>Effects<br><em>Cheat Sheet</em></h1>
+  <p class="header-desc">Every native FL Studio effect plugin, sorted by how often you'll reach for it. Each plugin includes sound recipes with exact settings.</p>
+</header>
+
+<div class="legend" id="legend"></div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search" placeholder="Search plugins or sounds…" oninput="renderPlugins()" />
+  </div>
+  <div class="filters" id="filters"></div>
+</div>
+
+<div class="count-bar" id="count-bar"></div>
+<div class="plugin-grid" id="plugin-grid"></div>
+
+<footer>
+  <span>FL Studio Effects Cheat Sheet</span>
+  <span>17 plugins · sorted by frequency of use</span>
+</footer>
+
+<script>
+const CATS = [
+  { key:'all',  label:'All',        color:'#eeedf5' },
+  { key:'eq',   label:'EQ',         color:'#c8f535' },
+  { key:'dyn',  label:'Dynamics',   color:'#2de898' },
+  { key:'rev',  label:'Reverb',     color:'#a87eff' },
+  { key:'del',  label:'Delay',      color:'#ffb347' },
+  { key:'dist', label:'Distortion', color:'#ff6b35' },
+  { key:'mod',  label:'Modulation', color:'#ff5fad' },
+  { key:'util', label:'Utility',    color:'#3dd6ff' },
+];
+const ABBR = { eq:'EQ', dyn:'DY', rev:'RV', del:'DL', dist:'DS', mod:'MO', util:'UT' };
+
+const PLUGINS = [
+  {
+    rank:1, name:'Parametric EQ 2', cat:'eq', tagline:'Your most-used tool. Full stop.',
+    desc:'A full-featured equalizer that lets you boost or cut specific frequencies. Use it on virtually every sound to carve out space in your mix — cutting lows from elements that don\'t need them, boosting presence, or taming harshness.',
+    uses:['Kick drum','Vocals','Synths','Bass','Every track really'],
+    tip:'Start by cutting before boosting. A gentle high-pass filter (cut below 80–100Hz) on most non-bass elements cleans up the low end significantly.',
+    recipes:[
+      { emoji:'🥁', name:'Punchy kick', desc:'Boost the attack punch and tighten the low end for a tight, modern kick drum.', settings:[
+        { name:'High-pass', val:'40 Hz', valColor:'#c8f535', note:'Remove sub-rumble' },
+        { name:'Peak boost', val:'+4 dB @ 60 Hz', valColor:'#c8f535', note:'Add weight' },
+        { name:'Peak cut', val:'-3 dB @ 300 Hz', valColor:'#c8f535', note:'Remove mud' },
+        { name:'Peak boost', val:'+2 dB @ 4 kHz', valColor:'#c8f535', note:'Click & attack' },
+      ]},
+      { emoji:'🎤', name:'Vocal presence', desc:'Make a vocal sit forward in the mix with air and clarity, without harshness.', settings:[
+        { name:'High-pass', val:'120 Hz', valColor:'#c8f535', note:'Cut chest rumble' },
+        { name:'Peak cut', val:'-2 dB @ 400 Hz', valColor:'#c8f535', note:'Remove boxiness' },
+        { name:'Peak boost', val:'+3 dB @ 3 kHz', valColor:'#c8f535', note:'Presence & clarity' },
+        { name:'High shelf', val:'+2 dB @ 10 kHz', valColor:'#c8f535', note:'Air & breath' },
+      ]},
+      { emoji:'🎸', name:'Bass guitar warmth', desc:'Full, warm bass that translates on any speaker — including earbuds.', settings:[
+        { name:'Low shelf', val:'+3 dB @ 80 Hz', valColor:'#c8f535', note:'Body' },
+        { name:'Peak cut', val:'-4 dB @ 250 Hz', valColor:'#c8f535', note:'Kill mud' },
+        { name:'Peak boost', val:'+2 dB @ 800 Hz', valColor:'#c8f535', note:'Definition' },
+        { name:'High-pass', val:'30 Hz', valColor:'#c8f535', note:'Remove sub-rumble' },
+      ]},
+      { emoji:'☁️', name:'Airy synth pad', desc:'Open up a pad to feel huge and spacious in the high end.', settings:[
+        { name:'High-pass', val:'200 Hz', valColor:'#c8f535', note:'Keep it light' },
+        { name:'Peak cut', val:'-3 dB @ 700 Hz', valColor:'#c8f535', note:'Less nasal' },
+        { name:'High shelf', val:'+4 dB @ 8 kHz', valColor:'#c8f535', note:'Air & shimmer' },
+      ]},
+    ]
+  },
+  {
+    rank:2, name:'Fruity Peak Controller', cat:'util', tagline:'Automate anything with an audio signal.',
+    desc:'Maps peaks of an audio signal to control other plugin parameters in real time. The go-to for sidechaining and dynamic automation without drawing automation clips.',
+    uses:['Sidechain compression','Ducking reverb','Auto-filter movement'],
+    tip:'Classic use: set Peak Controller on the kick, then link it to the volume of a pad or bass to create rhythmic ducking — the pumping effect heard in most EDM.',
+    recipes:[
+      { emoji:'💓', name:'Classic EDM pump', desc:'The iconic volume ducking on pads and basses triggered by the kick.', settings:[
+        { name:'Source', val:'Kick channel', valColor:'#3dd6ff', note:'Set as audio source' },
+        { name:'Base', val:'50%', valColor:'#3dd6ff', note:'Resting volume level' },
+        { name:'Volume', val:'100%', valColor:'#3dd6ff', note:'Peak controller volume' },
+        { name:'Tension', val:'0.3', valColor:'#3dd6ff', note:'Snappy release shape' },
+      ]},
+      { emoji:'🌊', name:'Auto filter sweep', desc:'Link to Love Philter cutoff for a filter that breathes with the kick.', settings:[
+        { name:'Source', val:'Kick channel', valColor:'#3dd6ff', note:'' },
+        { name:'Link to', val:'LPF Cutoff', valColor:'#3dd6ff', note:'On Love Philter' },
+        { name:'Base', val:'30%', valColor:'#3dd6ff', note:'Resting cutoff position' },
+        { name:'Tension', val:'0.5', valColor:'#3dd6ff', note:'Smoother decay' },
+      ]},
+      { emoji:'🔇', name:'Reverb ducking', desc:'Duck the send reverb whenever the dry signal hits, keeping the mix clean.', settings:[
+        { name:'Source', val:'Dry vocal', valColor:'#3dd6ff', note:'' },
+        { name:'Link to', val:'Reverb send vol.', valColor:'#3dd6ff', note:'On FX return' },
+        { name:'Base', val:'80%', valColor:'#3dd6ff', note:'Reverb is mostly up' },
+        { name:'Tension', val:'0.7', valColor:'#3dd6ff', note:'Slow recovery' },
+      ]},
+    ]
+  },
+  {
+    rank:3, name:'Fruity Compressor', cat:'dyn', tagline:'Tame peaks and add punch.',
+    desc:'Reduces the dynamic range of a signal — quieting the loudest parts so you can bring up the overall volume. Adds punch and glue when used correctly.',
+    uses:['Drums','Vocals','Bass','Bus/group tracks'],
+    tip:'Fast attack + medium release on drums for punch. Slower attack lets the transient breathe first — gives a "snap" feel. Aim for 3–6dB of gain reduction max when starting out.',
+    recipes:[
+      { emoji:'🥊', name:'Punchy snare', desc:'Let the crack through while reining in the tail for a tight, forward snare.', settings:[
+        { name:'Attack', val:'5 ms', valColor:'#2de898', note:'Let transient through' },
+        { name:'Release', val:'80 ms', valColor:'#2de898', note:'Breathes with tempo' },
+        { name:'Threshold', val:'-18 dB', valColor:'#2de898', note:'Adjust to taste' },
+        { name:'Ratio', val:'4:1', valColor:'#2de898', note:'Moderate clamp' },
+        { name:'Gain', val:'+4 dB', valColor:'#2de898', note:'Makeup gain' },
+      ]},
+      { emoji:'🎙', name:'Smooth vocal glue', desc:'Even out dynamic vocal performance so it sits consistently in the mix.', settings:[
+        { name:'Attack', val:'15 ms', valColor:'#2de898', note:'Preserve consonants' },
+        { name:'Release', val:'200 ms', valColor:'#2de898', note:'Natural breathing' },
+        { name:'Threshold', val:'-24 dB', valColor:'#2de898', note:'' },
+        { name:'Ratio', val:'3:1', valColor:'#2de898', note:'Gentle — not audible' },
+        { name:'Gain', val:'+2 dB', valColor:'#2de898', note:'Makeup gain' },
+      ]},
+      { emoji:'🔗', name:'Bus glue', desc:'Apply lightly to a drum bus or full mix to make everything feel cohesive.', settings:[
+        { name:'Attack', val:'30 ms', valColor:'#2de898', note:'Slow — preserve punch' },
+        { name:'Release', val:'Auto / 300 ms', valColor:'#2de898', note:'' },
+        { name:'Threshold', val:'-12 dB', valColor:'#2de898', note:'Only touching peaks' },
+        { name:'Ratio', val:'2:1', valColor:'#2de898', note:'Very light touch' },
+        { name:'Gain', val:'+1–2 dB', valColor:'#2de898', note:'Subtle makeup' },
+      ]},
+      { emoji:'🎸', name:'Aggressive bass clamp', desc:'Hard compress bass for maximum sustain and consistent level — great for trap.', settings:[
+        { name:'Attack', val:'1 ms', valColor:'#2de898', note:'Instant grab' },
+        { name:'Release', val:'60 ms', valColor:'#2de898', note:'Fast pump' },
+        { name:'Threshold', val:'-20 dB', valColor:'#2de898', note:'' },
+        { name:'Ratio', val:'8:1', valColor:'#2de898', note:'Heavy limiting' },
+        { name:'Gain', val:'+6 dB', valColor:'#2de898', note:'Loud makeup' },
+      ]},
+    ]
+  },
+  {
+    rank:4, name:'Fruity Reverb 2', cat:'rev', tagline:'Put your sounds in a space.',
+    desc:'Simulates the natural echo of a physical space (room, hall, plate). Adds depth and realism. Crucial for gluing elements together and creating distance in a mix.',
+    uses:['Vocals','Snare','Synth pads','Guitar'],
+    tip:'Always use reverb on a send/return FX channel rather than directly on the track — one reverb handles multiple tracks and you can blend the wet signal precisely.',
+    recipes:[
+      { emoji:'🏛️', name:'Epic snare room', desc:'Big, stadium-sized reverb tail on a snare for an anthemic feel.', settings:[
+        { name:'Room size', val:'85%', valColor:'#a87eff', note:'Large space' },
+        { name:'Decay', val:'2.5 s', valColor:'#a87eff', note:'Long tail' },
+        { name:'Pre-delay', val:'30 ms', valColor:'#a87eff', note:'Separates dry from wet' },
+        { name:'Wet/Dry', val:'25% wet', valColor:'#a87eff', note:'On send channel' },
+        { name:'High cut', val:'8 kHz', valColor:'#a87eff', note:'Soften the tail' },
+      ]},
+      { emoji:'🎙', name:'Vocal plate', desc:'Classic plate reverb character — shimmery, lush, doesn\'t muddy the mix.', settings:[
+        { name:'Room size', val:'40%', valColor:'#a87eff', note:'Medium-small' },
+        { name:'Decay', val:'1.2 s', valColor:'#a87eff', note:'' },
+        { name:'Pre-delay', val:'20 ms', valColor:'#a87eff', note:'' },
+        { name:'Wet/Dry', val:'35% wet', valColor:'#a87eff', note:'' },
+        { name:'Low cut', val:'200 Hz', valColor:'#a87eff', note:'Keep low end clean' },
+      ]},
+      { emoji:'🛸', name:'Sci-fi space', desc:'Huge alien reverb for synths and atmospheres — very wet, dark, cavernous.', settings:[
+        { name:'Room size', val:'100%', valColor:'#a87eff', note:'Maximum' },
+        { name:'Decay', val:'6+ s', valColor:'#a87eff', note:'Infinite feel' },
+        { name:'Pre-delay', val:'60 ms', valColor:'#a87eff', note:'' },
+        { name:'Wet/Dry', val:'60% wet', valColor:'#a87eff', note:'Mostly wet' },
+        { name:'High cut', val:'4 kHz', valColor:'#a87eff', note:'Dark & deep' },
+      ]},
+      { emoji:'🎸', name:'Small room guitar', desc:'Realistic tight room sound to make a dry guitar feel recorded live.', settings:[
+        { name:'Room size', val:'25%', valColor:'#a87eff', note:'Small room' },
+        { name:'Decay', val:'0.5 s', valColor:'#a87eff', note:'Very short' },
+        { name:'Pre-delay', val:'5 ms', valColor:'#a87eff', note:'Minimal' },
+        { name:'Wet/Dry', val:'15% wet', valColor:'#a87eff', note:'Subtle' },
+      ]},
+    ]
+  },
+  {
+    rank:5, name:'Fruity Delay 3', cat:'del', tagline:'Echo, rhythm, and space.',
+    desc:'Repeats the input signal at set intervals, creating echo effects. Can be tempo-synced to sit rhythmically inside the track. More playful and rhythmic than reverb.',
+    uses:['Vocals','Lead synths','Guitar','Percussion fills'],
+    tip:'Try a 1/8 or dotted 1/8 note delay on a hi-hat with feedback around 30% for a classic rhythmic tail. Filter the delay with EQ to keep highs from building up.',
+    recipes:[
+      { emoji:'🎤', name:'Slapback vocal echo', desc:'Short single echo that fattens a vocal — classic rockabilly and pop trick.', settings:[
+        { name:'Time L', val:'1/8 note', valColor:'#ffb347', note:'Tempo synced' },
+        { name:'Time R', val:'1/8 note', valColor:'#ffb347', note:'' },
+        { name:'Feedback', val:'15%', valColor:'#ffb347', note:'Just one repeat' },
+        { name:'Wet/Dry', val:'20% wet', valColor:'#ffb347', note:'' },
+      ]},
+      { emoji:'🎹', name:'Ping-pong synth', desc:'Wide stereo delay bouncing left-right for an expansive, hypnotic synth lead.', settings:[
+        { name:'Time L', val:'1/4 note', valColor:'#ffb347', note:'Left channel' },
+        { name:'Time R', val:'3/8 note', valColor:'#ffb347', note:'Right (offset)' },
+        { name:'Feedback', val:'45%', valColor:'#ffb347', note:'Multiple repeats' },
+        { name:'Wet/Dry', val:'30% wet', valColor:'#ffb347', note:'' },
+        { name:'Pan L/R', val:'Full wide', valColor:'#ffb347', note:'Spread to edges' },
+      ]},
+      { emoji:'🎸', name:'Dotted-8th guitar', desc:'The U2 / Edge delay — rhythmically interlocking with the beat.', settings:[
+        { name:'Time L', val:'Dotted 1/8', valColor:'#ffb347', note:'Key setting' },
+        { name:'Time R', val:'Dotted 1/8', valColor:'#ffb347', note:'' },
+        { name:'Feedback', val:'40%', valColor:'#ffb347', note:'Several echoes' },
+        { name:'High cut', val:'6 kHz', valColor:'#ffb347', note:'Warm repeats' },
+        { name:'Wet/Dry', val:'35% wet', valColor:'#ffb347', note:'' },
+      ]},
+      { emoji:'👾', name:'Glitchy lo-fi tape', desc:'Degraded, lo-fi delay sound like an old tape machine — great for hip-hop.', settings:[
+        { name:'Time', val:'1/6 note (triplet)', valColor:'#ffb347', note:'Off-beat feel' },
+        { name:'Feedback', val:'55%', valColor:'#ffb347', note:'Long decay' },
+        { name:'High cut', val:'3 kHz', valColor:'#ffb347', note:'Muffled repeats' },
+        { name:'Low cut', val:'150 Hz', valColor:'#ffb347', note:'Thin & worn' },
+        { name:'Wet/Dry', val:'40% wet', valColor:'#ffb347', note:'' },
+      ]},
+    ]
+  },
+  {
+    rank:6, name:'Fruity Stereo Enhancer', cat:'util', tagline:'Widen your sound in the stereo field.',
+    desc:'Adjusts stereo width, panning, and phase of a signal. Makes elements feel wider or narrower. Be careful with low frequencies — bass should stay mono.',
+    uses:['Synth pads','Acoustic guitars','Backing vocals','Hi-hats'],
+    tip:'Keep bass, kick, and snare centered (mono). Widen mid and high elements for a big mix. Check in mono periodically to make sure nothing cancels out.',
+    recipes:[
+      { emoji:'🌌', name:'Huge pad width', desc:'Make a synth pad feel like it fills the entire stereo field.', settings:[
+        { name:'Stereo sep.', val:'80%', valColor:'#3dd6ff', note:'Very wide' },
+        { name:'Phase offset', val:'0°', valColor:'#3dd6ff', note:'Leave centered' },
+        { name:'Pan', val:'Center', valColor:'#3dd6ff', note:'' },
+      ]},
+      { emoji:'🎹', name:'Natural piano spread', desc:'Slight widening to simulate a real piano mic\'d from a distance.', settings:[
+        { name:'Stereo sep.', val:'30%', valColor:'#3dd6ff', note:'Subtle' },
+        { name:'Phase offset', val:'5°', valColor:'#3dd6ff', note:'Tiny phase drift' },
+      ]},
+      { emoji:'🔇', name:'Mono bass check', desc:'Collapse bass/kick to mono to prevent phase issues on club systems.', settings:[
+        { name:'Stereo sep.', val:'0%', valColor:'#3dd6ff', note:'Full mono' },
+        { name:'Note', val:'Low-freq only', valColor:'#3dd6ff', note:'Apply below 200 Hz' },
+      ]},
+    ]
+  },
+  {
+    rank:7, name:'Maximus', cat:'dyn', tagline:'Multiband compressor + limiter beast.',
+    desc:'A multiband compressor, expander, and limiter in one — it processes low, mid, and high frequencies independently. Often used on the master bus for loudness and polish.',
+    uses:['Master bus','Drum bus','Bass','Full mix leveling'],
+    tip:'On the master, use the output limiter to catch peaks. Don\'t over-compress — 3dB of limiting max. Use the band displays to visualize what\'s happening to each frequency range.',
+    recipes:[
+      { emoji:'🎚️', name:'Master bus polish', desc:'Final loudness and glue for the master chain. Transparent and musical.', settings:[
+        { name:'Low band threshold', val:'-18 dB', valColor:'#2de898', note:'Tighten sub' },
+        { name:'Low ratio', val:'3:1', valColor:'#2de898', note:'' },
+        { name:'Mid band threshold', val:'-14 dB', valColor:'#2de898', note:'Glue mids' },
+        { name:'Mid ratio', val:'2:1', valColor:'#2de898', note:'Light touch' },
+        { name:'Output limiter', val:'-0.3 dBFS', valColor:'#2de898', note:'True peak' },
+      ]},
+      { emoji:'🥁', name:'Drum bus punch', desc:'Tighten up a drum bus mix — punchy lows, controlled highs.', settings:[
+        { name:'Low comp.', val:'4:1 @ -20 dB', valColor:'#2de898', note:'Kick weight' },
+        { name:'High comp.', val:'3:1 @ -16 dB', valColor:'#2de898', note:'Tame cymbals' },
+        { name:'Output', val:'+2 dB', valColor:'#2de898', note:'Makeup loudness' },
+      ]},
+    ]
+  },
+  {
+    rank:8, name:'Gross Beat', cat:'mod', tagline:'Rhythm and pitch mangling.',
+    desc:'A volume and pitch modulation effect with preset patterns — great for stutters, tape-stop effects, glitches, and rhythmic gates. Super common in EDM, trap, and future bass.',
+    uses:['Build-ups','Drops','Vocal chops','Stutter effects'],
+    tip:'Try the "Half Time" or "Gate" presets on a full mix or synth during a drop. Automate Gross Beat on/off to add tension precisely where needed.',
+    recipes:[
+      { emoji:'⏩', name:'Stutter drop effect', desc:'Classic 1/16th note stutter right before a drop — creates insane tension.', settings:[
+        { name:'Volume pattern', val:'Stutter 1/16', valColor:'#ff5fad', note:'Use preset or draw' },
+        { name:'Pitch pattern', val:'Off', valColor:'#ff5fad', note:'' },
+        { name:'Mix', val:'100% wet', valColor:'#ff5fad', note:'Full effect' },
+        { name:'Automation', val:'On for 1–2 bars', valColor:'#ff5fad', note:'Then drop' },
+      ]},
+      { emoji:'📼', name:'Tape stop', desc:'Simulates a record slowing to a stop — classic DJ effect.', settings:[
+        { name:'Pitch pattern', val:'Tape stop preset', valColor:'#ff5fad', note:'' },
+        { name:'Length', val:'1 bar', valColor:'#ff5fad', note:'Adjust to feel' },
+        { name:'Mix', val:'100% wet', valColor:'#ff5fad', note:'' },
+      ]},
+      { emoji:'🚪', name:'Rhythmic gate', desc:'Chop a pad into a rhythmic pulse — gated synth sound common in dance music.', settings:[
+        { name:'Volume pattern', val:'Gate 1/8', valColor:'#ff5fad', note:'Or draw custom' },
+        { name:'Attack shape', val:'Hard', valColor:'#ff5fad', note:'Snappy gates' },
+        { name:'Mix', val:'100% wet', valColor:'#ff5fad', note:'' },
+      ]},
+    ]
+  },
+  {
+    rank:9, name:'Fruity Love Philter', cat:'mod', tagline:'Animated filter for movement.',
+    desc:'A multi-filter plugin (lowpass, highpass, bandpass, etc.) with LFO modulation built in. Creates filter sweeps and organic movement in sounds.',
+    uses:['Synth pads','Plucks','Atmospheric textures','Risers'],
+    tip:'Use a slow LFO on a lowpass filter to make a static pad feel alive. Automate the cutoff frequency over a 4–8 bar riser for a classic filter sweep build-up.',
+    recipes:[
+      { emoji:'🌅', name:'Filter sweep riser', desc:'Automate the cutoff from dark to bright over 8 bars to build tension into a drop.', settings:[
+        { name:'Filter type', val:'Lowpass', valColor:'#ff5fad', note:'' },
+        { name:'Cutoff start', val:'20%', valColor:'#ff5fad', note:'Very dark' },
+        { name:'Cutoff end', val:'95%', valColor:'#ff5fad', note:'Fully open' },
+        { name:'Resonance', val:'40%', valColor:'#ff5fad', note:'Slight emphasis' },
+        { name:'Automation', val:'Over 8 bars', valColor:'#ff5fad', note:'Draw in playlist' },
+      ]},
+      { emoji:'🌊', name:'Breathing pad LFO', desc:'Slow LFO on a lowpass filter to make a static pad feel alive and organic.', settings:[
+        { name:'Filter type', val:'Lowpass', valColor:'#ff5fad', note:'' },
+        { name:'LFO shape', val:'Sine', valColor:'#ff5fad', note:'' },
+        { name:'LFO rate', val:'0.3 Hz', valColor:'#ff5fad', note:'Very slow' },
+        { name:'LFO depth', val:'30%', valColor:'#ff5fad', note:'Subtle movement' },
+        { name:'Cutoff', val:'60%', valColor:'#ff5fad', note:'Mid starting point' },
+      ]},
+      { emoji:'🔊', name:'Funky wah filter', desc:'Fast LFO or envelope-follower bandpass for a classic funk wah effect on bass.', settings:[
+        { name:'Filter type', val:'Bandpass', valColor:'#ff5fad', note:'' },
+        { name:'LFO rate', val:'2 Hz', valColor:'#ff5fad', note:'Rhythm-matched' },
+        { name:'Resonance', val:'65%', valColor:'#ff5fad', note:'Quacky emphasis' },
+        { name:'LFO depth', val:'50%', valColor:'#ff5fad', note:'' },
+      ]},
+    ]
+  },
+  {
+    rank:10, name:'Fruity Soft Clipper', cat:'dist', tagline:'Gentle analog-style saturation.',
+    desc:'Soft clips peaks to add warmth and presence without harsh digital clipping. Often used as the last plugin on the master chain to tame peaks gently, or on individual tracks for fatness.',
+    uses:['Master bus','Drums','Bass','Synth leads'],
+    tip:'Add 1–3dB of soft clipping on the master for analog warmth before the limiter. On bass, it adds harmonic richness that helps it translate on small speakers.',
+    recipes:[
+      { emoji:'🔥', name:'Master warmth', desc:'Subtle saturation at the end of the master chain to add analog character.', settings:[
+        { name:'Input', val:'+1 to +2 dB', valColor:'#ff6b35', note:'Just into clip zone' },
+        { name:'Threshold', val:'-3 dB', valColor:'#ff6b35', note:'' },
+        { name:'Output', val:'-1 dB', valColor:'#ff6b35', note:'Compensate loudness' },
+      ]},
+      { emoji:'🎸', name:'Fat bass saturation', desc:'Add odd harmonics to bass so it\'s audible on phone speakers and earbuds.', settings:[
+        { name:'Input', val:'+4 dB', valColor:'#ff6b35', note:'Push harder' },
+        { name:'Threshold', val:'-6 dB', valColor:'#ff6b35', note:'More saturation' },
+        { name:'Output', val:'-2 dB', valColor:'#ff6b35', note:'Makeup' },
+      ]},
+      { emoji:'💥', name:'Crushed drums', desc:'Aggressive soft clipping on a drum bus for a punchy, lo-fi, compressed feel.', settings:[
+        { name:'Input', val:'+6 dB', valColor:'#ff6b35', note:'Heavy drive' },
+        { name:'Threshold', val:'-9 dB', valColor:'#ff6b35', note:'Lots of clipping' },
+        { name:'Output', val:'-4 dB', valColor:'#ff6b35', note:'Tame loudness' },
+      ]},
+    ]
+  },
+  {
+    rank:11, name:'Pitcher', cat:'util', tagline:'Pitch correction and harmonization.',
+    desc:'Auto-tunes vocals or melodic instruments to a scale in real time. Can be subtle (correcting drift) or extreme (T-Pain robotic effect). Also generates harmony voices.',
+    uses:['Vocals','Synth leads','Creative pitch effects'],
+    tip:'Set the scale to your track\'s key. Use a slower Pitch Correction speed for a natural, subtle effect. Crank it up fast for the obvious auto-tune sound.',
+    recipes:[
+      { emoji:'🎤', name:'Natural pitch fix', desc:'Transparent correction that keeps the human feel — listeners won\'t notice.', settings:[
+        { name:'Speed', val:'20–30%', valColor:'#3dd6ff', note:'Slow — very natural' },
+        { name:'Scale', val:'Your key', valColor:'#3dd6ff', note:'Set correct scale!' },
+        { name:'Detune', val:'0 cents', valColor:'#3dd6ff', note:'' },
+      ]},
+      { emoji:'🤖', name:'T-Pain auto-tune', desc:'The obvious robotic pitch snap made famous in pop and hip-hop.', settings:[
+        { name:'Speed', val:'100%', valColor:'#3dd6ff', note:'Instant snap' },
+        { name:'Scale', val:'Your key', valColor:'#3dd6ff', note:'' },
+        { name:'Formant', val:'0', valColor:'#3dd6ff', note:'Keep voice natural' },
+      ]},
+      { emoji:'🎵', name:'Harmony voices', desc:'Generate a 3rd and 5th harmony above/below a vocal for lush backgrounds.', settings:[
+        { name:'Voice 1', val:'+4 semitones', valColor:'#3dd6ff', note:'Major 3rd up' },
+        { name:'Voice 2', val:'+7 semitones', valColor:'#3dd6ff', note:'5th up' },
+        { name:'Volume', val:'-6 dB each', valColor:'#3dd6ff', note:'Background level' },
+        { name:'Pan', val:'L / R slightly', valColor:'#3dd6ff', note:'Spread harmonies' },
+      ]},
+    ]
+  },
+  {
+    rank:12, name:'Fruity Chorus', cat:'mod', tagline:'Thicken and widen sounds.',
+    desc:'Duplicates and slightly detunes/delays the signal to create a "chorus" of voices. Makes thin sounds feel rich and wide.',
+    uses:['Guitars','Synth pads','Strings','Bass'],
+    tip:'On a mono synth, a subtle chorus (depth ~20%, speed slow) adds movement without sounding like an obvious effect. Go bigger for 80s/shoegaze vibes.',
+    recipes:[
+      { emoji:'🎸', name:'80s chorus guitar', desc:'Lush, dripping chorus — think The Cure or Depeche Mode guitars.', settings:[
+        { name:'Depth', val:'80%', valColor:'#ff5fad', note:'Heavy modulation' },
+        { name:'Speed', val:'0.8 Hz', valColor:'#ff5fad', note:'Medium rate' },
+        { name:'Wet/Dry', val:'60% wet', valColor:'#ff5fad', note:'' },
+        { name:'Voices', val:'3', valColor:'#ff5fad', note:'Thicker sound' },
+      ]},
+      { emoji:'🎻', name:'Strings thickening', desc:'Make sampled strings feel like a real section with subtle chorus.', settings:[
+        { name:'Depth', val:'25%', valColor:'#ff5fad', note:'Subtle' },
+        { name:'Speed', val:'0.3 Hz', valColor:'#ff5fad', note:'Very slow drift' },
+        { name:'Wet/Dry', val:'40% wet', valColor:'#ff5fad', note:'' },
+      ]},
+      { emoji:'🌈', name:'Shoegaze wall', desc:'Extreme, washy chorus for dreamy, washed-out shoegaze textures.', settings:[
+        { name:'Depth', val:'100%', valColor:'#ff5fad', note:'Maximum' },
+        { name:'Speed', val:'1.5 Hz', valColor:'#ff5fad', note:'Faster wobble' },
+        { name:'Wet/Dry', val:'80% wet', valColor:'#ff5fad', note:'Mostly effect' },
+        { name:'Voices', val:'4+', valColor:'#ff5fad', note:'Maximum thickness' },
+      ]},
+    ]
+  },
+  {
+    rank:13, name:'Fruity Flanger', cat:'mod', tagline:'Comb filtering for a sweeping effect.',
+    desc:'Creates a sweeping, jet-like sound by mixing the signal with a slightly delayed version of itself. More obvious and metallic than chorus.',
+    uses:['Guitar','Synth leads','Cymbals','Creative sound design'],
+    tip:'Try a very slow rate (0.1Hz) on a synth pad for subtle movement. Faster rates produce the classic "whoosh". Most audible on harmonically rich sounds.',
+    recipes:[
+      { emoji:'✈️', name:'Jet flange', desc:'The classic swept jet-engine effect on electric guitar or synth.', settings:[
+        { name:'Rate', val:'0.6 Hz', valColor:'#ff5fad', note:'' },
+        { name:'Depth', val:'80%', valColor:'#ff5fad', note:'' },
+        { name:'Feedback', val:'60%', valColor:'#ff5fad', note:'Metallic resonance' },
+        { name:'Wet/Dry', val:'50/50', valColor:'#ff5fad', note:'' },
+      ]},
+      { emoji:'🌀', name:'Subtle movement', desc:'Almost-inaudible flange that just adds life to a static pad or guitar.', settings:[
+        { name:'Rate', val:'0.1 Hz', valColor:'#ff5fad', note:'Very slow' },
+        { name:'Depth', val:'20%', valColor:'#ff5fad', note:'Minimal' },
+        { name:'Feedback', val:'20%', valColor:'#ff5fad', note:'' },
+        { name:'Wet/Dry', val:'25% wet', valColor:'#ff5fad', note:'' },
+      ]},
+    ]
+  },
+  {
+    rank:14, name:'Fruity Phaser', cat:'mod', tagline:'Phase sweeping for texture.',
+    desc:'Similar to flanger but uses phase shifting rather than delay. Creates a smoother, more hypnotic sweep. Common in psychedelic and electronic music.',
+    uses:['Synth pads','Rhodes/EP','Leads','Atmospheric layers'],
+    tip:'A phaser at low depth on a keys sound adds warmth. Match the LFO rate to your tempo (e.g., 1/4 note sync) for rhythmic movement.',
+    recipes:[
+      { emoji:'🎹', name:'Rhodes EP vibe', desc:'The classic electric piano phaser — warm, rotary, expressive.', settings:[
+        { name:'Rate', val:'0.5 Hz', valColor:'#ff5fad', note:'Slow sweep' },
+        { name:'Depth', val:'50%', valColor:'#ff5fad', note:'Noticeable but musical' },
+        { name:'Stages', val:'4', valColor:'#ff5fad', note:'Smooth' },
+        { name:'Wet/Dry', val:'40% wet', valColor:'#ff5fad', note:'' },
+      ]},
+      { emoji:'🌀', name:'Psychedelic sweep', desc:'Intense, wide phasing for trippy synths and experimental textures.', settings:[
+        { name:'Rate', val:'0.2 Hz', valColor:'#ff5fad', note:'Very slow' },
+        { name:'Depth', val:'90%', valColor:'#ff5fad', note:'Deep sweep' },
+        { name:'Feedback', val:'70%', valColor:'#ff5fad', note:'Resonant' },
+        { name:'Stages', val:'8', valColor:'#ff5fad', note:'More notches' },
+      ]},
+      { emoji:'🎸', name:'Funky rhythmic phase', desc:'Sync phaser to tempo for a pumping, rhythmic texture.', settings:[
+        { name:'Rate', val:'1/4 note sync', valColor:'#ff5fad', note:'Tempo-locked' },
+        { name:'Depth', val:'60%', valColor:'#ff5fad', note:'' },
+        { name:'Feedback', val:'40%', valColor:'#ff5fad', note:'' },
+        { name:'Wet/Dry', val:'50/50', valColor:'#ff5fad', note:'' },
+      ]},
+    ]
+  },
+  {
+    rank:15, name:'Fruity Waveshaper', cat:'dist', tagline:'Draw your own distortion curve.',
+    desc:'Applies a custom waveshaping function to the signal, creating harmonic distortion. Unlike a simple distortion pedal, you can draw the exact curve — very powerful for sound design.',
+    uses:['Bass saturation','Synth leads','Drum distortion','Reese bass'],
+    tip:'Start with one of the built-in presets then tweak. Blend with a DRY signal using the mix knob to add harmonics without losing the original character.',
+    recipes:[
+      { emoji:'🎸', name:'Reese bass distortion', desc:'Classic growling Reese bass — hard clip for maximum aggression.', settings:[
+        { name:'Shape', val:'Hard clip preset', valColor:'#ff6b35', note:'Or draw flat top' },
+        { name:'Pre-gain', val:'+6 dB', valColor:'#ff6b35', note:'Push into clipping' },
+        { name:'Mix', val:'60% wet', valColor:'#ff6b35', note:'Blend with dry' },
+      ]},
+      { emoji:'☀️', name:'Harmonic exciter', desc:'Add subtle warmth and upper harmonics to make a dull sound sparkle.', settings:[
+        { name:'Shape', val:'Soft curve preset', valColor:'#ff6b35', note:'Gentle S-curve' },
+        { name:'Pre-gain', val:'+2 dB', valColor:'#ff6b35', note:'' },
+        { name:'Mix', val:'25% wet', valColor:'#ff6b35', note:'Very subtle' },
+      ]},
+      { emoji:'💀', name:'Destroyed drums', desc:'Extreme waveshaping on a drum bus for a blown-out, lo-fi character.', settings:[
+        { name:'Shape', val:'Foldback preset', valColor:'#ff6b35', note:'Or draw fold shape' },
+        { name:'Pre-gain', val:'+10 dB', valColor:'#ff6b35', note:'Extreme drive' },
+        { name:'Mix', val:'40% wet', valColor:'#ff6b35', note:'Blend to taste' },
+        { name:'Post-EQ', val:'Cut 2–5 kHz', valColor:'#ff6b35', note:'Tame harshness' },
+      ]},
+    ]
+  },
+  {
+    rank:16, name:'Fruity Multiband Compressor', cat:'dyn', tagline:'Compress different frequencies separately.',
+    desc:'Splits the signal into frequency bands and compresses each independently. A lighter alternative to Maximus, great for fixing problematic frequency buildup.',
+    uses:['Drum bus','Vocals','Full mix','Acoustic guitar'],
+    tip:'Use the high band to tame harshness on bright sounds, and the low band to tighten a muddy bass, without affecting the rest of the spectrum.',
+    recipes:[
+      { emoji:'🎙', name:'Tame harsh vocals', desc:'Reduce sibilance and harshness in the highs without dulling the whole vocal.', settings:[
+        { name:'High band thresh.', val:'-18 dB', valColor:'#2de898', note:'3–8 kHz band' },
+        { name:'High ratio', val:'4:1', valColor:'#2de898', note:'' },
+        { name:'Mid/Low bands', val:'Bypass', valColor:'#2de898', note:'Leave untouched' },
+      ]},
+      { emoji:'🥁', name:'Fix muddy drums', desc:'Tighten boomy low-mids on a drum bus without touching punch or air.', settings:[
+        { name:'Low band thresh.', val:'-16 dB', valColor:'#2de898', note:'200–500 Hz range' },
+        { name:'Low ratio', val:'3:1', valColor:'#2de898', note:'Moderate clamp' },
+        { name:'High band', val:'Bypass', valColor:'#2de898', note:'Leave cymbals free' },
+      ]},
+    ]
+  },
+  {
+    rank:17, name:'Fruity Spectroman', cat:'util', tagline:'Visual frequency analyzer.',
+    desc:'Displays the frequency content of your signal in real time. Not an effect — but invaluable for understanding how sounds occupy the frequency spectrum.',
+    uses:['Analysis only','Learning EQ','Checking mix balance'],
+    tip:'Put it at the end of your master chain to see the overall frequency balance. A "smile curve" (more lows and highs than mids) often sounds good to the ear.',
+    recipes:[
+      { emoji:'🔍', name:'Identify problem frequencies', desc:'Use Spectroman while playing a loop — look for spikes that stick out above the curve. Those are your problem frequencies to cut in EQ.', settings:[
+        { name:'View mode', val:'Peak hold on', valColor:'#3dd6ff', note:'See worst peaks' },
+        { name:'Resolution', val:'High', valColor:'#3dd6ff', note:'Better detail' },
+      ]},
+      { emoji:'⚖️', name:'Mix balance check', desc:'A balanced mix should have a gentle slope from lows to highs, with energy across the full spectrum.', settings:[
+        { name:'Target shape', val:'"Smile curve"', valColor:'#3dd6ff', note:'More low & high' },
+        { name:'Watch for', val:'2–5 kHz buildup', valColor:'#3dd6ff', note:'Causes ear fatigue' },
+      ]},
+    ]
+  },
+];
+
+function importanceWidth(rank) { return Math.round(100 - ((rank - 1) / (PLUGINS.length - 1)) * 82); }
+function catColor(cat) { return CATS.find(c => c.key === cat)?.color || '#fff'; }
+
+let activeCat = 'all';
+let expanded = null;
+let activeTab = {}; // rank -> 'overview'|'recipes'
+let openRecipes = {}; // rank-recipeIdx -> bool
+let theme = 'dark';
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeLabel').textContent = theme === 'dark' ? 'Night' : 'Day';
+}
+
+function switchTab(rank, tab, e) {
+  e.stopPropagation();
+  activeTab[rank] = tab;
+  renderPlugins();
+}
+
+function toggleRecipe(rank, idx, e) {
+  e.stopPropagation();
+  const key = `${rank}-${idx}`;
+  openRecipes[key] = !openRecipes[key];
+  renderPlugins();
+}
+
+function renderLegend() {
+  document.getElementById('legend').innerHTML = CATS.filter(c => c.key !== 'all').map(c => `
+    <div class="legend-pill"><div class="legend-dot" style="background:${c.color}"></div>${c.label}</div>`).join('');
+}
+
+function renderFilters() {
+  document.getElementById('filters').innerHTML = CATS.map(c => `
+    <button class="filter-btn ${activeCat === c.key ? 'active' : ''}" data-cat="${c.key}" onclick="setFilter('${c.key}')">${c.label}</button>`).join('');
+}
+
+function renderPlugins() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = PLUGINS.filter(p => {
+    const matchCat = activeCat === 'all' || p.cat === activeCat;
+    const matchQ = !q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.tagline.toLowerCase().includes(q)
+      || p.recipes.some(r => r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+    return matchCat && matchQ;
+  });
+
+  document.getElementById('count-bar').textContent = `Showing ${filtered.length} of ${PLUGINS.length} plugins`;
+  const grid = document.getElementById('plugin-grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state">No plugins match — try a different search or filter.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((p, i) => {
+    const tab = activeTab[p.rank] || 'overview';
+    const iw = importanceWidth(p.rank);
+    const cc = catColor(p.cat);
+
+    const overviewHTML = `
+      <div class="tab-panel ${tab==='overview'?'active':''}">
+        <p class="desc-text">${p.desc}</p>
+        <div class="uses-label">Common uses</div>
+        <div class="uses-list">${p.uses.map(u=>`<span class="use-tag">${u}</span>`).join('')}</div>
+        <div class="tip-block">
+          <div class="tip-label">Pro tip</div>
+          ${p.tip}
+        </div>
+      </div>`;
+
+    const recipesHTML = `
+      <div class="tab-panel ${tab==='recipes'?'active':''}">
+        <div class="recipes-list">
+          ${p.recipes.map((r, ri) => {
+            const key = `${p.rank}-${ri}`;
+            const isOpen = !!openRecipes[key];
+            return `<div class="recipe-card ${isOpen?'open':''}">
+              <div class="recipe-header" onclick="toggleRecipe(${p.rank},${ri},event)">
+                <span class="recipe-emoji">${r.emoji}</span>
+                <span class="recipe-name">${r.name}</span>
+                <span class="recipe-arrow">▾</span>
+              </div>
+              <div class="recipe-body">
+                <p class="recipe-desc">${r.desc}</p>
+                <div class="settings-grid">
+                  ${r.settings.map(s=>`
+                    <div class="setting-row">
+                      <span class="setting-name">${s.name}</span>
+                      <span class="setting-val" style="background:${s.valColor}">${s.val}</span>
+                      ${s.note ? `<span class="setting-note">${s.note}</span>` : ''}
+                    </div>`).join('')}
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+
+    return `
+      <div class="plugin-card ${expanded === p.rank ? 'expanded' : ''}"
+           data-cat="${p.cat}"
+           style="animation-delay:${i*28}ms"
+           onclick="toggle(${p.rank})">
+        <div class="card-top">
+          <div class="cat-badge" data-cat="${p.cat}">${ABBR[p.cat]}</div>
+          <div class="card-title-group">
+            <div class="plugin-name">${p.name}</div>
+            <div class="rank-label">#${p.rank} most used</div>
+          </div>
+          <div class="expand-btn">▾</div>
+        </div>
+        <div class="tagline">${p.tagline}</div>
+        <div class="importance-bar">
+          <div class="bar-track"><div class="bar-fill" style="width:${iw}%;background:${cc}"></div></div>
+        </div>
+        <div class="card-body">
+          <div class="tab-row">
+            <button class="tab-btn ${tab==='overview'?'active':''}" onclick="switchTab(${p.rank},'overview',event)">Overview</button>
+            <button class="tab-btn ${tab==='recipes'?'active':''}" onclick="switchTab(${p.rank},'recipes',event)">🎛 Recipes (${p.recipes.length})</button>
+          </div>
+          ${overviewHTML}
+          ${recipesHTML}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggle(rank) { expanded = expanded === rank ? null : rank; renderPlugins(); }
+function setFilter(cat) { activeCat = cat; renderFilters(); renderPlugins(); }
+
+renderLegend(); renderFilters(); renderPlugins();
+</script>
+</body>
+</html>
