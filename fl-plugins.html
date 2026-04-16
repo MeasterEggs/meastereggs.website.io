@@ -536,6 +536,79 @@
   .ep-name { font-size: 13px; font-weight: 800; flex: 1; }
   .ep-note { font-size: 12px; font-weight: 500; color: var(--muted); font-style: italic; }
   .ep-fx-note { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+  /* INSTRUMENTS PAGE */
+  .inst-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 640px) { .inst-grid { grid-template-columns: 1fr; } }
+
+  .inst-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 24px; overflow: hidden;
+    box-shadow: var(--shadow-card); position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .inst-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+  .inst-card::before {
+    content: ''; position: absolute; top: 1rem; left: 0;
+    width: 3px; height: calc(100% - 2rem); border-radius: 0 6px 6px 0;
+    background: var(--ic-color, var(--rev)); opacity: 0; transition: opacity 0.2s;
+  }
+  .inst-card:hover::before { opacity: 1; }
+
+  .inst-card-header {
+    padding: 1.3rem 1.4rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .inst-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 0.55rem; }
+  .inst-icon {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    background: color-mix(in srgb, var(--ic-color, var(--rev)) 14%, transparent);
+  }
+  .inst-name { font-size: 17px; font-weight: 900; letter-spacing: -0.02em; }
+  .inst-family { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .inst-desc { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.65; }
+
+  .inst-ost-list { padding: 0.7rem 0; }
+  .inst-ost-entry {
+    padding: 0.85rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .inst-ost-entry:last-child { border-bottom: none; }
+  .inst-ost-entry:hover { background: color-mix(in srgb, var(--border) 60%, transparent); }
+
+  .inst-ost-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+  .inst-ost-game { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+  .inst-ost-year { font-family: var(--mono); font-size: 10px; color: var(--muted); padding-top: 3px; flex-shrink: 0; }
+  .inst-ost-composer { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+  .inst-ost-note { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
+  .inst-tracks { display: flex; flex-wrap: wrap; gap: 4px; }
+  .inst-track-pill {
+    font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 999px;
+    background: color-mix(in srgb, var(--ic-color, var(--rev)) 10%, transparent);
+    color: color-mix(in srgb, var(--ic-color, var(--rev)) 80%, var(--text));
+    border: 1px solid color-mix(in srgb, var(--ic-color, var(--rev)) 22%, transparent);
+  }
+  .inst-vst-row {
+    padding: 0.75rem 1.4rem;
+    background: var(--bg2);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .inst-vst-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
+  .inst-vst-pill {
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    background: var(--bg3); border: 1px solid var(--border); color: var(--muted);
+  }
+  .inst-vst-pill.free {
+    background: color-mix(in srgb, var(--dyn) 10%, transparent);
+    color: var(--dyn); border-color: color-mix(in srgb, var(--dyn) 30%, transparent);
+  }
 </style>
 </head>
 <body>
@@ -552,6 +625,7 @@
   <button class="page-tab-btn active" onclick="switchPage('plugins', this)">Effects &amp; Plugins</button>
   <button class="page-tab-btn" onclick="switchPage('palette', this)">Sound Palette</button>
   <button class="page-tab-btn" onclick="switchPage('styles', this)">Music Styles</button>
+  <button class="page-tab-btn" onclick="switchPage('instruments', this)">OST by Instrument</button>
 </div>
 
 <!-- PAGE: PLUGINS -->
@@ -683,7 +757,7 @@
         <div class="ep-row">
           <div class="ep-dot" style="background:var(--rev)"></div>
           <div class="ep-role">melodic core</div>
-          <div class="ep-name">Spitfire Felt Piano <span style="font-weight:500;color:var(--muted)">(LABS — free)</span></div>
+          <div class="ep-name">Spitfire Soft Piano <span style="font-weight:500;color:var(--muted)">(LABS — free)</span></div>
           <div class="ep-note">emotional anchor</div>
         </div>
         <div class="ep-row">
@@ -760,7 +834,7 @@
       <div class="pal-card">
         <div class="pal-card-b" style="margin-bottom:10px">Everything below is free and covers the full Celeste-style palette without spending anything.</div>
         <div class="pal-pill-row">
-          <span class="pal-pill pal-pill-accent">Spitfire LABS Felt Piano</span>
+          <span class="pal-pill pal-pill-accent">Spitfire LABS Soft Piano</span>
           <span class="pal-pill pal-pill-accent">Spitfire LABS Soft Piano</span>
           <span class="pal-pill">Vital (wavetable synth)</span>
           <span class="pal-pill">Surge XT (open source synth)</span>
@@ -789,9 +863,21 @@
   </div>
 </div>
 
+<!-- PAGE: OST BY INSTRUMENT -->
+<div class="page-section" id="page-instruments">
+  <div class="palette-wrap">
+    <div class="pal-header">
+      <div class="pal-eyebrow">Inspiration guide · instrument reference</div>
+      <div class="pal-title">OST by<br><em>Instrument</em></div>
+      <p class="pal-desc">Browse game soundtracks organised by their lead instrument. Use this to find OSTs that match a specific timbre you have in mind — or to discover what a given instrument can do in a game context.</p>
+    </div>
+    <div id="instruments-grid"></div>
+  </div>
+</div>
+
 <footer>
   <span>FL Studio Music Reference</span>
-  <span>17 plugins · sound palette guide · music styles</span>
+  <span>17 plugins · sound palette · music styles · OST by instrument</span>
 </footer>
 
 <script>
@@ -1566,6 +1652,189 @@ function toggleStyle(id) {
 }
 
 renderLegend(); renderFilters(); renderPlugins(); renderStyles();
+
+// ── INSTRUMENTS DATA ───────────────────────────────────────────────────────
+const INSTRUMENTS = [
+  {
+    id: 'piano', icon: '🎹', color: '#a87eff', name: 'Piano', family: 'Keyboard',
+    desc: 'The most versatile instrument in game music. Can be intimate and sparse or grand and cinematic. The felt/soft variants add a muted warmth perfect for emotional indie games.',
+    osts: [
+      { game: 'Celeste', year: '2018', composer: 'Lena Raine', note: 'Felt piano as the emotional backbone. Every quiet, human moment is piano-led. Works because it stays soft and never overpowers.', tracks: ['First Steps', 'Resurrections', 'My Dearest Friends'] },
+      { game: 'Deltarune (My Castle Town)', year: '2021', composer: 'Toby Fox', note: 'Two layered muted piano tracks — melody and accompaniment. Almost nothing else. A masterclass in doing more with less.', tracks: ['My Castle Town', 'Don\'t Forget'] },
+      { game: 'Braid', year: '2008', composer: 'Various', note: 'Licensed classical piano pieces (Chopin, Beethoven, Liszt) slow-stretched and processed. Hauntingly beautiful and completely unlike anything else in games.', tracks: ['Maenam', 'Downstream'] },
+      { game: 'Florence', year: '2018', composer: 'Kevin Penkin', note: 'Solo piano that literally splits into two voices (treble + bass separated) to represent two people falling in love. Compositional storytelling at its finest.', tracks: ['Chasing the Wind', 'Becoming One'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Soft Piano', free: true },
+      { name: 'Spitfire Originals Felt Piano', free: false },
+      { name: 'Native Instruments Noire', free: false },
+      { name: 'Vital (piano presets)', free: true },
+    ]
+  },
+  {
+    id: 'cello', icon: '🎻', color: '#ff5fad', name: 'Cello', family: 'Strings',
+    desc: 'The warmest, most human string instrument. Sits in a register close to the human voice — which makes it uniquely capable of expressing grief, longing, and quiet joy. Often used solo for intimate scenes.',
+    osts: [
+      { game: 'Hollow Knight', year: '2017', composer: 'Christopher Larkin', note: 'Solo cello and violin in a dry, intimate room. No lush reverb — just the instrument, raw and close. "City of Tears" is the defining example.', tracks: ['City of Tears', 'Dirtmouth', 'Sealed Vessel'] },
+      { game: 'Journey', year: '2012', composer: 'Austin Wintory', note: 'Cello as the protagonist\'s voice throughout the entire score. Adapts dynamically as you play — the first game score nominated for a Grammy.', tracks: ['Nascence', 'The Road of Trials', 'Apotheosis'] },
+      { game: 'Florence', year: '2018', composer: 'Kevin Penkin', note: 'One of the main characters is a cellist — the instrument appears throughout to represent him. Emotional shorthand through timbre alone.', tracks: ['Finding Krish', 'Becoming One'] },
+      { game: 'Ori and the Blind Forest', year: '2015', composer: 'Gareth Coker', note: 'Cello anchors the lower strings in the full orchestral score. The emotional centrepiece of the most devastating moments.', tracks: ['Restoring the Light', 'Naru, the Guardian'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Cello Sextet', free: true },
+      { name: 'Embertone Intimate Cello', free: false },
+      { name: 'VSL Solo Cello', free: false },
+      { name: 'CineStrings Solo (solo cello)', free: false },
+    ]
+  },
+  {
+    id: 'violin', icon: '🎸', color: '#ffb347', name: 'Violin', family: 'Strings',
+    desc: 'The most expressive melodic string instrument. Can soar with joy, weep with sorrow, or create unbearable tension. Works as a solo lead or layered into a string section.',
+    osts: [
+      { game: 'Ori and the Blind Forest', year: '2015', composer: 'Gareth Coker', note: 'Solo violin carries the most emotional themes. The opening of "Light of Nibel" is one of the most beautiful moments in all of game music.', tracks: ['Light of Nibel', 'Sein\'s Theme', 'Restoring the Light'] },
+      { game: 'Hollow Knight', year: '2017', composer: 'Christopher Larkin', note: 'Solo violin alongside cello creates an aching, lonely duet throughout the score. Especially prominent in the boss themes.', tracks: ['Hollow Knight', 'White Palace', 'Radiance'] },
+      { game: 'Bastion', year: '2011', composer: 'Darren Korb', note: 'Fiddle-style violin in several tracks, giving a folk and frontier feel. Different approach — raw, slightly rough, played like a folk instrument rather than a classical one.', tracks: ['Bynn the Breaker', 'Setting Sail Coming Home'] },
+      { game: 'Hades', year: '2020', composer: 'Darren Korb', note: 'Electric violin appears in several tracks, giving an edge to the underworld aesthetic. The contrast between acoustic and electric violin is used expressively.', tracks: ['Good Riddance', 'In the Blood'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Violin', free: true },
+      { name: 'LASS Solo Violin', free: false },
+      { name: 'Embertone Intimate Violin', free: false },
+      { name: 'Session Strings (NI)', free: false },
+    ]
+  },
+  {
+    id: 'guitar-acoustic', icon: '🪕', color: '#ff6b35', name: 'Acoustic Guitar', family: 'Strings (plucked)',
+    desc: 'Warm, immediate, and deeply human. The acoustic guitar brings a handmade quality to any soundtrack — it sounds like someone is in the room with you. Works for folk, singer-songwriter, and intimate emotional moments.',
+    osts: [
+      { game: 'Stardew Valley', year: '2016', composer: 'Eric Barone', note: 'Acoustic guitar drives many of the seasonal themes, especially summer. Light fingerpicking over simple chord progressions. Everything feels warm and alive.', tracks: ['Summer (Nature\'s Crescendo)', 'Spring (It\'s a Bright New Day)', 'The Mines'] },
+      { game: 'Outer Wilds', year: '2019', composer: 'Andrew Prahlow', note: 'Campfire acoustic guitar as the emotional anchor of the whole game. "Travelers" will make you cry before you understand why.', tracks: ['Travelers', 'Timber Hearth', 'Finale'] },
+      { game: 'Bastion', year: '2011', composer: 'Darren Korb', note: '"Acoustic frontier trip-hop" — strummed acoustic guitar over sampled hip-hop beats. The genre combination makes it unforgettable.', tracks: ['Build That Wall', 'Bynn the Breaker', 'Setting Sail Coming Home'] },
+      { game: 'Last of Us', year: '2013', composer: 'Gustavo Santaolalla', note: 'Solo fingerpicked nylon guitar as the sole instrument in many tracks. Intimate to the point of discomfort. The model for emotional restraint in game scoring.', tracks: ['The Last of Us', 'All Gone (No Escape)'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Acoustic Guitar', free: true },
+      { name: 'Ample Guitar M (fingerpicking)', free: false },
+      { name: 'Shreddage 3 Stratus (acoustic)', free: false },
+      { name: 'Orange Tree Samples Evolution', free: false },
+    ]
+  },
+  {
+    id: 'clarinet', icon: '🎶', color: '#2de898', name: 'Clarinet / Woodwinds', family: 'Wind',
+    desc: 'Woodwinds bring a folk, rustic, and slightly nostalgic character. The clarinet in particular has a unique dual register — warm and mellow in the low chalumeau register, bright and vocal in the upper range.',
+    osts: [
+      { game: 'Machinarium', year: '2009', composer: 'Floex / Tomáš Dvořák', note: 'Live clarinet over electronic beats is the signature sound of the entire OST. Dvořák is a professional clarinetist — the instrument is front and centre throughout.', tracks: ['Mr. Handagote', 'Clockwise Operetta', 'The Glasshouse with Butterfly'] },
+      { game: 'Spiritfarer', year: '2020', composer: 'Max LL', note: 'Flute and other woodwinds appear throughout the bossa nova and folk-inspired score. Light, airy, and joyful against an emotionally heavy narrative.', tracks: ['Spirit Dinner Party', 'Hummingbird'] },
+      { game: 'Ori and the Blind Forest', year: '2015', composer: 'Gareth Coker', note: 'Oboe and flute carry several of the game\'s most serene themes. The woodwinds give the forest world an organic, breathing quality.', tracks: ['Restoring the Light', 'Light of Nibel'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Clarinet', free: true },
+      { name: 'Vienna Symphonic Library Solo Woodwinds', free: false },
+      { name: 'Cinewinds Core', free: false },
+      { name: 'BBCSO Discover (free tier)', free: true },
+    ]
+  },
+  {
+    id: 'vibraphone', icon: '🎵', color: '#3dd6ff', name: 'Vibraphone / Marimba', family: 'Mallet percussion',
+    desc: 'Mallet percussion instruments give music a shimmering, resonant quality — simultaneously warm and metallic. The vibraphone is essential in jazz; the marimba has a more wooden, earthy tone. Both sustain beautifully with the motor on.',
+    osts: [
+      { game: 'Undertale', year: '2015', composer: 'Toby Fox', note: 'Glockenspiel and music box textures appear throughout, giving the score a toy-like, innocent quality. "Once Upon a Time" opens with pure mallet percussion.', tracks: ['Once Upon a Time', 'Memory', 'Fallen Down'] },
+      { game: 'Stardew Valley', year: '2016', composer: 'Eric Barone', note: 'Marimba and glockenspiel appear in the lighter seasonal tracks, giving the pastoral world a hand-crafted, innocent feeling.', tracks: ['Spring (It\'s a Bright New Day)', 'Summer (Nature\'s Crescendo)'] },
+      { game: 'Machinarium', year: '2009', composer: 'Floex', note: 'Mallet percussion appears alongside clarinet in several tracks, adding rhythmic texture and a sense of playful, mechanical wonder to the robot world.', tracks: ['Clockwise Operetta', 'The Robot Band Tune'] },
+      { game: 'Coffee Talk', year: '2020', composer: 'Andrew Jeremy', note: 'Vibraphone is a core jazz-hop texture throughout the OST — the classic vibes-plus-bass-plus-kit combination sits under most of the piano melodies.', tracks: ['Tenderhearted', 'Gala Gila'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Marimba', free: true },
+      { name: 'Native Instruments Una Corda (has vibes textures)', free: false },
+      { name: 'Spitfire Percussion (vibraphone)', free: false },
+      { name: 'Fluffy Audio Marimba', free: false },
+    ]
+  },
+  {
+    id: 'banjo-folk', icon: '🎸', color: '#c8f535', name: 'Banjo / Mandolin / Fiddle', family: 'Folk strings',
+    desc: 'Folk string instruments carry an immediate sense of place and community — campfires, rural landscapes, old traditions. Their slightly rough, handmade sound feels lived-in in a way polished orchestral instruments can\'t match.',
+    osts: [
+      { game: 'Outer Wilds', year: '2019', composer: 'Andrew Prahlow', note: 'Banjo as the primary melodic voice. The campfire songs played on banjo become the emotional anchor of one of gaming\'s most profound stories.', tracks: ['Travelers', 'Timber Hearth', 'Finale'] },
+      { game: 'Bastion', year: '2011', composer: 'Darren Korb', note: 'Mandolin and fiddle textures appear alongside acoustic guitar and banjo-like plucking. The frontier folk palette feels genuinely dusty and weathered.', tracks: ['A Proper Story', 'Bynn the Breaker'] },
+      { game: 'Night in the Woods', year: '2017', composer: 'Alec Holowka', note: 'Several tracks use fiddle and folk instrumentation to evoke small-town Midwest atmosphere. Warm and nostalgic, even when the story isn\'t.', tracks: ['Home Again', 'Weird Autumn'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Banjo', free: true },
+      { name: 'Ample Sound AMandolin', free: false },
+      { name: 'Strum GS-2 (acoustic folk strings)', free: false },
+      { name: 'Shreddage 3 Archtop (fingerstyle)', free: false },
+    ]
+  },
+  {
+    id: 'synth-lead', icon: '🎛', color: '#ff5fad', name: 'Synth Lead', family: 'Electronic',
+    desc: 'A single synthesizer voice carrying the melody — the defining sound of everything from 80s game music to modern indie scores. Can be warm and nostalgic, harsh and urgent, or dreamy and distant depending on the waveform and processing.',
+    osts: [
+      { game: 'Celeste', year: '2018', composer: 'Lena Raine', note: 'Custom Massive patches built from scratch. Three layered oscillators in different octaves create the huge, commanding lead sound. Bitcrushed for grit. Written with the delay built into the melody.', tracks: ['Resurrections', 'Reach for the Summit', 'Confronting Myself'] },
+      { game: 'Hyper Light Drifter', year: '2016', composer: 'Disasterpeace', note: 'Moody, filtered synth leads that feel distant and melancholy. The sound palette stays consistent throughout — always slightly lo-fi, always wistful.', tracks: ['Vignette: Panacea', 'Lots of Bells', 'Floating'] },
+      { game: 'Katana Zero', year: '2019', composer: 'Various', note: 'Aggressive synthwave leads — sawtooth waves through heavy distortion and delay. The energy is completely different to Celeste but shows the same instrument\'s range.', tracks: ['Slum Lord', 'Sneaky Driver'] },
+      { game: 'Hotline Miami', year: '2012', composer: 'Various', note: 'Hypnotic, repetitive synth leads on top of driving electronic beats. The lead tones are often simple — the repetition and layering do the work.', tracks: ['Hydrogen', 'Paris', 'Sexualizer'] },
+    ],
+    vsts: [
+      { name: 'Vital (free wavetable synth)', free: true },
+      { name: 'Surge XT (free open source)', free: true },
+      { name: 'Native Instruments Massive', free: false },
+      { name: 'Arturia Pigments', free: false },
+    ]
+  },
+  {
+    id: 'choir-voice', icon: '🎤', color: '#a87eff', name: 'Voice / Choir', family: 'Vocal',
+    desc: 'The human voice — solo or choral — is the most immediately emotional instrument. It communicates vulnerability in a way no other sound can. Used in game music for moments of transcendence, loss, or spiritual weight.',
+    osts: [
+      { game: 'Ori and the Blind Forest', year: '2015', composer: 'Gareth Coker', note: 'Solo wordless soprano and full choir used for the most transcendent moments. The vocals are so beautifully recorded they feel almost supernatural.', tracks: ['Restoring the Light', 'Light of Nibel', 'Main Title'] },
+      { game: 'Celeste', year: '2018', composer: 'Lena Raine', note: 'Bulgarian women\'s choir textures appear in select tracks for atmosphere. Used sparingly — which makes the moments they appear feel significant.', tracks: ['Resurrections', 'In the Mirror'] },
+      { game: 'Hades', year: '2020', composer: 'Darren Korb', note: 'Ashley Barrett\'s voice appears as a texture and as a lead throughout. The combination of her voice with distorted guitar is the defining sound of the soundtrack.', tracks: ['Good Riddance', 'In the Blood', 'Out of Tartarus'] },
+      { game: 'Transistor', year: '2014', composer: 'Darren Korb', note: 'Ashley Barrett as Red, a singer who has lost her voice — the vocal tracks carry enormous narrative weight. "Paper Boats" is devastating.', tracks: ['In Circles', 'We All Become', 'Paper Boats'] },
+    ],
+    vsts: [
+      { name: 'Spitfire LABS Choir', free: true },
+      { name: 'EastWest Hollywood Choirs', free: false },
+      { name: 'BBCSO Discover (free choir)', free: true },
+      { name: 'Straylight (NI — ambient vocal textures)', free: false },
+    ]
+  },
+];
+
+function renderInstruments() {
+  const grid = document.getElementById('instruments-grid');
+  grid.className = 'inst-grid';
+  grid.innerHTML = INSTRUMENTS.map((inst, i) => `
+    <div class="inst-card" style="--ic-color:${inst.color}; animation-delay:${i*30}ms">
+      <div class="inst-card-header">
+        <div class="inst-title-row">
+          <div class="inst-icon">${inst.icon}</div>
+          <div>
+            <div class="inst-name">${inst.name}</div>
+            <div class="inst-family">${inst.family}</div>
+          </div>
+        </div>
+        <div class="inst-desc">${inst.desc}</div>
+      </div>
+      <div class="inst-ost-list">
+        ${inst.osts.map(o => `
+        <div class="inst-ost-entry">
+          <div class="inst-ost-top">
+            <div class="inst-ost-game">${o.game}</div>
+            <div class="inst-ost-year">${o.year}</div>
+          </div>
+          <div class="inst-ost-composer">${o.composer}</div>
+          <div class="inst-ost-note">${o.note}</div>
+          <div class="inst-tracks">${o.tracks.map(t => `<span class="inst-track-pill">${t}</span>`).join('')}</div>
+        </div>`).join('')}
+      </div>
+      <div class="inst-vst-row">
+        <span class="inst-vst-label">VSTs</span>
+        ${inst.vsts.map(v => `<span class="inst-vst-pill ${v.free ? 'free' : ''}">${v.name}${v.free ? ' ✓' : ''}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+renderInstruments();
 </script>
 </body>
 </html>
