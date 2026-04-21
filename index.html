@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bastien — Projects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Themes ── */
+    :root {
+      --bg:             #f7f6f2;
+      --bg-card:        #ffffff;
+      --text:           #1a1a18;
+      --text-secondary: #6b6a66;
+      --text-tertiary:  #a09f9a;
+      --border:         rgba(0,0,0,0.10);
+
+      --game-bg:        #eeecfe;
+      --game-text:      #4a3fbb;
+      --game-border:    #c4bef7;
+      --game-label:     #6d62d4;
+      --game-tag-bg:    #dddaf9;
+      --game-tag-text:  #4a3fbb;
+      --game-hover-bg:  #e5e2fd;
+
+      --music-bg:       #e1f5ee;
+      --music-text:     #0e6e55;
+      --music-border:   #9fe1cb;
+      --music-label:    #1d9e75;
+      --music-tag-bg:   #c8eedf;
+      --music-tag-text: #0e6e55;
+      --music-hover-bg: #d2f0e6;
+
+      --toggle-bg:      #e4e3de;
+      --toggle-color:   #6b6a66;
+    }
+
+    [data-theme="dark"] {
+      --bg:             #131312;
+      --bg-card:        #1e1e1c;
+      --text:           #f0efe9;
+      --text-secondary: #9b9a95;
+      --text-tertiary:  #6b6a66;
+      --border:         rgba(255,255,255,0.08);
+
+      --game-bg:        #26215c;
+      --game-text:      #cbc8f6;
+      --game-border:    #534ab7;
+      --game-label:     #afa9ec;
+      --game-tag-bg:    #3c3489;
+      --game-tag-text:  #cbc8f6;
+      --game-hover-bg:  #2e2868;
+
+      --music-bg:       #04342c;
+      --music-text:     #9fe1cb;
+      --music-border:   #0f6e56;
+      --music-label:    #5dcaa5;
+      --music-tag-bg:   #085041;
+      --music-tag-text: #9fe1cb;
+      --music-hover-bg: #07433a;
+
+      --toggle-bg:      #2e2e2b;
+      --toggle-color:   #9b9a95;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 4rem 1.5rem;
+      transition: background 0.3s ease, color 0.2s ease;
+    }
+
+    main { width: 100%; max-width: 640px; }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 2.5rem;
+    }
+
+    .toggle-btn {
+      background: var(--toggle-bg);
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--toggle-color);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .toggle-btn:hover { opacity: 0.75; }
+
+    /* ── Header ── */
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7f77dd 0%, #1d9e75 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 1.25rem;
+    }
+
+    .header { margin-bottom: 3rem; }
+    h1 { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+    .tagline { font-size: 14px; color: var(--text-secondary); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 2.5rem; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .section-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* Game Design */
+    .section-game .section-dot   { background: var(--game-label); }
+    .section-game .section-label { color: var(--game-label); }
+    .section-game .project-card  { background: var(--game-bg); border-color: var(--game-border); }
+    .section-game .project-card:hover { background: var(--game-hover-bg); }
+    .section-game .card-tag      { background: var(--game-tag-bg); color: var(--game-tag-text); }
+    .section-game .card-title    { color: var(--game-text); }
+    .section-game .card-desc     { color: var(--game-text); opacity: 0.72; }
+
+    /* Music */
+    .section-music .section-dot   { background: var(--music-label); }
+    .section-music .section-label { color: var(--music-label); }
+    .section-music .project-card  { background: var(--music-bg); border-color: var(--music-border); }
+    .section-music .project-card:hover { background: var(--music-hover-bg); }
+    .section-music .card-tag      { background: var(--music-tag-bg); color: var(--music-tag-text); }
+    .section-music .card-title    { color: var(--music-text); }
+    .section-music .card-desc     { color: var(--music-text); opacity: 0.72; }
+
+    /* ── Grid ── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .project-card {
+      display: block;
+      border: 0.5px solid transparent;
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .card-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .card-desc  { font-size: 12px; line-height: 1.55; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 0.5px solid var(--border);
+      padding-top: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-handle {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .footer a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    .footer a:hover { color: var(--text); }
+
+    @media (max-width: 480px) {
+      body { padding: 2.5rem 1rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+
+    <div class="topbar">
+      <button class="toggle-btn" onclick="toggleTheme()" id="toggle-btn">
+        <span id="toggle-icon">🌙</span>
+        <span id="toggle-label">Night mode</span>
+      </button>
+    </div>
+
+    <div class="header">
+      <div class="avatar">B</div>
+      <h1>Bastien</h1>
+      <p class="tagline">A collection of tools and experiments.</p>
+    </div>
+
+    <!-- Game Design -->
+    <div class="section section-game">
+      <div class="section-header">
+        <div class="section-dot"></div>
+        <span class="section-label">Game Design</span>
+      </div>
+      <div class="projects-grid">
+        <a class="project-card" href="celeste_player_reference-1.html">
+          <span class="card-tag">reference · 1/2</span>
+          <p class="card-title">Celeste Player Reference</p>
+          <p class="card-desc">Player movement and interactions — part one.</p>
+        </a>
+        <a class="project-card" href="celeste_player_reference_p2.html">
+          <span class="card-tag">reference · 2/2</span>
+          <p class="card-title">Celeste Player Reference</p>
+          <p class="card-desc">Player movement and interactions — part two.</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Music Theory and Development -->
+    <div class="section section-music">
+      <div class="section-header">
+        <div class="section-dot"></div>
+        <span class="section-label">Music Theory and Development</span>
+      </div>
+      <div class="projects-grid">
+        <a class="project-card" href="music-theory.html">
+          <span class="card-tag">cheat sheet</span>
+          <p class="card-title">Music Theory</p>
+          <p class="card-desc">Music theory and composition cheat sheet.</p>
+        </a>
+        <a class="project-card" href="fl-plugins.html">
+          <span class="card-tag">reference</span>
+          <p class="card-title">FL Plugins</p>
+          <p class="card-desc">FL plugins and music examples per style.</p>
+        </a>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <span class="footer-handle">meastereggs.github.io</span>
+      <a href="https://github.com/meastereggs" target="_blank">View profile →</a>
+    </footer>
+
+  </main>
+
+  <script>
+    const html  = document.documentElement;
+    const icon  = document.getElementById('toggle-icon');
+    const label = document.getElementById('toggle-label');
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      icon.textContent  = theme === 'dark' ? '☀️' : '🌙';
+      label.textContent = theme === 'dark' ? 'Day mode' : 'Night mode';
+    }
+
+    function toggleTheme() {
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    // Priority: saved preference → system preference
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+  </script>
+</body>
+</html>
