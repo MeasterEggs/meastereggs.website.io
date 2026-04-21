@@ -58,156 +58,90 @@
     transition: background 0.3s ease, color 0.3s ease;
   }
 
-  /* ── Theme toggle ── */
-  .top-bar {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 1.5rem 2.5rem 0;
-    display: flex;
-    justify-content: flex-end;
+  /* ── Layout ── */
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    transition: width 0.25s ease, opacity 0.2s ease;
+    overflow: hidden; position: sticky; top: 0; height: 100vh;
   }
+  .sidebar.collapsed { width: 0; border-right-color: transparent; opacity: 0; pointer-events: none; }
+
+  .sidebar-inner { width: 220px; display: flex; flex-direction: column; height: 100%; padding: 1.25rem 0 1rem; }
+
+  .sidebar-logo { padding: 0 1.25rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+  .sidebar-logo-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; opacity: 0.8; margin-bottom: 3px; }
+  .sidebar-logo-title { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); line-height: 1.3; }
+  .sidebar-logo-title em { font-style: italic; color: var(--accent); }
+
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 0 0.5rem; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+
+  .nav-btn {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    background: none; border: none; padding: 7px 10px; border-radius: 7px;
+    cursor: pointer; text-align: left; margin-bottom: 1px;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: var(--surface2); }
+  .nav-btn.active { background: var(--surface2); }
+  .nav-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--faint); width: 16px; flex-shrink: 0; transition: color 0.15s; }
+  .nav-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.03em; color: var(--muted); white-space: nowrap; transition: color 0.15s; }
+  .nav-btn.active .nav-num { color: var(--accent); }
+  .nav-btn.active .nav-label { color: var(--text); font-weight: 500; }
+  .nav-btn:hover .nav-label { color: var(--text); }
+  .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); margin-left: auto; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
+  .nav-btn.active .nav-dot { opacity: 1; }
+
+  .sidebar-bottom { padding: 0.75rem 0.75rem 0; border-top: 1px solid var(--border); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.875rem 2rem; border-bottom: 1px solid var(--border);
+    gap: 12px; position: sticky; top: 0; background: var(--bg); z-index: 10;
+    transition: background 0.3s;
+  }
+
+  .sidebar-toggle {
+    background: none; border: 1px solid var(--border2); border-radius: 7px;
+    width: 32px; height: 32px; cursor: pointer; color: var(--muted);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    flex-direction: column; gap: 3px; padding: 7px 6px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .sidebar-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .sidebar-toggle span { display: block; height: 1.5px; background: currentColor; border-radius: 99px; }
+  .sidebar-toggle span:nth-child(1) { width: 13px; }
+  .sidebar-toggle span:nth-child(2) { width: 9px; }
+  .sidebar-toggle span:nth-child(3) { width: 13px; }
+
+  .breadcrumb { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--faint); letter-spacing: 0.05em; flex: 1; }
+  .breadcrumb em { color: var(--accent); font-style: normal; }
 
   .theme-toggle {
-    background: var(--toggle-bg);
-    border: 1px solid var(--toggle-border);
-    border-radius: 99px;
-    padding: 6px 14px 6px 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+    background: var(--toggle-bg); border: 1px solid var(--toggle-border);
+    border-radius: 99px; padding: 5px 11px 5px 8px; cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    transition: background 0.3s, border-color 0.3s;
   }
-  .theme-toggle:hover { transform: translateY(-1px); border-color: var(--accent); }
-  .theme-toggle:active { transform: scale(0.97); }
+  .theme-toggle:hover { border-color: var(--accent); }
 
-  .toggle-icon {
-    width: 18px;
-    height: 18px;
-    position: relative;
-    flex-shrink: 0;
-  }
-
-  .icon-sun, .icon-moon {
-    position: absolute;
-    inset: 0;
-    transition: opacity 0.3s, transform 0.4s ease;
-  }
-
+  .toggle-icon { width: 16px; height: 16px; position: relative; flex-shrink: 0; }
+  .icon-sun, .icon-moon { position: absolute; inset: 0; transition: opacity 0.3s, transform 0.4s ease; }
   .icon-sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
   .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
-
   :root.light .icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
   :root.light .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+  .toggle-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--toggle-icon); transition: color 0.3s; }
 
-  .toggle-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--toggle-icon);
-    transition: color 0.3s;
-  }
-
-  /* ── Header ── */
-  header {
-    padding: 3rem 2.5rem 0;
-    max-width: 960px;
-    margin: 0 auto;
-  }
-
-  .header-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 0.6rem;
-    opacity: 0.85;
-  }
-
-  header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.2rem, 5vw, 3.4rem);
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    color: var(--text);
-    margin-bottom: 0.5rem;
-  }
-
-  header h1 em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  header p {
-    color: var(--muted);
-    font-size: 14px;
-    max-width: 480px;
-    margin-top: 0.75rem;
-  }
-
-  /* ── Tabs ── */
-  .tab-wrapper {
-    max-width: 960px;
-    margin: 2.5rem auto 0;
-    padding: 0 2.5rem;
-  }
-
-  .tab-bar {
-    display: flex;
-    gap: 2px;
-    border-bottom: 1px solid var(--border2);
-    padding-bottom: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tab-bar::-webkit-scrollbar { display: none; }
-
-  .tab-btn {
-    background: none;
-    border: none;
-    padding: 10px 18px 12px;
-    cursor: pointer;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: var(--faint);
-    white-space: nowrap;
-    position: relative;
-    transition: color 0.2s;
-  }
-
-  .tab-btn::after {
-    content: '';
-    position: absolute;
-    bottom: -1px; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transition: transform 0.2s ease;
-  }
-
-  .tab-btn:hover { color: var(--muted); }
-
-  .tab-btn.active {
-    color: var(--accent);
-  }
-  .tab-btn.active::after { transform: scaleX(1); }
-
-  /* ── Content panels ── */
-  .content {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 2rem 2.5rem 4rem;
-  }
-
+  .content { padding: 2rem 2.5rem 4rem; max-width: 900px; }
   .panel { display: none; }
-  .panel.active {
-    display: block;
-    animation: fadeIn 0.25s ease;
-  }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .panel.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ── Section divider ── */
   .section-label {
@@ -368,6 +302,18 @@
   }
   .chord-row:last-child { border-bottom: none; }
 
+  .art-row {
+    display: grid;
+    grid-template-columns: minmax(110px, 150px) 1fr;
+    align-items: start;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .art-row:last-child { border-bottom: none; }
+  .art-term { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--accent); line-height: 1.3; word-break: break-word; }
+  .art-sub  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--faint); margin-top: 2px; margin-bottom: 6px; }
+
   .chord-degree {
     font-family: 'Playfair Display', serif;
     font-size: 1.6rem;
@@ -421,8 +367,10 @@
   .chord-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
 
   /* ── Responsive ── */
-  @media (max-width: 600px) {
-    header, .tab-wrapper, .content { padding-left: 1.25rem; padding-right: 1.25rem; }
+  @media (max-width: 700px) {
+    .sidebar { position: fixed; z-index: 100; height: 100vh; top: 0; left: 0; }
+    .sidebar.collapsed { width: 0; }
+    .content { padding-left: 1.25rem; padding-right: 1.25rem; }
     .notes-grid { grid-template-columns: repeat(4, 1fr); }
     .enharmonic-grid { grid-template-columns: repeat(3, 1fr); }
     .chord-row { grid-template-columns: 50px 90px 1fr; gap: 10px; }
@@ -436,56 +384,232 @@
 </head>
 <body>
 
-<div class="top-bar">
-  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode">
-    <span class="toggle-icon" aria-hidden="true">
-      <svg class="icon-moon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15.5 10.5A7 7 0 0 1 7.5 2.5a7 7 0 1 0 8 8z" fill="currentColor" style="color:var(--toggle-icon)"/>
-      </svg>
-      <svg class="icon-sun" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="9" cy="9" r="3.5" fill="currentColor" style="color:var(--toggle-icon)"/>
-        <line x1="9" y1="1" x2="9" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="1" y1="9" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="15" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="3.22" y1="3.22" x2="4.64" y2="4.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="13.36" y1="13.36" x2="14.78" y2="14.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="14.78" y1="3.22" x2="13.36" y2="4.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-        <line x1="4.64" y1="13.36" x2="3.22" y2="14.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/>
-      </svg>
-    </span>
-    <span class="toggle-label" id="toggle-label">Day</span>
-  </button>
-</div>
+<div class="app">
 
-<header>
-  <div class="header-label">Reference · Music Theory</div>
-  <h1>The <em>Musician's</em><br>Cheat Sheet</h1>
-  <p>A quick-reference guide to notes, modes, and harmony — designed to be read at a glance.</p>
-</header>
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-label">Reference · Music Theory</div>
+        <div class="sidebar-logo-title">The <em>Musician's</em><br>Cheat Sheet</div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="switchTab('home', this)"><span class="nav-num">~</span><span class="nav-label">Home</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('notes', this)"><span class="nav-num">01</span><span class="nav-label">Notes</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('scales', this)"><span class="nav-num">02</span><span class="nav-label">Scales & modes</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('chords-major', this)"><span class="nav-num">03</span><span class="nav-label">Diatonic · major</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('chords-minor', this)"><span class="nav-num">04</span><span class="nav-label">Diatonic · minor</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('melody', this)"><span class="nav-num">05</span><span class="nav-label">Melody</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('classical', this)"><span class="nav-num">06</span><span class="nav-label">Classical harmony</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('construction', this)"><span class="nav-num">07</span><span class="nav-label">Chord construction</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('orchestra', this)"><span class="nav-num">08</span><span class="nav-label">Orchestra</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('modulation', this)"><span class="nav-num">09</span><span class="nav-label">Modulation</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('extensions', this)"><span class="nav-num">10</span><span class="nav-label">Extensions</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('articulation', this)"><span class="nav-num">11</span><span class="nav-label">Articulation</span><span class="nav-dot"></span></button>
+        <button class="nav-btn" onclick="switchTab('flashcards', this)"><span class="nav-num">12</span><span class="nav-label">Flashcards</span><span class="nav-dot"></span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode">
+          <span class="toggle-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 18 18" fill="none"><path d="M15.5 10.5A7 7 0 0 1 7.5 2.5a7 7 0 1 0 8 8z" fill="currentColor" style="color:var(--toggle-icon)"/></svg>
+            <svg class="icon-sun" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3.5" fill="currentColor" style="color:var(--toggle-icon)"/><line x1="9" y1="1" x2="9" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="1" y1="9" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="15" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="3.22" y1="3.22" x2="4.64" y2="4.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="13.36" y1="13.36" x2="14.78" y2="14.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="14.78" y1="3.22" x2="13.36" y2="4.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/><line x1="4.64" y1="13.36" x2="3.22" y2="14.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--toggle-icon)"/></svg>
+          </span>
+          <span class="toggle-label" id="toggle-label">Day</span>
+        </button>
+      </div>
+    </div>
+  </aside>
 
-<div class="tab-wrapper">
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('notes', this)">01 · Notes</button>
-    <button class="tab-btn" onclick="switchTab('scales', this)">02 · Scales & modes</button>
-    <button class="tab-btn" onclick="switchTab('chords-major', this)">03 · Diatonic · major</button>
-    <button class="tab-btn" onclick="switchTab('chords-minor', this)">04 · Diatonic · minor</button>
-    <button class="tab-btn" onclick="switchTab('melody', this)">05 · Melody</button>
-    <button class="tab-btn" onclick="switchTab('classical', this)">06 · Classical harmony</button>
-    <button class="tab-btn" onclick="switchTab('construction', this)">07 · Chord construction</button>
-    <button class="tab-btn" onclick="switchTab('orchestra', this)">08 · Orchestra</button>
-    <button class="tab-btn" onclick="switchTab('modulation', this)">09 · Modulation</button>
-    <button class="tab-btn" onclick="switchTab('extensions', this)">10 · Extensions</button>
-    <button class="tab-btn" onclick="switchTab('flashcards', this)">11 · Flashcards</button>
-  </div>
-</div>
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="top-bar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="breadcrumb" id="breadcrumb">Music Theory &rsaquo; <em>Home</em></div>
+    </div>
 
-<div class="content">
+    <div class="content">
+
+  <!-- ══════════════════════════════════════
+       PANEL 0 · HOME
+  ══════════════════════════════════════ -->
+  <div class="panel active" id="panel-home">
+    <style>
+      .home-hero {
+        text-align: center;
+        padding: 3.5rem 1rem 2.5rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 2rem;
+      }
+      .home-kicker {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+        opacity: 0.8;
+        margin-bottom: 1rem;
+      }
+      .home-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 6vw, 4.5rem);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: var(--text);
+        margin-bottom: 1.25rem;
+      }
+      .home-title em { font-style: italic; color: var(--accent); }
+      .home-subtitle {
+        font-size: 15px;
+        color: var(--muted);
+        max-width: 480px;
+        margin: 0 auto 2rem;
+        line-height: 1.7;
+      }
+      .home-start-btn {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        padding: 10px 24px;
+        border-radius: var(--radius);
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+      }
+      .home-start-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+      .home-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 10px;
+        margin-bottom: 2rem;
+      }
+      .home-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        cursor: pointer;
+        transition: border-color 0.15s, transform 0.15s;
+        text-align: left;
+        border-left: 3px solid var(--border);
+      }
+      .home-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+      .home-card-num {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: var(--faint);
+        margin-bottom: 5px;
+        letter-spacing: 0.06em;
+      }
+      .home-card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 15px;
+        color: var(--text);
+        margin-bottom: 6px;
+        line-height: 1.2;
+      }
+      .home-card-desc {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+    </style>
+
+    <div class="home-hero">
+      <div class="home-kicker">A composer's reference</div>
+      <h1 class="home-title">The <em>Musician's</em><br>Cheat Sheet</h1>
+      <p class="home-subtitle">A structured guide to music theory — from the building blocks of notes and scales to orchestration, harmony, and composition. Built to be read at a glance and returned to often.</p>
+      <button class="home-start-btn" onclick="document.querySelector('.nav-btn[onclick*=notes]').click()">Start with Notes &rarr;</button>
+    </div>
+
+    <div class="section-label">What's inside</div>
+    <div class="home-grid">
+
+      <div class="home-card" style="border-left-color:var(--green);" onclick="document.querySelector('.nav-btn[onclick*=notes]').click()">
+        <div class="home-card-num">01 · Notes</div>
+        <div class="home-card-title">The building blocks</div>
+        <div class="home-card-desc">The 7 natural notes, sharps &amp; flats, enharmonic equivalents, and the solfège (Do–Ré–Mi) naming system used in French and most of Europe.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent2);" onclick="document.querySelector('.nav-btn[onclick*=scales]').click()">
+        <div class="home-card-num">02 · Scales &amp; modes</div>
+        <div class="home-card-title">The emotional palette</div>
+        <div class="home-card-desc">All 7 church modes (Ionian through Locrian) plus harmonic minor, pentatonic, and whole tone — each with their formula, mood, and character.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent);" onclick="document.querySelector('.nav-btn[onclick*=chords-major]').click()">
+        <div class="home-card-num">03 · Diatonic · major</div>
+        <div class="home-card-title">Major key harmony</div>
+        <div class="home-card-desc">All 7 diatonic chords of the major key — tonic, dominant, pre-dominant and mediant functions explained with their emotional effect.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent3);" onclick="document.querySelector('.nav-btn[onclick*=chords-minor]').click()">
+        <div class="home-card-num">04 · Diatonic · minor</div>
+        <div class="home-card-title">Minor key harmony</div>
+        <div class="home-card-desc">The 7 diatonic chords of the natural minor (Aeolian) scale, including the v vs V distinction and the subtonic's driving quality.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent4);" onclick="document.querySelector('.nav-btn[onclick*=melody]').click()">
+        <div class="home-card-num">05 · Melody</div>
+        <div class="home-card-title">Writing a melody</div>
+        <div class="home-card-desc">Contour, tension &amp; release, phrase structure, rhythmic identity, and the MESH composing framework (Melody → Evolve → Shape → Home).</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent);" onclick="document.querySelector('.nav-btn[onclick*=classical]').click()">
+        <div class="home-card-num">06 · Classical harmony</div>
+        <div class="home-card-title">Beyond diatonic chords</div>
+        <div class="home-card-desc">Seventh chords, borrowed chords, secondary dominants, the Neapolitan, augmented 6th chords, and the three types of modulation.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--green);" onclick="document.querySelector('.nav-btn[onclick*=construction]').click()">
+        <div class="home-card-num">07 · Chord construction</div>
+        <div class="home-card-title">How chords are built</div>
+        <div class="home-card-desc">Intervals in semitones, the four triad types, why major and minor differ by one note, seventh chords, and all four inversions explained.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent2);" onclick="document.querySelector('.nav-btn[onclick*=orchestra]').click()">
+        <div class="home-card-num">08 · Orchestra</div>
+        <div class="home-card-title">Orchestral instruments</div>
+        <div class="home-card-desc">Every standard orchestral instrument sorted by category and pitch — strings, woodwinds, brass, percussion, keyboard — with ranges and tonal character.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent3);" onclick="document.querySelector('.nav-btn[onclick*=modulation]').click()">
+        <div class="home-card-num">09 · Modulation</div>
+        <div class="home-card-title">Changing key</div>
+        <div class="home-card-desc">Five techniques for moving between keys — pivot chord, modal mixture, leading tone, direct phrase, and chromatic slide — with emotional mood maps.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent4);" onclick="document.querySelector('.nav-btn[onclick*=extensions]').click()">
+        <div class="home-card-num">10 · Extensions</div>
+        <div class="home-card-title">Colour tones: 6, 9, 11, 13</div>
+        <div class="home-card-desc">How to add warmth (6, 9), magic (♯11), darkness (♭9, ♯9), or sophistication (13) to your chords without changing their harmonic function.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent2);" onclick="document.querySelector('.nav-btn[onclick*=articulation]').click()">
+        <div class="home-card-num">11 · Articulation</div>
+        <div class="home-card-title">Expression &amp; technique</div>
+        <div class="home-card-desc">Legato, staccato, portamento, glissando, tremolo, and every instrument-specific technique for controlling attack, transition, tone colour, and dynamics.</div>
+      </div>
+
+      <div class="home-card" style="border-left-color:var(--accent);" onclick="document.querySelector('.nav-btn[onclick*=flashcards]').click()">
+        <div class="home-card-num">12 · Flashcards</div>
+        <div class="home-card-title">Test yourself</div>
+        <div class="home-card-desc">65 flashcards covering all sections — filter by topic, mark what you know, and shuffle for a new session. A lightweight training tool built in.</div>
+      </div>
+
+    </div>
+
+  </div><!-- /panel-home -->
 
   <!-- ══════════════════════════════════════
        PANEL 1 · NOTES
   ══════════════════════════════════════ -->
-  <div class="panel active" id="panel-notes">
+  <div class="panel" id="panel-notes">
 
     <div class="section-label">Natural notes — English / French (solfège)</div>
     <div class="notes-grid">
@@ -2469,14 +2593,495 @@
 
   </div><!-- /panel-extensions -->
 
-</div><!-- /content -->
+  <!-- ══════════════════════════════════════
+       PANEL 12 · ARTICULATION & EXPRESSION
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-articulation">
+
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;max-width:640px;margin-bottom:1.5rem;margin-top:0.5rem;">
+      Every note has two dimensions beyond pitch and rhythm: <em style="font-style:italic;">how it starts</em> (attack) and <em style="font-style:italic;">how it connects</em> (transition). Articulation markings control both — they're the difference between a melody that sounds mechanical and one that breathes.
+    </p>
+
+    <!-- LEGATO FAMILY -->
+    <div class="section-label">Legato family — smooth connection</div>
+
+    <div class="art-row">
+      <div><div class="art-term">Legato</div><div class="art-sub">smooth, bound</div>
+        <span class="func-pill pill-tonic">Connection</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Notes flow into each other with no gap or re-attack.</div>
+        <div class="chord-desc">The default singing quality of melodic writing. On strings = one bow direction; on winds = one breath; on piano = keys connected smoothly. The slur marking (curved line over notes) instructs legato playing.</div>
+        <div class="chord-example">Curved line over a group of different notes · "leg."</div>
+        <div class="chord-tags"><span class="tag tag-green">smooth</span><span class="tag tag-green">vocal</span><span class="tag tag-green">flowing</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Portamento</div><div class="art-sub">slide between pitches</div>
+        <span class="func-pill pill-mediant">Slide</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">An audible, continuous glide from one pitch to another.</div>
+        <div class="chord-desc">You clearly hear the transition as a smooth slide — not a jump. Very expressive and vocal in quality. Natural on strings (finger slides along string), voice, trombone, and fretless bass. Notated with a curved line between two notes + "port."</div>
+        <div class="chord-example">Romantic and emotional · Puccini vocal lines · string solos</div>
+        <div class="chord-tags"><span class="tag tag-purple">expressive</span><span class="tag tag-purple">vocal</span><span class="tag tag-purple">Romantic</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Leg. port.</div><div class="art-sub">legato portamento</div>
+        <span class="func-pill pill-mediant">Subtle slide</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Legato with a gentle, barely-audible slide between notes.</div>
+        <div class="chord-desc">Subtler than portamento — the slide is there but not the main event. On strings it's a slight shift of finger position that creates a continuous connection. Feels like the notes are breathing into each other rather than jumping. Very common in string writing.</div>
+        <div class="chord-example">Strings: subtle finger slide during position change · "leg. port."</div>
+        <div class="chord-tags"><span class="tag tag-teal">intimate</span><span class="tag tag-teal">subtle</span><span class="tag tag-teal">strings</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Glissando</div><div class="art-sub">full pitch sweep</div>
+        <span class="func-pill pill-dominant">Dramatic</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">A complete sweep through all pitches between two notes.</div>
+        <div class="chord-desc">Much more dramatic than portamento — every pitch in between is heard. On piano: run a fingernail across the keys. On harp: sweep through strings. On strings: slide finger along string. On trombone: sweep the slide. Notated with a wavy or straight line between two notes + "gliss."</div>
+        <div class="chord-example">Harp glissando · trombone gliss · piano white-key sweep</div>
+        <div class="chord-tags"><span class="tag tag-red">dramatic</span><span class="tag tag-red">sweeping</span><span class="tag tag-red">cinematic</span></div>
+      </div>
+    </div>
+
+    <!-- DETACHED -->
+    <div class="section-label">Detached articulations — separation and attack</div>
+
+    <div class="art-row">
+      <div><div class="art-term">Staccato</div><div class="art-sub">short, detached</div>
+        <span class="func-pill pill-predom">Short</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Note shortened to roughly half its written value with a silence after.</div>
+        <div class="chord-desc">Crisp, light, bouncy. Very common in fast passages and playful music. The dot above or below the notehead is universal across all instruments. Not the same as accented — staccato is about length, not loudness.</div>
+        <div class="chord-example">Dot above/below notehead · roughly 50% of written duration</div>
+        <div class="chord-tags"><span class="tag tag-amber">crisp</span><span class="tag tag-amber">bouncy</span><span class="tag tag-amber">light</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Staccatissimo</div><div class="art-sub">very short</div>
+        <span class="func-pill pill-predom">Extremely short</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Even shorter than staccato — almost a percussive tap.</div>
+        <div class="chord-desc">The pointed wedge symbol. The note is clipped to roughly 25% of its value. Percussive and dry — used for very crisp, almost staccato passages. Sounds almost like a tap or click on the instrument.</div>
+        <div class="chord-example">Pointed wedge symbol (▼) · ~25% of written duration</div>
+        <div class="chord-tags"><span class="tag tag-amber">percussive</span><span class="tag tag-amber">dry</span><span class="tag tag-amber">tap</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Tenuto</div><div class="art-sub">held, full value</div>
+        <span class="func-pill pill-tonic">Full</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Hold the note for its complete written duration — slight emphasis.</div>
+        <div class="chord-desc">A horizontal line above/below the note. Often slightly louder than surrounding notes — connected but deliberate. It can also mean "lean into this note" — a gentle stress that gives weight without an aggressive attack.</div>
+        <div class="chord-example">Horizontal dash above/below notehead · 100% duration</div>
+        <div class="chord-tags"><span class="tag tag-green">sustained</span><span class="tag tag-green">deliberate</span><span class="tag tag-green">weighted</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Accent ></div><div class="art-sub">strong attack</div>
+        <span class="func-pill pill-dominant">Attack</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">A strong initial attack that quickly tapers off.</div>
+        <div class="chord-desc">The > symbol. Emphasizes the beginning of the note — louder entry that decays naturally. Common in rhythmic writing to highlight specific beats. Less extreme than marcato.</div>
+        <div class="chord-example">> symbol · strong start, normal decay</div>
+        <div class="chord-tags"><span class="tag tag-red">emphasis</span><span class="tag tag-red">rhythmic</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Marcato</div><div class="art-sub">marked, forceful</div>
+        <span class="func-pill pill-dominant">Forceful</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">A broad, forceful accent — louder and more aggressive than >.</div>
+        <div class="chord-desc">The ^ symbol. Marked with extra force — both the attack and the sustain are louder. Used for dramatic emphasis, often on syncopated or important melodic notes. Feels like punching through the note.</div>
+        <div class="chord-example">^ symbol (caret/hat) · strong attack + sustained emphasis</div>
+        <div class="chord-tags"><span class="tag tag-red">forceful</span><span class="tag tag-red">dramatic</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">sfz / sf</div><div class="art-sub">sforzando</div>
+        <span class="func-pill pill-dominant">Sudden jab</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">A sudden, forced accent on a single note — like a sharp jab.</div>
+        <div class="chord-desc">Even more extreme than marcato. The sforzando is an immediate, explosive attack on one note regardless of the surrounding dynamic. Very common in Beethoven. sfzp means sudden accent then immediately quiet — attack and withdrawal.</div>
+        <div class="chord-example">sfz / sf / sfzp · Beethoven's sfz "explosions"</div>
+        <div class="chord-tags"><span class="tag tag-red">explosive</span><span class="tag tag-red">Beethoven</span></div>
+      </div>
+    </div>
+
+    <!-- STRING-SPECIFIC -->
+    <div class="section-label">String techniques — bowing and beyond</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-bottom:1.5rem;">
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Détaché</div>
+          <span class="tag tag-gray" style="font-size:10px;">bow</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Separate bow strokes with no gap between notes. Full note value, one stroke per note. The default separated articulation — not staccato, just one bow each.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Spiccato</div>
+          <span class="tag tag-teal" style="font-size:10px;">bow</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">The bow bounces off the string at medium speed. Light, airy, sparkling. Usually written as staccato at a tempo where bouncing occurs naturally. Very idiomatic string writing.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Sautillé</div>
+          <span class="tag tag-teal" style="font-size:10px;">bow</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Like spiccato but faster — the bow barely leaves the string, bouncing naturally at the middle. Used for very fast, light passages. Almost invisible bouncing.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Martelé</div>
+          <span class="tag tag-amber" style="font-size:10px;">bow</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Hammered bow strokes. Each note has a sharp, biting attack with a small silence before the next. Very incisive and decisive — the opposite of legato.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Tremolo</div>
+          <span class="tag tag-purple" style="font-size:10px;">bow</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Extremely rapid repeated bow strokes on one note — shimmering, agitated, or mysterious. Very cinematic. Notated with three slashes through the stem.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Pizzicato</div>
+          <span class="tag tag-amber" style="font-size:10px;">pluck</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Plucking the string with a finger instead of bowing. Dry, percussive, guitar-like. Notated "pizz." — return to bowed with "arco."</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Snap pizzicato</div>
+          <span class="tag tag-red" style="font-size:10px;">pluck</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Bartók pizzicato — pull the string so it snaps against the fingerboard. Aggressive, percussive pop. Notated with a circle with a line (⊕). Bartók's signature.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Harmonics</div>
+          <span class="tag tag-teal" style="font-size:10px;">tone colour</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Lightly touch the string at a node point instead of pressing fully. Produces a high, glassy, whistle-like tone. Beautiful and ethereal. Notated with a small circle above the note.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Sul ponticello</div>
+          <span class="tag tag-purple" style="font-size:10px;">tone colour</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Bowing near the bridge. Glassy, nasal, eerie tone with more overtones. Great for unsettling or supernatural effects. "Sul pont." or "s.p."</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Sul tasto</div>
+          <span class="tag tag-teal" style="font-size:10px;">tone colour</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Bowing over the fingerboard. Soft, flute-like (flautando), dark, veiled. Gentle and intimate. "Sul tasto" or "s.t."</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Con sordino</div>
+          <span class="tag tag-gray" style="font-size:10px;">mute</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">With mute — clips onto the bridge, reducing volume and changing timbre to something distant and veiled. "Con sord." · remove with "senza sord."</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Col legno</div>
+          <span class="tag tag-red" style="font-size:10px;">extended</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Playing with the wood of the bow instead of the hair. Dry, percussive, eerie sound. Used by Holst in The Planets for skeletal effect. "Col legno tratto" = dragged wood.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Double stop</div>
+          <span class="tag tag-amber" style="font-size:10px;">chord</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Bowing two strings simultaneously. Adds thickness and harmonic richness. Three or four strings = triple/quadruple stop — a chord on strings.</div>
+      </div>
+
+    </div>
+
+    <!-- WIND-SPECIFIC -->
+    <div class="section-label">Wind &amp; brass techniques</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-bottom:1.5rem;">
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Tonguing</div>
+          <span class="tag tag-gray" style="font-size:10px;">articulation</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Using the tongue to articulate each note ("tu" or "du"). Single tonguing is standard. Double tonguing (tu-ku) and triple tonguing (tu-tu-ku) allow faster passages.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Flutter tongue</div>
+          <span class="tag tag-red" style="font-size:10px;">extended</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Rolling an R with the tongue while playing. Produces a buzzy, aggressive tremolo-like effect. Effective on flute, trumpet, and brass. Notated "flutter-tongue" or "fl.t."</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Breath tone</div>
+          <span class="tag tag-teal" style="font-size:10px;">flute</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Flute-specific — air sound is audible alongside the pitch, giving a breathy, intimate, whispery quality. Beautiful for soft, delicate passages.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Multiphonics</div>
+          <span class="tag tag-red" style="font-size:10px;">extended</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Producing two or more pitches simultaneously through special fingerings and embouchure. Dissonant, complex, otherworldly. Contemporary technique for all winds.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Half-valving</div>
+          <span class="tag tag-purple" style="font-size:10px;">brass</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Partially depressing valves on brass instruments to produce smeared, indistinct pitches. Dark, eerie, spectral quality — used in contemporary and film music.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Mute (brass)</div>
+          <span class="tag tag-gray" style="font-size:10px;">tone colour</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Straight mute = nasal, focused. Cup mute = softer, rounder. Harmon (wah-wah) mute = thin, Miles Davis jazz sound. Plunger = vocal wah effect. Notated "con sord."</div>
+      </div>
+
+    </div>
+
+    <!-- DYNAMICS -->
+    <div class="section-label">Dynamics — volume markings</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:1.5rem;">
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">ppp</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">pianississimo · as quiet as possible</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">pp</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">pianissimo · very quiet</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">p</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">piano · quiet</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">mp</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">mezzo-piano · moderately quiet</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">mf</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">mezzo-forte · moderately loud</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">f</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">forte · loud</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">ff</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">fortissimo · very loud</div>
+      </div>
+      <div class="enharm-card" style="text-align:center;padding:12px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic;">fff</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">fortississimo · as loud as possible</div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC TRANSITIONS -->
+    <div class="section-label">Dynamic transitions &amp; special accents</div>
+
+    <div class="art-row">
+      <div><div class="art-term">Cresc.</div><div class="art-sub">crescendo</div>
+        <span class="func-pill pill-dominant">Growing</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Gradually getting louder.</div>
+        <div class="chord-desc">Notated with the word "cresc." or an opening hairpin (&lt;). The hairpin shows exactly where the growth starts and ends. One of the most powerful tools for building tension and anticipation.</div>
+        <div class="chord-example">Opening hairpin &lt; · or "cresc." with a dashed line to the target dynamic</div>
+        <div class="chord-tags"><span class="tag tag-red">tension</span><span class="tag tag-red">build</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">Dim.</div><div class="art-sub">diminuendo</div>
+        <span class="func-pill pill-tonic">Fading</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Gradually getting quieter.</div>
+        <div class="chord-desc">Also called decrescendo (decresc.). Notated with a closing hairpin (&gt;) or "dim." One of the most expressive tools for resolution and release — a dying away that can feel like resignation, peace, or mystery.</div>
+        <div class="chord-example">Closing hairpin &gt; · or "dim." / "decresc."</div>
+        <div class="chord-tags"><span class="tag tag-green">release</span><span class="tag tag-green">fading</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">fp</div><div class="art-sub">forte-piano</div>
+        <span class="func-pill pill-dominant">Jab+quiet</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Loud then immediately soft on the same note.</div>
+        <div class="chord-desc">A sharp attack followed by an immediate drop to quiet. Very common in Classical era writing — Haydn, Mozart, Beethoven. Creates a startling, humorous, or dramatic effect depending on context.</div>
+        <div class="chord-example">fp · sfzp (even more extreme) · common in Haydn/Mozart</div>
+        <div class="chord-tags"><span class="tag tag-amber">Classical</span><span class="tag tag-amber">dramatic</span></div>
+      </div>
+    </div>
+
+    <div class="art-row">
+      <div><div class="art-term">sub. p</div><div class="art-sub">subito piano</div>
+        <span class="func-pill pill-tonic">Silence</span>
+      </div>
+      <div class="chord-body">
+        <div class="chord-name">Suddenly quiet — a dramatic silencing effect.</div>
+        <div class="chord-desc">"Subito" means "suddenly" in Italian. After a loud passage, a sudden p creates a shock of silence that can feel like a gasp, a collapse, or a moment of stillness. One of the most effective dramatic devices in all of music.</div>
+        <div class="chord-example">sub. p · "suddenly quiet" · often after a forte climax</div>
+        <div class="chord-tags"><span class="tag tag-purple">dramatic</span><span class="tag tag-purple">contrast</span></div>
+      </div>
+    </div>
+
+    <!-- TEMPO & EXPRESSION -->
+    <div class="section-label">Tempo &amp; expression markings</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-bottom:1.5rem;">
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Rubato</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">"stolen time"</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Freely pushing and pulling the tempo for expression. The performer borrows time from one beat and repays it in another. The heartbeat of Romantic music.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Fermata</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">hold / bird's eye</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Pause sign over a note — hold it beyond its written value. Duration is up to the performer or conductor. Creates suspension and weight.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Rallentando</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">rall. · gradually slower</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Gradually slowing down. More gradual than ritenuto — a relaxing of tempo that feels natural and organic. Common at phrase endings and cadences.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Ritenuto</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">rit. / riten. · immediately slower</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Immediately and suddenly slower — more abrupt than rallentando. Pulls the brakes. Creates a dramatic momentary hesitation.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Accelerando</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">accel. · gradually faster</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Gradually speeding up. Builds excitement, urgency, and momentum. Common in chase scenes, builds, and climactic passages.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">A tempo</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">return to original tempo</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Return to the original tempo after a deviation. Used after rubato, ritardando, or any tempo change to re-establish the pulse.</div>
+      </div>
+
+    </div>
+
+    <!-- KEYBOARD PEDAL -->
+    <div class="section-label">Keyboard — pedal &amp; sustain</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-bottom:1rem;">
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Damper pedal</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">right pedal · "sustain"</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Lifts all dampers — notes ring freely and blur together in a rich wash. The most important piano pedal. Notated "Ped." and * or with a bracket line.</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Una corda</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">left pedal · "soft pedal"</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Shifts hammers to hit fewer strings — not just quieter but genuinely different in colour. More intimate and veiled. Notated "una corda" · release with "tre corde."</div>
+      </div>
+
+      <div class="enharm-card" style="text-align:left;padding:13px 15px;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">Sostenuto pedal</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:5px;">middle pedal</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">Holds only the notes already depressed when pressed — later notes stay dry. Useful for sustained bass notes under a moving melody without blurring everything.</div>
+      </div>
+
+    </div>
+
+    <p style="font-size:12px;color:var(--faint);line-height:1.7;max-width:640px;">
+      In sample libraries (BBCSO, Spitfire, Kontakt), many of these articulations are available as separate patches or keyswitches. Legato, staccato, tremolo, sul ponticello, and pizzicato are typically the most commonly sampled string articulations — worth learning which keyswitch triggers which in your library.
+    </p>
+
+  </div><!-- /panel-articulation -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
 
 <script>
+  const TABS = {
+    home: 'Home', notes: 'Notes', scales: 'Scales & modes', 'chords-major': 'Diatonic · major',
+    'chords-minor': 'Diatonic · minor', melody: 'Melody', classical: 'Classical harmony',
+    construction: 'Chord construction', orchestra: 'Orchestra',
+    modulation: 'Modulation', extensions: 'Extensions', flashcards: 'Flashcards',
+    articulation: 'Articulation & expression'
+  };
+
   function switchTab(id, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-' + id).classList.add('active');
+    const bc = document.getElementById('breadcrumb');
+    if (bc) bc.innerHTML = 'Music Theory &rsaquo; <em>' + (TABS[id] || id) + '</em>';
+    if (window.innerWidth <= 700) document.getElementById('sidebar').classList.add('collapsed');
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
   }
 
   /* ── Flashcard data & logic ── */
@@ -2682,7 +3287,15 @@
     }
   })();
 
-  document.addEventListener('DOMContentLoaded', function() { fcInit(); });
+  document.addEventListener('DOMContentLoaded', function() {
+    fcInit();
+    document.addEventListener('keydown', function(e) {
+      const tabs = Array.from(document.querySelectorAll('.nav-btn'));
+      const activeIdx = tabs.findIndex(t => t.classList.contains('active'));
+      if (e.key === 'ArrowDown' && activeIdx < tabs.length - 1) { e.preventDefault(); tabs[activeIdx + 1].click(); }
+      else if (e.key === 'ArrowUp' && activeIdx > 0) { e.preventDefault(); tabs[activeIdx - 1].click(); }
+    });
+  });
 </script>
 
 </body>
