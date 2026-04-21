@@ -104,15 +104,23 @@
 
     /* ── Header ── */
     .avatar {
-      width: 52px;
-      height: 52px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      margin-bottom: 1.25rem;
+      object-fit: cover;
+      display: block;
+    }
+    .avatar-fallback {
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: linear-gradient(135deg, #7f77dd 0%, #1d9e75 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'DM Mono', monospace;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 500;
       color: #fff;
       margin-bottom: 1.25rem;
@@ -229,8 +237,20 @@
     </div>
 
     <div class="header">
-      <div class="avatar">B</div>
-      <h1>Bastien</h1>
+      <!--
+        PROFILE PICTURE
+        Upload your image to the repo and name it "website-picture.png"
+        (or .jpg / .gif — just update the src below to match).
+        If the file is missing, a fallback "M" circle is shown automatically.
+      -->
+      <img
+        class="avatar"
+        src="website-picture.png"
+        alt="MeasterEggs"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      />
+      <div class="avatar-fallback" style="display:none;">M</div>
+      <h1>MeasterEggs webpages</h1>
       <p class="tagline">A collection of tools and experiments.</p>
     </div>
 
@@ -297,12 +317,12 @@
       applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
-    // Priority: saved preference → system preference
+    // Priority: saved preference → light mode default
     const saved = localStorage.getItem('theme');
     if (saved) {
       applyTheme(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      applyTheme('dark');
+    } else {
+      applyTheme('light');
     }
   </script>
 </body>
